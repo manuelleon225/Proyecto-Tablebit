@@ -1,0 +1,123 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "server": {
+    "port": 4096,
+    "hostname": "0.0.0.0"
+  },
+
+  "provider": {
+    "deepseek": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "DeepSeek",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1",
+        "apiKey": "sk-5bbd81dbb8c94e70922703620f094add"
+      },
+      "models": {
+        "deepseek-chat": {
+          "name": "DeepSeek-V4-Flash — Orquestador y análisis",
+          "limit": { "context": 128000, "output": 65536 }
+        },
+        "deepseek-reasoner": {
+          "name": "DeepSeek-V4-Pro — Razonamiento profundo",
+          "limit": { "context": 128000, "output": 65536 }
+        }
+      }
+    }
+  },
+
+  "model": "deepseek/deepseek-reasoner",
+  "small_model": "deepseek/deepseek-chat",
+
+  "instructions": [
+    "opencode-config/CLAUDE.md",
+    "opencode-config/agents/backend-developer.md",
+    "opencode-config/agents/frontend-developer.md",
+    "opencode-config/agents/fullstack-developer.md",
+    "opencode-config/agents/security-auditor.md",
+    "opencode-config/agents/devops-engineer.md",
+    "opencode-config/rules/laravel-rules.md",
+    "opencode-config/rules/react-rules.md"
+  ],
+
+  "permission": {
+    "*": "allow",
+    "edit": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny"
+    },
+    "bash": {
+      "*": "allow",
+      "git push:*": "deny",
+      "git merge:*": "deny",
+      "git rebase:*": "deny",
+      "rm -rf *": "deny"
+    },
+    "webfetch": "allow",
+    "question": "allow"
+  },
+
+  "agent": {
+    "tablebit-coordinador": {
+      "mode": "subagent",
+      "description": "Punto de entrada. Detecta si es backend o frontend, delega al especialista."
+    },
+    "tablebit-backend": {
+      "mode": "subagent",
+      "description": "Especialista Laravel: modelos, controladores, migraciones, policies, tests."
+    },
+    "tablebit-frontend": {
+      "mode": "subagent",
+      "description": "Especialista React/TypeScript: páginas, componentes, hooks, servicios API."
+    },
+    "tablebit-fullstack": {
+      "mode": "subagent",
+      "description": "Integración frontend-backend: APIs, autenticación, validación compartida."
+    },
+    "tablebit-security": {
+      "mode": "subagent",
+      "description": "Auditoría de seguridad: policies, rate limiting, CORS, tokens, OWASP."
+    },
+    "tablebit-devops": {
+      "mode": "subagent",
+      "description": "CI/CD, despliegue, variables de entorno, GitHub Actions."
+    },
+    "tablebit-qa": {
+      "mode": "subagent",
+      "description": "Gate final QA: valida tests backend, build frontend, pide aprobación humana."
+    },
+    "tablebit-ui": {
+      "mode": "subagent",
+      "description": "Especialista UI: Tailwind, shadcn/ui, diseño responsive, animaciones."
+    }
+  },
+
+  "command": {
+    "new-feature": {
+      "description": "Crear nueva feature con estructura backend + frontend",
+      "template": "Ejecuta el procedimiento: 1) Pregunta descripción de la feature. 2) Crea migración si aplica. 3) Crea modelo/controller/rutas. 4) Crea service/componentes frontend. 5) Actualiza rutas. 6) Confirma con resumen."
+    },
+    "migrate": {
+      "description": "Ejecutar migraciones y seeders",
+      "template": "Ejecuta: cd tablebit-backend && php artisan migrate --seed"
+    },
+    "test": {
+      "description": "Ejecutar tests del backend",
+      "template": "Ejecuta: cd tablebit-backend && php artisan test $ARGUMENTS"
+    },
+    "build": {
+      "description": "Build de producción del frontend",
+      "template": "Ejecuta: cd tablebit-frontend && npm run build"
+    },
+    "deploy": {
+      "description": "Preparar deploy (cache, build, migraciones)",
+      "template": "Prepara deploy: 1) cd tablebit-backend && php artisan config:cache && php artisan route:cache. 2) cd tablebit-frontend && npm run build. 3) Muestra resumen de artefactos generados."
+    },
+    "user-list": {
+      "description": "Listar usuarios del sistema",
+      "template": "Ejecuta: cd tablebit-backend && php -r \"require 'vendor/autoload.php'; \\$app = require_once 'bootstrap/app.php'; \\$kernel = \\$app->make(Illuminate\\Contracts\\Console\\Kernel::class); \\$kernel->bootstrap(); \\$users = App\\Models\\Usuario::select('id','name','email','role','estado')->get(); foreach(\\$users as \\$u) echo \\\"ID: {\\$u->id} | Nombre: {\\$u->name} | Email: {\\$u->email} | Role: {\\$u->role} | Estado: {\\$u->estado}\\\n\\\";\""
+    }
+  }
+}

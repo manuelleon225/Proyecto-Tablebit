@@ -1,0 +1,124 @@
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { authService, type User, type LoginData, type RegisterData, type UpdateProfileData } from "@/services/authService";
+import { handleApiError } from "@/services/api";
+
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (data: LoginData) => Promise<{ success: boolean; error?: string }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateProfile: (data: UpdateProfileData) => Promise<{ success: boolean; error?: string }>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const validateToken = useCallback(async () => {
+    const savedToken = localStorage.getItem("tablebit_token");
+    const savedUser = localStorage.getItem("tablebit_user");
+    if (savedToken && savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser) as User;
+        setToken(savedToken);
+        setUser(parsedUser);
+
+        try {
+          const me = await authService.getMe();
+          setUser(me);
+          localStorage.setItem("tablebit_user", JSON.stringify(me));
+        } catch {
+          localStorage.removeItem("tablebit_token");
+          localStorage.removeItem("tablebit_user");
+          setUser(null);
+          setToken(null);
+        }
+      } catch {
+        localStorage.removeItem("tablebit_token");
+        localStorage.removeItem("tablebit_user");
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    validateToken();
+  }, [validateToken]);
+
+  useEffect(() => {
+    const handleLogout = () => {
+      setUser(null);
+      setToken(null);
+    };
+    window.addEventListener("auth:logout", handleLogout);
+    return () => window.removeEventListener("auth:logout", handleLogout);
+  }, []);
+
+  const login = useCallback(async (data: LoginData) => {
+    try {
+      const result = await authService.login(data);
+      setUser(result.user);
+      setToken(result.token);
+      localStorage.setItem("tablebit_token", result.token);
+      localStorage.setItem("tablebit_user", JSON.stringify(result.user));
+      return { success: true };
+    } catch (error) {
+      const apiError = handleApiError(error);
+      return { success: false, error: apiError.message };
+    }
+  }, []);
+
+  const register = useCallback(async (data: RegisterData) => {
+    try {
+      const result = await authService.register(data);
+      setUser(result.user);
+      setToken(result.token);
+      localStorage.setItem("tablebit_token", result.token);
+      localStorage.setItem("tablebit_user", JSON.stringify(result.user));
+      return { success: true };
+    } catch (error) {
+      const apiError = handleApiError(error);
+      return { success: false, error: apiError.message };
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    await authService.logout();
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("tablebit_token");
+    localStorage.removeItem("tablebit_user");
+  }, []);
+
+  const updateProfile = useCallback(async (data: UpdateProfileData) => {
+    try {
+      const updatedUser = await authService.updateProfile(data);
+      setUser(updatedUser);
+      localStorage.setItem("tablebit_user", JSON.stringify(updatedUser));
+      return { success: true };
+    } catch (error) {
+      const apiError = handleApiError(error);
+      return { success: false, error: apiError.message };
+    }
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{ user, token, isAuthenticated: !!user, isLoading, login, register, logout, updateProfile }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+};

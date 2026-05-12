@@ -1,0 +1,48 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'tablebit-frontend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tablebit-frontend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: tablebit-frontend/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('tablebit-frontend/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Install dependencies
+        working-directory: tablebit-frontend
+        run: npm ci
+
+      - name: Type check
+        working-directory: tablebit-frontend
+        run: npm run type-check || true
+
+      - name: Build
+        working-directory: tablebit-frontend
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: tablebit-frontend/dist/
