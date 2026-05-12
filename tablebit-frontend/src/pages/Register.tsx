@@ -6,22 +6,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UtensilsCrossed, Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [role, setRole] = useState<"cliente" | "admin">("cliente");
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useSEO({
+    title: "TableBit - Crear cuenta",
+    description: "Regístrate en TableBit y empieza a reservar mesas en los mejores restaurantes.",
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const result = await register({ name, email, password, role });
+    const result = await register({ name, email, password });
     setLoading(false);
     if (result.success) {
       toast({ title: "¡Cuenta creada!", description: "Tu registro ha sido exitoso." });
@@ -119,33 +124,6 @@ const Register = () => {
                   className="pl-10"
                   autoComplete="new-password"
                 />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Tipo de cuenta</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRole("cliente")}
-                  className={`py-2.5 rounded-lg border text-sm font-medium transition-all ${
-                    role === "cliente"
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                      : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                  }`}
-                >
-                  Cliente
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("admin")}
-                  className={`py-2.5 rounded-lg border text-sm font-medium transition-all ${
-                    role === "admin"
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                      : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                  }`}
-                >
-                  Administrador
-                </button>
               </div>
             </div>
             <Button type="submit" className="w-full h-11" disabled={loading}>

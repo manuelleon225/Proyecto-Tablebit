@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { restauranteService, type Restaurante } from "@/services/restauranteService";
 import MainLayout from "@/layouts/MainLayout";
 import RestaurantCard from "@/components/RestaurantCard";
@@ -6,7 +7,6 @@ import StructuredData from "@/components/StructuredData";
 import { Search, UtensilsCrossed, AlertCircle, MapPin, Clock, Star, ChevronRight, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { handleApiError } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
@@ -26,10 +26,8 @@ const SkeletonCard = () => (
 );
 
 const Home = () => {
-  const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -39,35 +37,25 @@ const Home = () => {
     canonical: "https://tablebit.com/",
   });
 
-  const fetchRestaurantes = useCallback(async (query?: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = query
-        ? await restauranteService.buscar({ nombre: query })
+  const { data: restaurantes = [], isLoading: loading, error, refetch } = useQuery({
+    queryKey: ['restaurantes', searchQuery],
+    queryFn: async () => {
+      const res = searchQuery
+        ? await restauranteService.buscar({ nombre: searchQuery })
         : await restauranteService.getAll();
-      setRestaurantes(res.data);
-    } catch (err) {
-      const apiError = handleApiError(err);
-      setError(apiError.message);
-      setRestaurantes([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchRestaurantes();
-  }, [fetchRestaurantes]);
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchRestaurantes(search.trim() || undefined);
+    setSearchQuery(search.trim());
   };
 
   const handleClearSearch = () => {
     setSearch("");
-    fetchRestaurantes();
+    setSearchQuery("");
   };
 
   const displayRestaurantes = search.trim()
@@ -236,8 +224,8 @@ const Home = () => {
             <div className="text-center py-14 sm:py-16 rounded-2xl border border-border bg-card max-w-5xl mx-auto">
               <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4 text-destructive/40" />
               <p className="text-sm sm:text-base text-muted-foreground mb-1 font-medium">No se pudieron cargar los restaurantes</p>
-              <p className="text-xs sm:text-sm text-muted-foreground/60 mb-4">{error}</p>
-              <Button variant="outline" size="sm" onClick={() => fetchRestaurantes()}>
+              <p className="text-xs sm:text-sm text-muted-foreground/60 mb-4">{(error as any)?.response?.data?.message || "Error de conexion"}</p>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
                 Reintentar
               </Button>
             </div>

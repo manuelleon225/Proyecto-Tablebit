@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
+import { useSEO } from "@/hooks/useSEO";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +49,11 @@ const GestionMesas = () => {
   const [editNumero, setEditNumero] = useState("");
   const [editCapacidad, setEditCapacidad] = useState("");
   const [editEstado, setEditEstado] = useState("");
+
+  useSEO({
+    title: "TableBit - Gestión de mesas",
+    description: "Administra las mesas de tus restaurantes en TableBit.",
+  });
   const [savingEdit, setSavingEdit] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { toast } = useToast();

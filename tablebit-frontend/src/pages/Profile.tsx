@@ -9,10 +9,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { User, Mail, Lock, Save, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useSEO } from "@/hooks/useSEO";
 
 const Profile = () => {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
+
+  useSEO({
+    title: "TableBit - Mi perfil",
+    description: "Gestiona tu perfil y configuración de cuenta en TableBit.",
+  });
 
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");

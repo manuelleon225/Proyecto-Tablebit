@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 import {
   CalendarDays, Clock, Users, MapPin, AlertCircle, ArrowLeft,
   CheckCircle2, XCircle, AlertTriangle, Hourglass, ChevronRight,
@@ -92,6 +93,11 @@ const MisReservas = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useSEO({
+    title: "TableBit - Mis reservas",
+    description: "Consulta y gestiona todas tus reservas de restaurantes.",
+  });
 
   const fetchReservas = async () => {
     if (!user) {

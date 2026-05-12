@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 import {
   MapPin, Clock, Users, Phone, ArrowLeft, CalendarDays,
   Loader2, AlertCircle, Star, CheckCircle2,
@@ -28,6 +29,11 @@ const RestauranteDetalle = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useSEO({
+    title: restaurante ? `TableBit - ${restaurante.nombre}` : "TableBit - Cargando...",
+    description: restaurante?.descripcion?.slice(0, 160) || "Detalles del restaurante en TableBit.",
+  });
 
   useEffect(() => {
     const fetch = async () => {

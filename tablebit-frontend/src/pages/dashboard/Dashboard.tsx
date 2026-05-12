@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,11 @@ const Dashboard = () => {
   const [misRestaurantes, setMisRestaurantes] = useState<{ id: number; nombre: string }[]>([]);
   const [selectedRestauranteId, setSelectedRestauranteId] = useState<number | null>(null);
   const { user } = useAuth();
+
+  useSEO({
+    title: "TableBit - Dashboard",
+    description: "Panel de administración de TableBit. Gestiona tus restaurantes y reservas.",
+  });
 
   const cargarRestaurantes = useCallback(async () => {
     if (!user) return;

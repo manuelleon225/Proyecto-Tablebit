@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, Users, Check, X, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
+import { useSEO } from "@/hooks/useSEO";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +43,11 @@ const ListadoReservas = () => {
   const [actionId, setActionId] = useState<number | null>(null);
   const [processing, setProcessing] = useState(false);
   const { toast } = useToast();
+
+  useSEO({
+    title: "TableBit - Listado de reservas",
+    description: "Administra todas las reservas de tus restaurantes en TableBit.",
+  });
 
   const fetchReservas = useCallback(async () => {
     setLoading(true);

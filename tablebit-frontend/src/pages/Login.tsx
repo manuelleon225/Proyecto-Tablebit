@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UtensilsCrossed, Loader2, Mail, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +15,11 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useSEO({
+    title: "TableBit - Iniciar sesión",
+    description: "Accede a tu cuenta de TableBit para gestionar tus reservas.",
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

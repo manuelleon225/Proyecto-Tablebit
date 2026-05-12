@@ -6,6 +6,7 @@ import { handleApiError } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +45,11 @@ const CalendarioReservas = () => {
   const [selectedEvento, setSelectedEvento] = useState<CalendarioEvento | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const { user } = useAuth();
+
+  useSEO({
+    title: "TableBit - Calendario de reservas",
+    description: "Visualiza y gestiona las reservas en el calendario de tu restaurante.",
+  });
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
