@@ -14,15 +14,14 @@ class StoreReservaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cliente_id' => 'required|exists:usuarios,id',
-            'restaurante_id' => 'required|exists:restaurantes,id',
-            'mesa_id' => 'required|exists:mesas,id',
-            'fecha' => 'required|date|after_or_equal:today',
-            'hora' => 'required|date_format:H:i',
-            'duracion' => 'required|integer|min:15|max:300',
+            'restaurante_id'    => 'required|exists:restaurantes,id',
+            'mesa_id'           => 'nullable|exists:mesas,id',
+            'fecha'             => 'required|date|after_or_equal:today',
+            'hora'              => 'required|date_format:H:i',
+            'duracion'          => 'nullable|integer|min:15|max:300',
             'cantidad_personas' => 'required|integer|min:1|max:50',
-            'tipo_evento' => 'nullable|string|max:100',
-            'notas' => 'nullable|string|max:500',
+            'tipo_evento'       => 'nullable|string|max:100',
+            'notas'             => 'nullable|string|max:500',
         ];
     }
 

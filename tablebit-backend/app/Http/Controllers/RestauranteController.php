@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservas;
+use App\Http\Requests\StoreRestauranteRequest;
+use App\Http\Requests\UpdateRestauranteRequest;
 use App\Models\Restaurante;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RestauranteController extends Controller
 {
@@ -24,27 +25,14 @@ class RestauranteController extends Controller
         return response()->json($restaurantes);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreRestauranteRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:usuarios,id',
-            'nombre' => 'required|string|max:255',
-            'direccion' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:50',
-            'descripcion' => 'nullable|string|max:1000',
-            'ciudad' => 'nullable|string|max:100',
-            'tipo_comida' => 'nullable|string|max:100',
-            'horario_apertura' => 'nullable|string|max:5',
-            'horario_cierre' => 'nullable|string|max:5',
-            'capacidad_total' => 'nullable|integer|min:1',
-            'imagen' => 'nullable|string|max:500',
-            'portada' => 'nullable|string|max:500',
-        ]);
-
+        $validated = $request->validated();
         $validated['estado'] = 'activo';
 
-        $restaurante = Restaurante::create($validated);
+        $this->authorize('create', Restaurante::class);
 
+        $restaurante = Restaurante::create($validated);
         $restaurante->load(['horarios']);
 
         return response()->json([
@@ -68,26 +56,12 @@ class RestauranteController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateRestauranteRequest $request, $id): JsonResponse
     {
         $restaurante = Restaurante::findOrFail($id);
+        $this->authorize('update', $restaurante);
 
-        $validated = $request->validate([
-            'nombre' => 'sometimes|string|max:255',
-            'direccion' => 'sometimes|string|max:255',
-            'telefono' => 'nullable|string|max:50',
-            'estado' => 'sometimes|in:activo,inactivo',
-            'descripcion' => 'nullable|string|max:1000',
-            'ciudad' => 'nullable|string|max:100',
-            'tipo_comida' => 'nullable|string|max:100',
-            'horario_apertura' => 'nullable|string|max:5',
-            'horario_cierre' => 'nullable|string|max:5',
-            'capacidad_total' => 'nullable|integer|min:1',
-            'imagen' => 'nullable|string|max:500',
-            'portada' => 'nullable|string|max:500',
-        ]);
-
-        $restaurante->update($validated);
+        $restaurante->update($request->validated());
         $restaurante->refresh();
 
         return response()->json([
@@ -99,6 +73,8 @@ class RestauranteController extends Controller
     public function destroy($id): JsonResponse
     {
         $restaurante = Restaurante::findOrFail($id);
+        $this->authorize('delete', $restaurante);
+
         $restaurante->estado = 'inactivo';
         $restaurante->save();
 
@@ -129,10 +105,6 @@ class RestauranteController extends Controller
 
         if ($request->filled('min_capacidad')) {
             $query->where('capacidad_total', '>=', $request->min_capacidad);
-        }
-
-        if ($request->filled('min_rating')) {
-            $query->havingRaw('AVG((SELECT AVG(rating) FROM resenas WHERE resenas.restaurante_id = restaurantes.id)) >= ?', [$request->min_rating]);
         }
 
         if ($request->filled('ordenar')) {

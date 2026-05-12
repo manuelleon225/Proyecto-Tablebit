@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\DisponibilidadRequest;
+use App\Http\Requests\StoreReservaRequest;
 use App\Models\Reservas;
-use App\Models\Mesa;
 use App\Models\Restaurante;
 use App\Services\ReservaService;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ReservaController extends Controller
 {
-    protected $reservaService;
+    public function __construct(
+        private readonly ReservaService $reservaService
+    ) {}
 
-    public function __construct(ReservaService $reservaService)
-    {
-        $this->reservaService = $reservaService;
-    }
-
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $query = Reservas::with(['cliente', 'mesa', 'restaurante']);
 
@@ -45,19 +43,9 @@ class ReservaController extends Controller
         return response()->json($reservas);
     }
 
-    public function store(Request $request)
+    public function store(StoreReservaRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'restaurante_id'    => 'required|exists:restaurantes,id',
-            'mesa_id'           => 'nullable|exists:mesas,id',
-            'fecha'             => 'required|date|after_or_equal:today',
-            'hora'              => 'required|date_format:H:i',
-            'duracion'          => 'nullable|integer|min:15|max:300',
-            'cantidad_personas' => 'required|integer|min:1|max:50',
-            'tipo_evento'       => 'nullable|string|max:100',
-            'notas'             => 'nullable|string|max:500',
-        ]);
-
+        $validated = $request->validated();
         $clienteId = $request->user()->id;
 
         try {
@@ -84,15 +72,17 @@ class ReservaController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($id): JsonResponse
     {
         $reserva = Reservas::with(['cliente', 'mesa', 'restaurante', 'resena'])->findOrFail($id);
+        $this->authorize('view', $reserva);
         return response()->json($reserva);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $reserva = Reservas::findOrFail($id);
+        $this->authorize('update', $reserva);
 
         $validated = $request->validate([
             'fecha'             => 'sometimes|date|after_or_equal:today',
@@ -131,8 +121,7 @@ class ReservaController extends Controller
         if (isset($validated['hora']) && isset($validated['duracion'])) {
             $validated['hora_fin'] = date('H:i:s', strtotime($validated['hora']) + ($validated['duracion'] * 60));
         } elseif (isset($validated['hora'])) {
-            $duracion = $validated['duracion'] ?? $reserva->duracion;
-            $validated['hora_fin'] = date('H:i:s', strtotime($validated['hora']) + ($duracion * 60));
+            $validated['hora_fin'] = date('H:i:s', strtotime($validated['hora']) + (($validated['duracion'] ?? $reserva->duracion) * 60));
         }
 
         $reserva->update($validated);
@@ -145,30 +134,9 @@ class ReservaController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function disponibilidad(DisponibilidadRequest $request): JsonResponse
     {
-        try {
-            $reserva = $this->reservaService->cancelarReserva($id);
-            return response()->json([
-                'message' => 'Reserva cancelada',
-                'reserva' => $reserva
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 400);
-        }
-    }
-
-    public function disponibilidad(Request $request)
-    {
-        $validated = $request->validate([
-            'restaurante_id' => 'required|exists:restaurantes,id',
-            'fecha'          => 'required|date|after_or_equal:today',
-            'hora'           => 'required|date_format:H:i',
-            'duracion'       => 'nullable|integer|min:15|max:300',
-            'personas'       => 'required|integer|min:1|max:50',
-        ]);
+        $validated = $request->validated();
 
         $resultado = $this->reservaService->verificarDisponibilidad(
             $validated['restaurante_id'],
@@ -181,18 +149,9 @@ class ReservaController extends Controller
         return response()->json($resultado);
     }
 
-    public function reservaAutomatica(Request $request)
+    public function reservaAutomatica(StoreReservaRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'restaurante_id'    => 'required|exists:restaurantes,id',
-            'fecha'             => 'required|date|after_or_equal:today',
-            'hora'              => 'required|date_format:H:i',
-            'duracion'          => 'nullable|integer|min:15|max:300',
-            'cantidad_personas' => 'required|integer|min:1|max:50',
-            'tipo_evento'       => 'nullable|string|max:100',
-            'notas'             => 'nullable|string|max:500',
-        ]);
-
+        $validated = $request->validated();
         $clienteId = $request->user()->id;
 
         try {
@@ -219,7 +178,7 @@ class ReservaController extends Controller
         }
     }
 
-    public function calendarioRestaurante(Request $request, $restauranteId)
+    public function calendarioRestaurante(Request $request, $restauranteId): JsonResponse
     {
         $validated = $request->validate([
             'fecha_inicio' => 'required|date',
@@ -262,7 +221,7 @@ class ReservaController extends Controller
         ]);
     }
 
-    public function dashboardRestaurante($restauranteId)
+    public function dashboardRestaurante($restauranteId): JsonResponse
     {
         $fechaInicio = request()->input('fecha_inicio');
         $fechaFin = request()->input('fecha_fin');
@@ -276,7 +235,7 @@ class ReservaController extends Controller
         return response()->json($analytics);
     }
 
-    public function misReservas(Request $request)
+    public function misReservas(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -299,7 +258,7 @@ class ReservaController extends Controller
         return response()->json($reservas);
     }
 
-    public function cancelar($id)
+    public function cancelar($id): JsonResponse
     {
         try {
             $reserva = $this->reservaService->cancelarReserva($id);
@@ -314,7 +273,7 @@ class ReservaController extends Controller
         }
     }
 
-    public function cambiarEstado(Request $request, $id)
+    public function cambiarEstado(Request $request, $id): JsonResponse
     {
         $validated = $request->validate([
             'estado' => 'required|in:pendiente,confirmada,completada,cancelada,no_show',
@@ -349,7 +308,7 @@ class ReservaController extends Controller
         ]);
     }
 
-    private function getColorByEstado($estado)
+    private function getColorByEstado($estado): string
     {
         return match ($estado) {
             'pendiente' => '#f59e0b',

@@ -80,8 +80,6 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::put('/reservas/{id}', [ReservaController::class, 'update'])
         ->middleware('role:admin,admin_restaurante,superadmin');
-    Route::delete('/reservas/{id}', [ReservaController::class, 'destroy'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
     Route::patch('/reservas/{id}/estado', [ReservaController::class, 'cambiarEstado'])
         ->middleware('role:admin,admin_restaurante,superadmin');
 
