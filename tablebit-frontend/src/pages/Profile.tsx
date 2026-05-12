@@ -8,12 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { User, Mail, Lock, Save, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
 
 const Profile = () => {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useSEO({
     title: "TableBit - Mi perfil",
@@ -30,11 +31,11 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     if (!name.trim()) {
-      toast.error("El nombre es requerido");
+      toast({ variant: "destructive", title: "Error", description: "El nombre es requerido" });
       return;
     }
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Email inválido");
+      toast({ variant: "destructive", title: "Error", description: "Email inválido" });
       return;
     }
 
@@ -43,19 +44,19 @@ const Profile = () => {
     setSaving(false);
 
     if (result.success) {
-      toast.success("Perfil actualizado");
+      toast({ title: "Perfil actualizado", description: "Tus datos se han guardado correctamente" });
     } else {
-      toast.error(result.error || "Error al actualizar");
+      toast({ variant: "destructive", title: "Error", description: result.error || "Error al actualizar" });
     }
   };
 
   const handleChangePassword = async () => {
     if (!newPassword || newPassword.length < 6) {
-      toast.error("La contraseña debe tener al menos 6 caracteres");
+      toast({ variant: "destructive", title: "Error", description: "La contraseña debe tener al menos 6 caracteres" });
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
+      toast({ variant: "destructive", title: "Error", description: "Las contraseñas no coinciden" });
       return;
     }
 
@@ -67,12 +68,12 @@ const Profile = () => {
     setSaving(false);
 
     if (result.success) {
-      toast.success("Contraseña actualizada");
+      toast({ title: "Contraseña actualizada", description: "Tu contraseña se ha cambiado correctamente" });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } else {
-      toast.error(result.error || "Error al actualizar");
+      toast({ variant: "destructive", title: "Error", description: result.error || "Error al actualizar" });
     }
   };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { restauranteService, type DashboardAnalytics, type Reserva, type ReservaEstado } from "@/services/restauranteService";
+import { restauranteService, type DashboardAnalytics, type Reserva } from "@/services/restauranteService";
 import { CalendarDays, Users, UtensilsCrossed, TrendingUp, AlertCircle, Clock, XCircle, CheckCircle2, Ban, Percent } from "lucide-react";
 import { handleApiError } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
+import { ESTADO_CONFIG } from "@/constants/estados";
 import {
   Select,
   SelectContent,
@@ -15,14 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const estadoConfig: Record<ReservaEstado, { label: string; color: string; bg: string }> = {
-  pendiente: { label: "Pendiente", color: "text-warning", bg: "bg-warning/10 border-warning/20" },
-  confirmada: { label: "Confirmada", color: "text-success", bg: "bg-success/10 border-success/20" },
-  completada: { label: "Completada", color: "text-indigo-500", bg: "bg-indigo-500/10 border-indigo-500/20" },
-  cancelada: { label: "Cancelada", color: "text-destructive", bg: "bg-destructive/10 border-destructive/20" },
-  no_show: { label: "No Show", color: "text-muted-foreground", bg: "bg-muted/50 border-border" },
-};
 
 const Dashboard = () => {
   const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
@@ -343,8 +336,8 @@ const Dashboard = () => {
                       </p>
                     </div>
                   </div>
-                  <Badge className={`${estadoConfig[r.estado]?.bg} ${estadoConfig[r.estado]?.color}`}>
-                    {estadoConfig[r.estado]?.label}
+                  <Badge className={`${ESTADO_CONFIG[r.estado]?.bg} ${ESTADO_CONFIG[r.estado]?.color}`}>
+                    {ESTADO_CONFIG[r.estado]?.label}
                   </Badge>
                 </div>
               ))}

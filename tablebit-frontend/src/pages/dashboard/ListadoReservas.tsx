@@ -9,6 +9,7 @@ import { CalendarDays, Clock, Users, Check, X, AlertCircle, Loader2 } from "luci
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import { useSEO } from "@/hooks/useSEO";
+import { ESTADO_CONFIG } from "@/constants/estados";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,22 +20,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-const estadoStyle: Record<string, string> = {
-  pendiente: "bg-warning/15 text-warning border-warning/30",
-  confirmada: "bg-success/15 text-success border-success/30",
-  cancelada: "bg-destructive/15 text-destructive border-destructive/30",
-  completada: "bg-muted text-muted-foreground border-border",
-  no_show: "bg-gray-100 text-gray-500 border-gray-300",
-};
-
-const estadoLabel: Record<string, string> = {
-  pendiente: "Pendiente",
-  confirmada: "Confirmada",
-  cancelada: "Cancelada",
-  completada: "Completada",
-  no_show: "No Show",
-};
 
 const ListadoReservas = () => {
   const queryClient = useQueryClient();
@@ -162,11 +147,9 @@ const ListadoReservas = () => {
                         </td>
                         <td className="p-4">
                           <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                              estadoStyle[r.estado] || ""
-                            }`}
-                          >
-                            {estadoLabel[r.estado] || r.estado}
+                              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${ESTADO_CONFIG[r.estado]?.bg || ""}`}
+                            >
+                              {ESTADO_CONFIG[r.estado]?.label || r.estado}
                           </span>
                         </td>
                         <td className="p-4">

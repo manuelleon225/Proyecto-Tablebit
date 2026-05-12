@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { restauranteService, type CalendarioEvento, type ReservaEstado } from "@/services/restauranteService";
+import { restauranteService, type CalendarioEvento } from "@/services/restauranteService";
 import { CalendarDays, ChevronLeft, ChevronRight, AlertCircle, X, Clock, Users, Mail, FileText } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSEO } from "@/hooks/useSEO";
+import { ESTADO_CONFIG, type ReservaEstado } from "@/constants/estados";
 import {
   Dialog,
   DialogContent,
@@ -20,14 +21,6 @@ const monthNames = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
-
-const estadoConfig: Record<ReservaEstado, { label: string; color: string; bg: string }> = {
-  pendiente: { label: "Pendiente", color: "text-warning", bg: "bg-warning/10" },
-  confirmada: { label: "Confirmada", color: "text-success", bg: "bg-success/10" },
-  completada: { label: "Completada", color: "text-indigo-500", bg: "bg-indigo-500/10" },
-  cancelada: { label: "Cancelada", color: "text-destructive", bg: "bg-destructive/10" },
-  no_show: { label: "No Show", color: "text-muted-foreground", bg: "bg-muted/50" },
-};
 
 const CalendarioReservas = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -163,7 +156,7 @@ const CalendarioReservas = () => {
                     </div>
                     <div className="mt-0.5 sm:mt-1 space-y-0.5">
                       {eventosDelDia.slice(0, 3).map((ev) => {
-                        const cfg = estadoConfig[ev.extendedProps?.estado] || estadoConfig.confirmada;
+                        const cfg = ESTADO_CONFIG[ev.extendedProps?.estado] || ESTADO_CONFIG.confirmada;
                         return (
                           <button
                             key={ev.id}
@@ -192,10 +185,10 @@ const CalendarioReservas = () => {
             <DialogTitle className="flex items-center gap-2">
               {selectedEvento?.title || "Reserva"}
               {selectedEvento && (
-                <Badge className={`${estadoConfig[selectedEvento.extendedProps?.estado]?.bg || ""} ${
-                  estadoConfig[selectedEvento.extendedProps?.estado]?.color || ""
+                <Badge className={`${ESTADO_CONFIG[selectedEvento.extendedProps?.estado]?.bg || ""} ${
+                  ESTADO_CONFIG[selectedEvento.extendedProps?.estado]?.color || ""
                 }`}>
-                  {estadoConfig[selectedEvento.extendedProps?.estado]?.label || selectedEvento.extendedProps?.estado}
+                  {ESTADO_CONFIG[selectedEvento.extendedProps?.estado]?.label || selectedEvento.extendedProps?.estado}
                 </Badge>
               )}
             </DialogTitle>
