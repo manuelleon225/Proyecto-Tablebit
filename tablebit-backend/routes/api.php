@@ -76,8 +76,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reservas - Admin (cualquier rol admin)
     Route::get('/reservas', [ReservaController::class, 'index'])
         ->middleware('role:admin,admin_restaurante,superadmin');
-    Route::post('/reservas', [ReservaController::class, 'store'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
     Route::get('/reservas/{id}', [ReservaController::class, 'show'])
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::put('/reservas/{id}', [ReservaController::class, 'update'])

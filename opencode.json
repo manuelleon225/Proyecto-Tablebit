@@ -12,7 +12,7 @@
       "name": "DeepSeek",
       "options": {
         "baseURL": "https://api.deepseek.com/v1",
-        "apiKey": "sk-5bbd81dbb8c94e70922703620f094add"
+        "apiKey": "{env:DEEPSEEK_API_KEY}"
       },
       "models": {
         "deepseek-chat": {
