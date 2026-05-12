@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService, type Mesa } from "@/services/restauranteService";
 import { Button } from "@/components/ui/button";
@@ -35,64 +36,88 @@ const estadoConfig: Record<string, { label: string; color: string; bg: string }>
 };
 
 const GestionMesas = () => {
-  const [mesas, setMesas] = useState<Mesa[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useSEO({
+    title: "TableBit - Gestión de mesas",
+    description: "Administra las mesas de tus restaurantes en TableBit.",
+  });
+
   const [showForm, setShowForm] = useState(false);
   const [filterEstado, setFilterEstado] = useState<string>("todas");
   const [newNumero, setNewNumero] = useState("");
   const [newCapacidad, setNewCapacidad] = useState("");
-  const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editingMesa, setEditingMesa] = useState<Mesa | null>(null);
   const [editNumero, setEditNumero] = useState("");
   const [editCapacidad, setEditCapacidad] = useState("");
   const [editEstado, setEditEstado] = useState("");
-
-  useSEO({
-    title: "TableBit - Gestión de mesas",
-    description: "Administra las mesas de tus restaurantes en TableBit.",
-  });
-  const [savingEdit, setSavingEdit] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const { toast } = useToast();
-  const { user } = useAuth();
 
-  const fetchMesas = useCallback(async () => {
-    if (!user?.restaurante) {
-      setLoading(false);
-      setError("No tienes un restaurante asociado. Cierra sesión y vuelve a ingresar.");
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await restauranteService.getMesasRestaurante(user.restaurante.id);
-      setMesas(res.data);
-    } catch (err) {
+  const restauranteId = user?.restaurante?.id;
+
+  const {
+    data: mesas = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['mesas', restauranteId],
+    queryFn: async () => {
+      const res = await restauranteService.getMesasRestaurante(restauranteId!);
+      return res.data;
+    },
+    enabled: !!restauranteId,
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const errorMessage = error
+    ? (error as any)?.response?.data?.message || "No tienes un restaurante asociado"
+    : null;
+
+  const invalidateMesas = () => queryClient.invalidateQueries({ queryKey: ['mesas', restauranteId] });
+
+  const createMutation = useMutation({
+    mutationFn: (data: { restaurante_id: number; numero: number; capacidad: number }) =>
+      restauranteService.crearMesa(data),
+    onSettled: invalidateMesas,
+    onError: (err) => {
       const apiError = handleApiError(err);
-      setError(apiError.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+      toast({ variant: "destructive", title: "Error", description: apiError.message });
+    },
+  });
 
-  useEffect(() => {
-    fetchMesas();
-  }, [fetchMesas]);
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => restauranteService.eliminarMesa(id),
+    onSettled: invalidateMesas,
+    onError: (err) => {
+      const apiError = handleApiError(err);
+      toast({ variant: "destructive", title: "Error", description: apiError.message });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Mesa> }) =>
+      restauranteService.actualizarMesa(id, data),
+    onSettled: invalidateMesas,
+    onError: (err) => {
+      const apiError = handleApiError(err);
+      toast({ variant: "destructive", title: "Error", description: apiError.message });
+    },
+  });
 
   const addMesa = async () => {
-    if (!newNumero || !newCapacidad) {
+    if (!newNumero || !newCapacidad || !restauranteId) {
       toast({ variant: "destructive", title: "Error", description: "Completa todos los campos" });
       return;
     }
-    if (!user?.restaurante) return;
 
-    setCreating(true);
     try {
-      await restauranteService.crearMesa({
-        restaurante_id: user.restaurante.id,
+      await createMutation.mutateAsync({
+        restaurante_id: restauranteId,
         numero: Number(newNumero),
         capacidad: Number(newCapacidad),
       });
@@ -100,30 +125,17 @@ const GestionMesas = () => {
       setNewNumero("");
       setNewCapacidad("");
       setShowForm(false);
-      fetchMesas();
-    } catch (err) {
-      const apiError = handleApiError(err);
-      toast({ variant: "destructive", title: "Error", description: apiError.message });
-    } finally {
-      setCreating(false);
+    } catch {
+      // Error handled in mutation's onError
     }
-  };
-
-  const handleDeleteClick = (id: number) => {
-    setDeletingId(id);
-    setShowDeleteDialog(true);
   };
 
   const removeMesa = async () => {
     if (!deletingId) return;
     setShowDeleteDialog(false);
     try {
-      await restauranteService.eliminarMesa(deletingId);
+      await deleteMutation.mutateAsync(deletingId);
       toast({ title: "Mesa desactivada", description: "La mesa ha sido marcada como inactiva" });
-      fetchMesas();
-    } catch (err) {
-      const apiError = handleApiError(err);
-      toast({ variant: "destructive", title: "Error", description: apiError.message });
     } finally {
       setDeletingId(null);
     }
@@ -139,22 +151,20 @@ const GestionMesas = () => {
 
   const saveEdit = async () => {
     if (!editingMesa) return;
-    setSavingEdit(true);
     try {
-      await restauranteService.actualizarMesa(editingMesa.id, {
-        numero: Number(editNumero),
-        capacidad: Number(editCapacidad),
-        estado: editEstado as Mesa["estado"],
+      await updateMutation.mutateAsync({
+        id: editingMesa.id,
+        data: {
+          numero: Number(editNumero),
+          capacidad: Number(editCapacidad),
+          estado: editEstado as Mesa["estado"],
+        },
       });
       toast({ title: "Mesa actualizada", description: `Mesa #${editNumero} actualizada correctamente` });
       setShowEditDialog(false);
       setEditingMesa(null);
-      fetchMesas();
-    } catch (err) {
-      const apiError = handleApiError(err);
-      toast({ variant: "destructive", title: "Error", description: apiError.message });
-    } finally {
-      setSavingEdit(false);
+    } catch {
+      // Error handled in mutation's onError
     }
   };
 
@@ -182,7 +192,6 @@ const GestionMesas = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         {!loading && mesas.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 scrollbar-hide">
             {[
@@ -223,11 +232,16 @@ const GestionMesas = () => {
               </div>
             ))}
           </div>
-        ) : error ? (
+        ) : errorMessage ? (
           <div className="text-center py-16 rounded-xl border border-border bg-card">
             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive/50" />
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button variant="outline" onClick={fetchMesas}>Reintentar</Button>
+            <p className="text-muted-foreground mb-4">{errorMessage}</p>
+            <Button variant="outline" onClick={() => refetch()}>Reintentar</Button>
+          </div>
+        ) : !restauranteId ? (
+          <div className="text-center py-16 rounded-xl border border-border bg-card">
+            <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+            <p className="text-muted-foreground">No tienes un restaurante asociado.</p>
           </div>
         ) : (
           <>
@@ -244,8 +258,8 @@ const GestionMesas = () => {
                     <Input type="number" value={newCapacidad} onChange={(e) => setNewCapacidad(e.target.value)} placeholder="Ej: 4" min={1} />
                   </div>
                   <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-2">
-                    <Button onClick={addMesa} className="flex-1" disabled={creating}>
-                      {creating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Agregar"}
+                    <Button onClick={addMesa} className="flex-1" disabled={createMutation.isPending}>
+                      {createMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Agregar"}
                     </Button>
                     <Button variant="ghost" onClick={() => setShowForm(false)}>Cancelar</Button>
                   </div>
@@ -271,7 +285,7 @@ const GestionMesas = () => {
                             <Edit2 className="h-4 w-4" />
                           </button>
                           {mesa.estado !== "inactiva" && (
-                            <button onClick={() => handleDeleteClick(mesa.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+                            <button onClick={() => { setDeletingId(mesa.id); setShowDeleteDialog(true); }} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           )}
@@ -301,7 +315,7 @@ const GestionMesas = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Volver</AlertDialogCancel>
             <AlertDialogAction onClick={removeMesa} className="bg-destructive text-destructive-foreground">
-              Sí, desactivar
+              {deleteMutation.isPending ? "Desactivando..." : "Sí, desactivar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -340,10 +354,10 @@ const GestionMesas = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button onClick={saveEdit} className="flex-1" disabled={savingEdit}>
-                {savingEdit ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Guardando...</> : <><Save className="h-4 w-4 mr-1.5" />Guardar</>}
+              <Button onClick={saveEdit} className="flex-1" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Guardando...</> : <><Save className="h-4 w-4 mr-1.5" />Guardar</>}
               </Button>
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              <Button variant="outline" onClick={() => { setShowEditDialog(false); setEditingMesa(null); }}>
                 <X className="h-4 w-4 mr-1.5" />Cancelar
               </Button>
             </div>

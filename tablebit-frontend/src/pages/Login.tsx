@@ -1,5 +1,7 @@
-import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +10,14 @@ import { UtensilsCrossed, Loader2, Mail, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
 
+const loginSchema = z.object({
+  email: z.string().email("Ingresa un email válido"),
+  password: z.string().min(1, "La contraseña es requerida"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -21,11 +27,16 @@ const Login = () => {
     description: "Accede a tu cuenta de TableBit para gestionar tus reservas.",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const result = await login({ email, password });
-    setLoading(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginForm) => {
+    const result = await login(data);
     if (result.success) {
       toast({ title: "¡Bienvenido!", description: "Has iniciado sesión correctamente." });
       navigate("/");
@@ -60,7 +71,7 @@ const Login = () => {
             <p className="text-sm text-muted-foreground mt-2">Ingresa tus credenciales para continuar</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -68,14 +79,13 @@ const Login = () => {
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  {...register("email")}
                   placeholder="tu@email.com"
-                  className="pl-10"
+                  className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                   autoComplete="email"
                 />
               </div>
+              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
@@ -84,17 +94,16 @@ const Login = () => {
                 <Input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  {...register("password")}
                   placeholder="••••••••"
-                  className="pl-10"
+                  className={`pl-10 ${errors.password ? "border-destructive" : ""}`}
                   autoComplete="current-password"
                 />
               </div>
+              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? (
+            <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
+              {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Ingresando...

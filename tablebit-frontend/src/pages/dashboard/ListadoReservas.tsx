@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService, type Reserva } from "@/services/restauranteService";
 import Loader from "@/components/Loader";
@@ -36,12 +37,7 @@ const estadoLabel: Record<string, string> = {
 };
 
 const ListadoReservas = () => {
-  const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
-  const [actionId, setActionId] = useState<number | null>(null);
-  const [processing, setProcessing] = useState(false);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
   useSEO({
@@ -49,36 +45,45 @@ const ListadoReservas = () => {
     description: "Administra todas las reservas de tus restaurantes en TableBit.",
   });
 
-  const fetchReservas = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await restauranteService.getReservas();
-      setReservas(res.data.data || res.data);
-    } catch (err) {
-      const apiError = handleApiError(err);
-      setError(apiError.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
+  const [actionId, setActionId] = useState<number | null>(null);
+  const [processing, setProcessing] = useState(false);
 
-  useEffect(() => {
-    fetchReservas();
-  }, [fetchReservas]);
+  const { data: reservas = [], isLoading: loading, error, refetch } = useQuery({
+    queryKey: ['reservas-admin'],
+    queryFn: async () => {
+      const res = await restauranteService.getReservas();
+      return res.data.data || res.data;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const errorMessage = error
+    ? (error as any)?.response?.data?.message || "Error al cargar reservas"
+    : null;
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, type }: { id: number; type: "approve" | "reject" }) => {
+      if (type === "approve") {
+        await restauranteService.actualizarReserva(id, { estado: "confirmada" });
+      } else {
+        await restauranteService.cancelarReserva(id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservas-admin'] });
+    },
+  });
 
   const handleAction = async () => {
     if (!actionId || !actionType) return;
     setProcessing(true);
     try {
-      if (actionType === "approve") {
-        await restauranteService.actualizarReserva(actionId, { estado: "confirmada" });
-        toast({ title: "Reserva aprobada", description: "La reserva ha sido confirmada." });
-      } else {
-        await restauranteService.cancelarReserva(actionId);
-        toast({ title: "Reserva rechazada", description: "La reserva ha sido cancelada." });
-      }
-      fetchReservas();
+      await mutation.mutateAsync({ id: actionId, type: actionType });
+      toast({
+        title: actionType === "approve" ? "Reserva aprobada" : "Reserva rechazada",
+        description: actionType === "approve" ? "La reserva ha sido confirmada." : "La reserva ha sido cancelada.",
+      });
     } catch (err) {
       const apiError = handleApiError(err);
       toast({ variant: "destructive", title: "Error", description: apiError.message });
@@ -97,11 +102,11 @@ const ListadoReservas = () => {
 
         {loading ? (
           <Loader text="Cargando reservas..." />
-        ) : error ? (
+        ) : errorMessage ? (
           <div className="text-center py-16 rounded-xl border border-border bg-card">
             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive/50" />
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button variant="outline" onClick={fetchReservas}>Reintentar</Button>
+            <p className="text-muted-foreground mb-4">{errorMessage}</p>
+            <Button variant="outline" onClick={() => refetch()}>Reintentar</Button>
           </div>
         ) : (
           <div className="rounded-xl border border-border bg-card shadow-soft overflow-hidden">
@@ -126,7 +131,7 @@ const ListadoReservas = () => {
                       </td>
                     </tr>
                   ) : (
-                    reservas.map((r) => (
+                    reservas.map((r: Reserva) => (
                       <tr
                         key={r.id}
                         className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"

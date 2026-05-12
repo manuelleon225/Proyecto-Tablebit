@@ -1,5 +1,7 @@
-import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +10,20 @@ import { UtensilsCrossed, Loader2, Mail, Lock, User as UserIcon } from "lucide-r
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
 
+const registerSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido").max(255),
+  email: z.string().email("Ingresa un email válido"),
+  password: z.string().min(6, "Mínimo 6 caracteres"),
+  passwordConfirm: z.string().min(1, "Confirma tu contraseña"),
+}).refine((data) => data.password === data.passwordConfirm, {
+  message: "Las contraseñas no coinciden",
+  path: ["passwordConfirm"],
+});
+
+type RegisterForm = z.infer<typeof registerSchema>;
+
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,11 +32,20 @@ const Register = () => {
     description: "Regístrate en TableBit y empieza a reservar mesas en los mejores restaurantes.",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const result = await register({ name, email, password });
-    setLoading(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data: RegisterForm) => {
+    const result = await registerUser({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    });
     if (result.success) {
       toast({ title: "¡Cuenta creada!", description: "Tu registro ha sido exitoso." });
       navigate("/");
@@ -62,21 +80,20 @@ const Register = () => {
             <p className="text-sm text-muted-foreground mt-2">Completa tus datos para registrarte</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
               <div className="relative">
                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
+                  {...register("name")}
                   placeholder="Tu nombre"
-                  className="pl-10"
+                  className={`pl-10 ${errors.name ? "border-destructive" : ""}`}
                   autoComplete="name"
                 />
               </div>
+              {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -85,14 +102,13 @@ const Register = () => {
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  {...register("email")}
                   placeholder="tu@email.com"
-                  className="pl-10"
+                  className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                   autoComplete="email"
                 />
               </div>
+              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
@@ -101,14 +117,13 @@ const Register = () => {
                 <Input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  {...register("password")}
                   placeholder="Mínimo 6 caracteres"
-                  className="pl-10"
+                  className={`pl-10 ${errors.password ? "border-destructive" : ""}`}
                   autoComplete="new-password"
                 />
               </div>
+              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="passwordConfirm">Confirmar contraseña</Label>
@@ -117,17 +132,16 @@ const Register = () => {
                 <Input
                   id="passwordConfirm"
                   type="password"
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
-                  required
+                  {...register("passwordConfirm")}
                   placeholder="Repite tu contraseña"
-                  className="pl-10"
+                  className={`pl-10 ${errors.passwordConfirm ? "border-destructive" : ""}`}
                   autoComplete="new-password"
                 />
               </div>
+              {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{errors.passwordConfirm.message}</p>}
             </div>
-            <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? (
+            <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
+              {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Registrando...
