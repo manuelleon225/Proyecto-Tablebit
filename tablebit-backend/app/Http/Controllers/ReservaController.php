@@ -9,6 +9,7 @@ use App\Models\Restaurante;
 use App\Services\ReservaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ReservaController extends Controller
 {
@@ -66,6 +67,11 @@ class ReservaController extends Controller
                 'reserva' => $reserva
             ], 201);
         } catch (\Exception $e) {
+            Log::warning('Error al crear reserva', [
+                'user_id' => $clienteId,
+                'restaurante_id' => $validated['restaurante_id'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
             return response()->json([
                 'message' => $e->getMessage()
             ], 400);
@@ -169,6 +175,11 @@ class ReservaController extends Controller
                 'reserva' => $reserva
             ], 201);
         } catch (\Exception $e) {
+            Log::warning('Error en reserva automatica', [
+                'user_id' => $clienteId,
+                'restaurante_id' => $validated['restaurante_id'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
             return response()->json([
                 'message' => $e->getMessage()
             ], 400);
@@ -270,6 +281,11 @@ class ReservaController extends Controller
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             throw $e;
         } catch (\Exception $e) {
+            Log::warning('Error al cancelar reserva', [
+                'reserva_id' => $id,
+                'user_id' => request()->user()?->id,
+                'error' => $e->getMessage(),
+            ]);
             return response()->json([
                 'message' => $e->getMessage()
             ], 400);

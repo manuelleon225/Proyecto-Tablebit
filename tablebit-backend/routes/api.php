@@ -15,7 +15,7 @@ use App\Http\Controllers\PasswordResetController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API de TableBit funcionando']);
-});
+})->middleware('throttle:global');
 
 // Auth public
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
@@ -26,20 +26,20 @@ Route::post('/password/reset',  [PasswordResetController::class, 'reset'])->midd
 // Disponibilidad (pública)
 Route::post('/disponibilidad', [ReservaController::class, 'disponibilidad'])->middleware('throttle:30,1');
 
-// Restaurantes públicos
-Route::get('/restaurantes', [RestauranteController::class, 'index']);
-Route::get('/buscar-restaurantes', [RestauranteController::class, 'buscar']);
-Route::get('/restaurantes/{id}', [RestauranteController::class, 'show']);
-Route::get('/restaurantes/{id}/public', [RestauranteController::class, 'showPublic']);
-Route::get('/restaurantes/{id}/resenas', [ResenaController::class, 'index']);
+// Restaurantes públicos (rate limit suave)
+Route::get('/restaurantes', [RestauranteController::class, 'index'])->middleware('throttle:global');
+Route::get('/buscar-restaurantes', [RestauranteController::class, 'buscar'])->middleware('throttle:global');
+Route::get('/restaurantes/{id}', [RestauranteController::class, 'show'])->middleware('throttle:global');
+Route::get('/restaurantes/{id}/public', [RestauranteController::class, 'showPublic'])->middleware('throttle:global');
+Route::get('/restaurantes/{id}/resenas', [ResenaController::class, 'index'])->middleware('throttle:global');
 
 // Authenticated routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/usuarios/me', [UsuarioController::class, 'me']);
-    Route::put('/usuarios/me', [UsuarioController::class, 'updateMe']);
-    Route::patch('/usuarios/me', [UsuarioController::class, 'updateMe']);
+    Route::get('/usuarios/me', [UsuarioController::class, 'me'])->withoutMiddleware('throttle:global');
+    Route::put('/usuarios/me', [UsuarioController::class, 'updateMe'])->middleware('throttle:sensitive');
+    Route::patch('/usuarios/me', [UsuarioController::class, 'updateMe'])->middleware('throttle:sensitive');
 
     // Restaurantes (admin)
     Route::post('/restaurantes', [RestauranteController::class, 'store'])
@@ -68,10 +68,10 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,admin_restaurante,superadmin');
 
     // Reservas - Cliente
-    Route::post('/reservas', [ReservaController::class, 'store']);
-    Route::post('/reserva-automatica', [ReservaController::class, 'reservaAutomatica']);
+    Route::post('/reservas', [ReservaController::class, 'store'])->middleware('throttle:reservas');
+    Route::post('/reserva-automatica', [ReservaController::class, 'reservaAutomatica'])->middleware('throttle:reservas');
     Route::get('/mis-reservas', [ReservaController::class, 'misReservas']);
-    Route::patch('/reservas/{id}/cancelar', [ReservaController::class, 'cancelar']);
+    Route::patch('/reservas/{id}/cancelar', [ReservaController::class, 'cancelar'])->middleware('throttle:reservas');
 
     // Reservas - Admin (cualquier rol admin)
     Route::get('/reservas', [ReservaController::class, 'index'])
@@ -79,9 +79,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reservas/{id}', [ReservaController::class, 'show'])
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::put('/reservas/{id}', [ReservaController::class, 'update'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
+        ->middleware('role:admin,admin_restaurante,superadmin')->middleware('throttle:reservas');
     Route::patch('/reservas/{id}/estado', [ReservaController::class, 'cambiarEstado'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
+        ->middleware('role:admin,admin_restaurante,superadmin')->middleware('throttle:reservas');
 
     // Dashboard & Analytics
     Route::get('/dashboard/restaurante/{restauranteId}', [ReservaController::class, 'dashboardRestaurante'])
@@ -103,7 +103,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,admin_restaurante,superadmin');
 
     // Reseñas
-    Route::post('/restaurantes/{restauranteId}/resenas', [ResenaController::class, 'store']);
+    Route::post('/restaurantes/{restauranteId}/resenas', [ResenaController::class, 'store'])->middleware('throttle:reservas');
     Route::get('/mis-resenas', [ResenaController::class, 'misResenas']);
     Route::delete('/resenas/{id}', [ResenaController::class, 'destroy']);
 
