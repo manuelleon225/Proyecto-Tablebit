@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { restauranteService, type Reserva } from "@/services/restauranteService";
 import MainLayout from "@/layouts/MainLayout";
@@ -84,55 +85,54 @@ const SkeletonReserva = () => (
 );
 
 const MisReservas = () => {
-  const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterType>("todas");
   const [cancelingId, setCancelingId] = useState<number | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useSEO({
     title: "TableBit - Mis reservas",
     description: "Consulta y gestiona todas tus reservas de restaurantes.",
   });
 
-  const fetchReservas = async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
+  const { data: reservas = [], isLoading: loading, error, refetch } = useQuery({
+    queryKey: ['mis-reservas', user?.id],
+    queryFn: async () => {
       const res = await restauranteService.misReservas();
-      setReservas(res.data);
-    } catch (err) {
-      const apiError = handleApiError(err);
-      setError(apiError.message);
-      setReservas([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
-  useEffect(() => {
-    fetchReservas();
-  }, [user]);
+  const cancelMutation = useMutation({
+    mutationFn: (id: number) => restauranteService.cancelarReserva(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mis-reservas', user?.id] });
+    },
+    onError: (err) => {
+      const apiError = handleApiError(err);
+      toast({ variant: "destructive", title: "Error", description: apiError.message });
+    },
+  });
+
+  const errorMessage = error ? (error as any)?.response?.data?.message || "Error al cargar reservas" : null;
 
   const filteredReservas = useMemo(
     () =>
       activeFilter === "todas"
         ? reservas
-        : reservas.filter((r) => r.estado === activeFilter),
+        : reservas.filter((r: Reserva) => r.estado === activeFilter),
     [reservas, activeFilter]
   );
 
   const filterCounts = useMemo(() => {
     const counts: Record<string, number> = { todas: reservas.length };
-    reservas.forEach((r) => {
+    reservas.forEach((r: Reserva) => {
       counts[r.estado] = (counts[r.estado] || 0) + 1;
     });
     return counts;
@@ -142,15 +142,13 @@ const MisReservas = () => {
     if (!cancelingId) return;
     setShowCancelDialog(false);
     try {
-      await restauranteService.cancelarReserva(cancelingId);
+      await cancelMutation.mutateAsync(cancelingId);
       toast({
         title: "Reserva cancelada",
         description: "Tu reserva ha sido cancelada exitosamente.",
       });
-      fetchReservas();
-    } catch (err) {
-      const apiError = handleApiError(err);
-      toast({ variant: "destructive", title: "Error", description: apiError.message });
+    } catch {
+      // Error handled in mutation.onError
     } finally {
       setCancelingId(null);
     }
@@ -191,7 +189,7 @@ const MisReservas = () => {
         </div>
 
         {/* Filter tabs */}
-        {!loading && !error && reservas.length > 0 && (
+        {!loading && !errorMessage && reservas.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 scrollbar-hide">
             {filterTabs
               .filter((tab) => tab.key === "todas" || (filterCounts[tab.key] || 0) > 0)
@@ -235,18 +233,18 @@ const MisReservas = () => {
         )}
 
         {/* Error */}
-        {!loading && error && (
+        {!loading && errorMessage && (
           <div className="text-center py-12 sm:py-16 rounded-2xl border border-border bg-card">
             <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4 text-destructive/40" />
-            <p className="text-sm sm:text-base text-muted-foreground mb-4">{error}</p>
-            <Button variant="outline" size="sm" onClick={fetchReservas}>
+            <p className="text-sm sm:text-base text-muted-foreground mb-4">{errorMessage}</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
               Reintentar
             </Button>
           </div>
         )}
 
         {/* Empty */}
-        {!loading && !error && reservas.length === 0 && (
+        {!loading && !errorMessage && reservas.length === 0 && (
           <div className="text-center py-12 sm:py-16 rounded-2xl border border-dashed border-border bg-card/50">
             <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto mb-4">
               <CalendarDays className="h-8 w-8 sm:h-10 sm:w-10 text-primary/30" />
@@ -263,7 +261,7 @@ const MisReservas = () => {
         )}
 
         {/* No results for filter */}
-        {!loading && !error && reservas.length > 0 && filteredReservas.length === 0 && (
+        {!loading && !errorMessage && reservas.length > 0 && filteredReservas.length === 0 && (
           <div className="text-center py-12 sm:py-16">
             <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
               <CalendarDays className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground/30" />
@@ -278,7 +276,7 @@ const MisReservas = () => {
         )}
 
         {/* Reservas list */}
-        {!loading && !error && filteredReservas.length > 0 && (
+        {!loading && !errorMessage && filteredReservas.length > 0 && (
           <div className="space-y-3 sm:space-y-4">
             {filteredReservas.map((r) => {
               const config = estadoConfig[r.estado] || estadoConfig.pendiente;
