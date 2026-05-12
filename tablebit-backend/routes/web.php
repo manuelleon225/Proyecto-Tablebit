@@ -1,11 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RestauranteController;
-use App\Http\Controllers\MesaController;
-use App\Http\Controllers\ReservaController;
-use App\Http\Controllers\UsuarioController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::middleware(['auth:sanctum', \App\Http\Middleware\RoleMiddleware::class . ':admin,superadmin'])->group(function () {
+    Route::get('/pulse', function () {
+        return view('vendor.pulse.dashboard');
+    });
+});
+
