@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Mesa extends Model
 {
+    use HasFactory;
+
     protected $table = 'mesas';
 
     protected $fillable = [
@@ -47,15 +50,23 @@ class Mesa extends Model
 
     public function tieneReservaEn($fecha, $hora, $duracion = 90)
     {
-        $horaFin = date('H:i:s', strtotime($hora) + ($duracion * 60));
+        $horaInicio = strtotime($hora);
+        $horaFin = $horaInicio + ($duracion * 60);
 
-        return $this->reservas()
+        $reservas = $this->reservas()
             ->where('fecha', $fecha)
             ->whereNotIn('estado', ['cancelada', 'no_show'])
-            ->where(function ($query) use ($hora, $horaFin) {
-                $query->where('hora', '<', $horaFin)
-                      ->whereRaw("ADDTIME(hora, SEC_TO_TIME(duracion * 60)) > ?", [$hora]);
-            })
-            ->exists();
+            ->get(['hora', 'duracion']);
+
+        foreach ($reservas as $existente) {
+            $existenteInicio = strtotime($existente->hora);
+            $existenteFin = $existenteInicio + (($existente->duracion ?? 90) * 60);
+
+            if ($horaInicio < $existenteFin && $horaFin > $existenteInicio) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

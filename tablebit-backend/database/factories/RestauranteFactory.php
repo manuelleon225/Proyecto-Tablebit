@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RestauranteFactory extends Factory
@@ -9,6 +10,7 @@ class RestauranteFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => Usuario::factory(),
             'nombre' => fake()->company() . ' Restaurante',
             'direccion' => fake()->address(),
             'telefono' => fake()->phoneNumber(),

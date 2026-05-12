@@ -100,16 +100,13 @@ class ReservaController extends Controller
             $checkMesa = $validated['mesa_id'] ?? $reserva->mesa_id;
             $checkDuracion = $validated['duracion'] ?? $reserva->duracion;
 
-            $conflicto = Reservas::where('mesa_id', $checkMesa)
-                ->where('fecha', $checkFecha)
-                ->where('id', '!=', $id)
-                ->whereNotIn('estado', ['cancelada', 'no_show'])
-                ->where(function ($query) use ($checkHora, $checkDuracion) {
-                    $horaFin = date('H:i', strtotime($checkHora) + ($checkDuracion * 60));
-                    $query->where('hora', '<', $horaFin)
-                          ->whereRaw("ADDTIME(hora, SEC_TO_TIME(duracion * 60)) > ?", [$checkHora]);
-                })
-                ->exists();
+            $conflicto = $this->reservaService->tieneConflicto(
+                $checkMesa,
+                $checkFecha,
+                $checkHora,
+                $checkDuracion,
+                $id
+            );
 
             if ($conflicto) {
                 return response()->json([
@@ -261,11 +258,17 @@ class ReservaController extends Controller
     public function cancelar($id): JsonResponse
     {
         try {
+            $reserva = Reservas::findOrFail($id);
+            $this->authorize('cancel', $reserva);
+
             $reserva = $this->reservaService->cancelarReserva($id);
+
             return response()->json([
                 'message' => 'Reserva cancelada correctamente',
                 'reserva' => $reserva
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()

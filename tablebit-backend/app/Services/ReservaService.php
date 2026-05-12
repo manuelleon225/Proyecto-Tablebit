@@ -32,7 +32,6 @@ class ReservaService
         }
 
         $horaInicio = is_string($hora) ? $hora : $hora->format('H:i');
-        $horaFin = date('H:i', strtotime($horaInicio) + ($duracion * 60));
 
         $mesas = Mesa::where('restaurante_id', $restauranteId)
             ->where('capacidad', '>=', $personas)
@@ -43,16 +42,7 @@ class ReservaService
         $mesasDisponibles = [];
 
         foreach ($mesas as $mesa) {
-            $ocupada = Reservas::where('mesa_id', $mesa->id)
-                ->where('fecha', $fecha)
-                ->whereNotIn('estado', ['cancelada', 'no_show'])
-                ->where(function ($query) use ($horaInicio, $horaFin) {
-                    $query->where('hora', '<', $horaFin)
-                          ->whereRaw("ADDTIME(hora, SEC_TO_TIME(duracion * 60)) > ?", [$horaInicio]);
-                })
-                ->exists();
-
-            if (!$ocupada) {
+            if (!$this->tieneConflicto($mesa->id, $fecha, $horaInicio, $duracion)) {
                 $mesasDisponibles[] = $mesa;
             }
         }
@@ -300,18 +290,31 @@ class ReservaService
         return null;
     }
 
-    private function tieneConflicto($mesaId, $fecha, $hora, $duracion)
+    public function tieneConflicto($mesaId, $fecha, $hora, $duracion, $excludeId = null)
     {
-        $horaFin = date('H:i', strtotime($hora) + ($duracion * 60));
+        $horaInicio = strtotime($hora);
+        $horaFin = $horaInicio + ($duracion * 60);
 
-        return Reservas::where('mesa_id', $mesaId)
+        $query = Reservas::where('mesa_id', $mesaId)
             ->where('fecha', $fecha)
-            ->whereNotIn('estado', ['cancelada', 'no_show'])
-            ->where(function ($query) use ($hora, $horaFin) {
-                $query->where('hora', '<', $horaFin)
-                      ->whereRaw("ADDTIME(hora, SEC_TO_TIME(duracion * 60)) > ?", [$hora]);
-            })
-            ->exists();
+            ->whereNotIn('estado', ['cancelada', 'no_show']);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $reservas = $query->get(['id', 'hora', 'duracion']);
+
+        foreach ($reservas as $existente) {
+            $existenteInicio = strtotime($existente->hora);
+            $existenteFin = $existenteInicio + (($existente->duracion ?? self::DURACION_DEFAULT) * 60);
+
+            if ($horaInicio < $existenteFin && $horaFin > $existenteInicio) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function validarFechaReserva($fecha)

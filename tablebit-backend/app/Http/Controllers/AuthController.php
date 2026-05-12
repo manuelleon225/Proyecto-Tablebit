@@ -37,7 +37,7 @@ class AuthController extends Controller
 
         $user = Usuario::where('email', $validated['email'])->first();
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        if (!$user || $user->estado !== 'activo' || !Hash::check($validated['password'], $user->password)) {
             return response()->json([
                 'message' => 'Credenciales incorrectas'
             ], 401);

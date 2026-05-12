@@ -8,16 +8,11 @@ use App\Models\Mesa;
 use App\Policies\RestaurantePolicy;
 use App\Policies\ReservaPolicy;
 use App\Policies\MesaPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    protected $policies = [
-        Restaurante::class => RestaurantePolicy::class,
-        Reservas::class => ReservaPolicy::class,
-        Mesa::class => MesaPolicy::class,
-    ];
-
     public function register(): void
     {
         //
@@ -25,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        Gate::policy(Restaurante::class, RestaurantePolicy::class);
+        Gate::policy(Reservas::class, ReservaPolicy::class);
+        Gate::policy(Mesa::class, MesaPolicy::class);
     }
 }
