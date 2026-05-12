@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ImagenController;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\FavoritoController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HorarioDiaController;
 use App\Http\Controllers\PasswordResetController;
 
@@ -32,6 +33,11 @@ Route::get('/buscar-restaurantes', [RestauranteController::class, 'buscar'])->mi
 Route::get('/restaurantes/{id}', [RestauranteController::class, 'show'])->middleware('throttle:global');
 Route::get('/restaurantes/{id}/public', [RestauranteController::class, 'showPublic'])->middleware('throttle:global');
 Route::get('/restaurantes/{id}/resenas', [ResenaController::class, 'index'])->middleware('throttle:global');
+
+// Health checks
+Route::get('/health', [HealthController::class, 'index']);
+Route::get('/health/db', [HealthController::class, 'db']);
+Route::get('/health/cache', [HealthController::class, 'cache']);
 
 // Authenticated routes
 Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
