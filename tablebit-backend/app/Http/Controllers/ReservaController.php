@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DisponibilidadRequest;
 use App\Http\Requests\StoreReservaRequest;
+use App\Mail\ReservationCancelledMail;
 use App\Mail\ReservationConfirmedMail;
 use App\Models\Reservas;
 use App\Models\Restaurante;
@@ -327,6 +328,22 @@ class ReservaController extends Controller
             $this->authorize('cancel', $reserva);
 
             $reserva = $this->reservaService->cancelarReserva($id);
+
+            try {
+                Mail::to($reserva->cliente->email)->send(new ReservationCancelledMail($reserva));
+                Log::info('Correo de cancelación de reserva enviado', [
+                    'reserva_id' => $reserva->id,
+                    'email' => $reserva->cliente->email,
+                    'mailer' => config('mail.default'),
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('Error al enviar correo de cancelación de reserva', [
+                    'reserva_id' => $reserva->id,
+                    'email' => $reserva->cliente->email,
+                    'error' => $e->getMessage(),
+                    'mailer' => config('mail.default'),
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Reserva cancelada correctamente',
