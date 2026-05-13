@@ -35,7 +35,7 @@ class ReservaService
 
         $mesas = Mesa::where('restaurante_id', $restauranteId)
             ->where('capacidad', '>=', $personas)
-            ->where('estado', '!=', 'inactiva')
+            ->whereNotIn('estado', ['inactiva', 'mantenimiento'])
             ->orderBy('capacidad', 'asc')
             ->get();
 
@@ -211,7 +211,7 @@ class ReservaService
         $canceladas = (clone $reservas)->where('estado', 'cancelada')->count();
         $noShows = (clone $reservas)->where('estado', 'no_show')->count();
 
-        $totalMesas = Mesa::where('restaurante_id', $restauranteId)->where('estado', '!=', 'inactiva')->count();
+        $totalMesas = Mesa::where('restaurante_id', $restauranteId)->whereNotIn('estado', ['inactiva', 'mantenimiento'])->count();
         $mesasOcupadasHoy = Reservas::where('restaurante_id', $restauranteId)
             ->where('fecha', Carbon::today()->toDateString())
             ->whereNotIn('estado', ['cancelada', 'no_show'])
@@ -225,14 +225,16 @@ class ReservaService
             ->whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->avg('cantidad_personas');
 
-        $horasPico = Reservas::selectRaw('HOUR(hora) as hora, COUNT(*) as total')
+        $horasPico = Reservas::selectRaw('HOUR(hora) as hora_int, COUNT(*) as total')
             ->where('restaurante_id', $restauranteId)
             ->whereNotIn('estado', ['cancelada', 'no_show'])
             ->whereBetween('fecha', [$fechaInicio, $fechaFin])
-            ->groupBy('hora')
+            ->groupBy(DB::raw('HOUR(hora)'))
             ->orderBy('total', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn ($item) => ['hora' => (int) $item->hora_int, 'total' => (int) $item->total])
+            ->values();
 
         $reservasPorDia = Reservas::selectRaw('DATE(fecha) as fecha, COUNT(*) as total')
             ->where('restaurante_id', $restauranteId)
@@ -277,7 +279,7 @@ class ReservaService
     {
         $mesas = Mesa::where('restaurante_id', $restauranteId)
             ->where('capacidad', '>=', $personas)
-            ->where('estado', '!=', 'inactiva')
+            ->whereNotIn('estado', ['inactiva', 'mantenimiento'])
             ->orderBy('capacidad', 'asc')
             ->get();
 
