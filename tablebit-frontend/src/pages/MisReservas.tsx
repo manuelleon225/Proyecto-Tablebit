@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
+import { formatDate } from "@/lib/date";
 import {
   CalendarDays, Clock, Users, MapPin, AlertCircle, ArrowLeft,
   CheckCircle2, XCircle, AlertTriangle, Hourglass, ChevronRight,
@@ -154,15 +155,6 @@ const MisReservas = () => {
     }
   };
 
-  const formatDate = (fecha: string) => {
-    return new Date(fecha + "T00:00:00").toLocaleDateString("es-ES", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
   return (
     <MainLayout>
       <div className="container py-6 sm:py-8 lg:py-12 max-w-5xl mx-auto">
@@ -304,7 +296,7 @@ const MisReservas = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <CalendarDays className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                            <span className="capitalize">{formatDate(r.fecha)}</span>
+                            <span className="capitalize">{formatDate(r.fecha, "long")}</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Clock className="h-4 w-4 flex-shrink-0 text-primary/60" />
