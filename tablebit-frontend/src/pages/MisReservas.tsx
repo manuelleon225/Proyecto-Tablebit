@@ -25,6 +25,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type FilterType = "todas" | "pendiente" | "confirmada" | "completada" | "cancelada" | "no_show";
 
@@ -89,6 +96,8 @@ const MisReservas = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>("todas");
   const [cancelingId, setCancelingId] = useState<number | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [selectedReserva, setSelectedReserva] = useState<Reserva | null>(null);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -333,7 +342,7 @@ const MisReservas = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate(`/restaurantes/${r.restaurante_id}`)}
+                          onClick={() => { setSelectedReserva(r); setShowDetailDialog(true); }}
                           className="text-xs sm:text-sm h-8 sm:h-9"
                         >
                           Ver
@@ -360,6 +369,74 @@ const MisReservas = () => {
           </div>
         )}
       </div>
+
+      {/* Detail dialog */}
+      <Dialog open={showDetailDialog} onOpenChange={(open) => { if (!open) setSelectedReserva(null); setShowDetailDialog(open); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedReserva?.restaurante?.nombre || "Detalle de reserva"}
+            </DialogTitle>
+            <DialogDescription>
+              Información completa de tu reserva
+            </DialogDescription>
+          </DialogHeader>
+          {selectedReserva && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-muted/30 border border-border">
+                  <p className="text-xs text-muted-foreground mb-0.5">Fecha</p>
+                  <p className="text-sm font-medium capitalize">{formatDate(selectedReserva.fecha, "long")}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/30 border border-border">
+                  <p className="text-xs text-muted-foreground mb-0.5">Hora</p>
+                  <p className="text-sm font-medium">{selectedReserva.hora?.substring(0, 5)} hs</p>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/30 border border-border">
+                  <p className="text-xs text-muted-foreground mb-0.5">Personas</p>
+                  <p className="text-sm font-medium">{selectedReserva.cantidad_personas}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/30 border border-border">
+                  <p className="text-xs text-muted-foreground mb-0.5">Mesa</p>
+                  <p className="text-sm font-medium">{selectedReserva.mesa ? `Mesa ${selectedReserva.mesa.numero}` : "Asignación automática"}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border">
+                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${estadoConfig[selectedReserva.estado]?.badge || ""}`}>
+                  {estadoConfig[selectedReserva.estado]?.label || selectedReserva.estado}
+                </span>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  {selectedReserva.restaurante?.direccion && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {selectedReserva.restaurante.direccion}
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              {selectedReserva.notas && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30 border border-border">
+                  <FileText className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Observaciones</p>
+                    <p className="text-sm">{selectedReserva.notas}</p>
+                  </div>
+                </div>
+              )}
+
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => { setShowDetailDialog(false); navigate(`/restaurantes/${selectedReserva.restaurante_id}`); }}
+              >
+                Ir al restaurante
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Cancel dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
