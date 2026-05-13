@@ -28,9 +28,16 @@ class AuthController extends Controller
 
         try {
             Mail::to($user->email)->send(new WelcomeMail($user));
+            Log::info('Correo de bienvenida enviado', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'mailer' => config('mail.default'),
+            ]);
         } catch (\Throwable $e) {
             Log::warning('Error al enviar correo de bienvenida', [
                 'user_id' => $user->id,
+                'email' => $user->email,
+                'mailer' => config('mail.default'),
                 'error' => $e->getMessage(),
             ]);
         }

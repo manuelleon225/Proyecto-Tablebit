@@ -31,7 +31,7 @@
                     Tu cuenta en TableBit ha sido creada correctamente. Ahora puedes explorar los mejores restaurantes y reservar tu mesa al instante.
                 </p>
                 <p style="text-align: center;">
-                    <a href="{{ config('app.url') ?? 'http://localhost:5173' }}" class="btn">Explorar restaurantes</a>
+                    <a href="{{ env('FRONTEND_URL', config('app.url')) }}" class="btn">Explorar restaurantes</a>
                 </p>
                 <p>
                     Si tienes alguna pregunta, no dudes en contactarnos.
