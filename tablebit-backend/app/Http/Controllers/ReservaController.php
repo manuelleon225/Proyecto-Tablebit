@@ -251,12 +251,13 @@ class ReservaController extends Controller
         );
 
         $eventos = $reservas->map(function ($reserva) {
+            $fechaStr = $reserva->fecha instanceof \Carbon\Carbon ? $reserva->fecha->format('Y-m-d') : $reserva->fecha;
             return [
                 'id' => $reserva->id,
                 'title' => $reserva->cliente ? $reserva->cliente->name : 'Reserva',
-                'start' => $reserva->fecha . 'T' . (is_string($reserva->hora) ? $reserva->hora : ($reserva->hora ? $reserva->hora->format('H:i') : '')),
+                'start' => $fechaStr . 'T' . (is_string($reserva->hora) ? $reserva->hora : ($reserva->hora ? $reserva->hora->format('H:i') : '')),
                 'end' => $reserva->hora_fin
-                    ? $reserva->fecha . 'T' . (is_string($reserva->hora_fin) ? $reserva->hora_fin : ($reserva->hora_fin ? $reserva->hora_fin->format('H:i') : ''))
+                    ? $fechaStr . 'T' . (is_string($reserva->hora_fin) ? $reserva->hora_fin : ($reserva->hora_fin ? $reserva->hora_fin->format('H:i') : ''))
                     : null,
                 'extendedProps' => [
                     'estado' => $reserva->estado,

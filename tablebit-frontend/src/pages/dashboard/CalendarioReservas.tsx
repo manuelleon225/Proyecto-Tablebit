@@ -2,19 +2,26 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService, type CalendarioEvento } from "@/services/restauranteService";
-import { CalendarDays, ChevronLeft, ChevronRight, AlertCircle, X, Clock, Users, Mail, FileText } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, AlertCircle, Clock, Users, Mail, FileText, MapPin } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSEO } from "@/hooks/useSEO";
 import { ESTADO_CONFIG, type ReservaEstado } from "@/constants/estados";
+import { formatDate } from "@/lib/date";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const monthNames = [
@@ -26,6 +33,7 @@ const CalendarioReservas = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvento, setSelectedEvento] = useState<CalendarioEvento | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [selectedRestauranteId, setSelectedRestauranteId] = useState<number | null>(null);
   const { user } = useAuth();
 
   useSEO({
@@ -41,7 +49,29 @@ const CalendarioReservas = () => {
   const startOfMonth = new Date(year, month, 1).toISOString().split("T")[0];
   const endOfMonth = new Date(year, month + 1, 0).toISOString().split("T")[0];
 
-  const restauranteId = user?.restaurante?.id;
+  // Query: restaurants for admin users
+  const { data: misRestaurantesRespuesta } = useQuery({
+    queryKey: ['mis-restaurantes'],
+    queryFn: async () => {
+      const res = await restauranteService.getMisRestaurantes();
+      return res.data;
+    },
+    enabled: !!user && !user.restaurante,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const misRestaurantes = user?.restaurante
+    ? [{ id: user.restaurante.id, nombre: user.restaurante.nombre }]
+    : (misRestaurantesRespuesta || []);
+
+  const restauranteId = selectedRestauranteId ?? user?.restaurante?.id ?? misRestaurantes[0]?.id;
+
+  // Auto-select first restaurant
+  useMemo(() => {
+    if (!selectedRestauranteId && misRestaurantes.length > 0) {
+      setSelectedRestauranteId(misRestaurantes[0].id);
+    }
+  }, [misRestaurantes, selectedRestauranteId]);
 
   const { data: response, isLoading: loading, error, refetch } = useQuery({
     queryKey: ['calendario', restauranteId, year, month],
@@ -75,23 +105,37 @@ const CalendarioReservas = () => {
   return (
     <DashboardLayout>
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-display text-2xl lg:text-3xl font-bold">Calendario</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {monthNames[month]} {year}
             </p>
           </div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" onClick={prevMonth}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
-              Hoy
-            </Button>
-            <Button variant="outline" size="sm" onClick={nextMonth}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-2">
+            {misRestaurantes.length > 1 && (
+              <Select value={String(restauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
+                <SelectTrigger className="w-40 sm:w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {misRestaurantes.map((r: { id: number; nombre: string }) => (
+                    <SelectItem key={r.id} value={String(r.id)}>{r.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <div className="flex gap-1">
+              <Button variant="outline" size="sm" onClick={prevMonth}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+                Hoy
+              </Button>
+              <Button variant="outline" size="sm" onClick={nextMonth}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -145,9 +189,9 @@ const CalendarioReservas = () => {
                 return (
                   <div
                     key={dia}
-                    className={`aspect-square p-1 sm:p-2 border-b border-r border-border hover:bg-muted/20 transition-colors ${
-                      isToday ? "bg-primary/5" : ""
-                    }`}
+                    className={`aspect-square p-1 sm:p-2 border-b border-r border-border transition-colors ${
+                      eventosDelDia.length > 0 ? "hover:bg-primary/5 cursor-pointer" : "hover:bg-muted/20"
+                    } ${isToday ? "bg-primary/5" : ""}`}
                   >
                     <div className={`h-6 w-6 sm:h-7 sm:w-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
                       isToday ? "bg-primary text-primary-foreground" : "text-foreground"
@@ -160,7 +204,7 @@ const CalendarioReservas = () => {
                         return (
                           <button
                             key={ev.id}
-                            onClick={() => { setSelectedEvento(ev); setShowDialog(true); }}
+                            onClick={(e) => { e.stopPropagation(); setSelectedEvento(ev); setShowDialog(true); }}
                             className={`w-full text-left text-[10px] sm:text-xs leading-tight px-1 py-0.5 rounded truncate ${cfg.bg} ${cfg.color} hover:opacity-80 transition-opacity`}
                           >
                             {ev.title?.split(" ")[0]}
@@ -192,39 +236,37 @@ const CalendarioReservas = () => {
                 </Badge>
               )}
             </DialogTitle>
-            <DialogDescription asChild>
-              <div className="space-y-3 pt-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {selectedEvento?.start
-                      ? new Date(selectedEvento.start).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
-                      : ""}
-                    {selectedEvento?.end ? ` - ${new Date(selectedEvento.end).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}` : ""}
-                    {selectedEvento?.extendedProps?.duracion && ` (${selectedEvento.extendedProps.duracion} min)`}
-                  </span>
-                </div>
-                {selectedEvento?.extendedProps?.mesa && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>{selectedEvento.extendedProps.mesa} · {selectedEvento.extendedProps.personas} personas</span>
-                  </div>
-                )}
-                {selectedEvento?.extendedProps?.cliente_email && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>{selectedEvento.extendedProps.cliente_email}</span>
-                  </div>
-                )}
-                {selectedEvento?.extendedProps?.notas && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <span>{selectedEvento.extendedProps.notas}</span>
-                  </div>
-                )}
-              </div>
-            </DialogDescription>
           </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>
+                {selectedEvento?.start
+                  ? new Date(selectedEvento.start).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+                  : ""}
+                {selectedEvento?.end ? ` - ${new Date(selectedEvento.end).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}` : ""}
+                {selectedEvento?.extendedProps?.duracion && ` (${selectedEvento.extendedProps.duracion} min)`}
+              </span>
+            </div>
+            {selectedEvento?.extendedProps?.mesa && (
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span>{selectedEvento.extendedProps.mesa} · {selectedEvento.extendedProps.personas} personas</span>
+              </div>
+            )}
+            {selectedEvento?.extendedProps?.cliente_email && (
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span>{selectedEvento.extendedProps.cliente_email}</span>
+              </div>
+            )}
+            {selectedEvento?.extendedProps?.notas && (
+              <div className="flex items-start gap-2 text-sm">
+                <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <span>{selectedEvento.extendedProps.notas}</span>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </DashboardLayout>
