@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DisponibilidadRequest;
 use App\Http\Requests\StoreReservaRequest;
+use App\Mail\ReservationConfirmedMail;
 use App\Models\Reservas;
 use App\Models\Restaurante;
 use App\Services\ReservaService;
@@ -11,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 
 class ReservaController extends Controller
 {
@@ -73,6 +75,22 @@ class ReservaController extends Controller
                 $validated['tipo_evento'] ?? null,
                 $validated['notas'] ?? null
             );
+
+            try {
+                Mail::to($reserva->cliente->email)->send(new ReservationConfirmedMail($reserva));
+                Log::info('Correo de confirmación de reserva enviado', [
+                    'reserva_id' => $reserva->id,
+                    'email' => $reserva->cliente->email,
+                    'mailer' => config('mail.default'),
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('Error al enviar correo de confirmación de reserva', [
+                    'reserva_id' => $reserva->id,
+                    'email' => $reserva->cliente->email,
+                    'error' => $e->getMessage(),
+                    'mailer' => config('mail.default'),
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Reserva confirmada automáticamente',
@@ -181,6 +199,22 @@ class ReservaController extends Controller
                 $validated['tipo_evento'] ?? null,
                 $validated['notas'] ?? null
             );
+
+            try {
+                Mail::to($reserva->cliente->email)->send(new ReservationConfirmedMail($reserva));
+                Log::info('Correo de confirmación de reserva enviado', [
+                    'reserva_id' => $reserva->id,
+                    'email' => $reserva->cliente->email,
+                    'mailer' => config('mail.default'),
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('Error al enviar correo de confirmación de reserva', [
+                    'reserva_id' => $reserva->id,
+                    'email' => $reserva->cliente->email,
+                    'error' => $e->getMessage(),
+                    'mailer' => config('mail.default'),
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Reserva confirmada automáticamente',
