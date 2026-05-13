@@ -6,21 +6,27 @@ import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, Users, AlertCircle } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import { useRestaurante } from "@/context/RestauranteContext";
 import { ESTADO_CONFIG } from "@/constants/estados";
 import { formatDate } from "@/lib/date";
 
 const ListadoReservas = () => {
+  const { selectedRestauranteId, restauranteActual } = useRestaurante();
+
   useSEO({
     title: "TableBit - Listado de reservas",
     description: "Administra todas las reservas de tus restaurantes en TableBit.",
   });
 
   const { data: reservas = [], isLoading: loading, error, refetch } = useQuery({
-    queryKey: ['reservas-admin'],
+    queryKey: ['reservas-admin', selectedRestauranteId],
     queryFn: async () => {
-      const res = await restauranteService.getReservas();
+      const res = await restauranteService.getReservas({
+        restaurante_id: selectedRestauranteId!,
+      });
       return res.data.data || res.data;
     },
+    enabled: !!selectedRestauranteId,
     staleTime: 2 * 60 * 1000,
   });
 

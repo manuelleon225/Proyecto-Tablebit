@@ -9,6 +9,7 @@ import { Plus, Trash2, AlertCircle, Loader2, UtensilsCrossed, Edit2, Save, X } f
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
+import { useRestaurante } from "@/context/RestauranteContext";
 import { Badge } from "@/components/ui/badge";
 import { useSEO } from "@/hooks/useSEO";
 import {
@@ -39,6 +40,7 @@ const GestionMesas = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { selectedRestauranteId } = useRestaurante();
 
   useSEO({
     title: "TableBit - Gestión de mesas",
@@ -57,7 +59,7 @@ const GestionMesas = () => {
   const [editEstado, setEditEstado] = useState("");
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const restauranteId = user?.restaurante?.id;
+  const restauranteId = selectedRestauranteId;
 
   const {
     data: mesas = [],

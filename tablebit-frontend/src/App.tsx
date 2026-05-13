@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
+import { RestauranteProvider } from "@/context/RestauranteContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Loader from "@/components/Loader";
@@ -66,7 +67,7 @@ const App = () => (
                   path="/dashboard"
                   element={
                     <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
-                      <Dashboard />
+                      <RestauranteProvider><Dashboard /></RestauranteProvider>
                     </ProtectedRoute>
                   }
                 />
@@ -74,7 +75,7 @@ const App = () => (
                   path="/dashboard/mesas"
                   element={
                     <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
-                      <GestionMesas />
+                      <RestauranteProvider><GestionMesas /></RestauranteProvider>
                     </ProtectedRoute>
                   }
                 />
@@ -82,7 +83,7 @@ const App = () => (
                   path="/dashboard/calendario"
                   element={
                     <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
-                      <CalendarioReservas />
+                      <RestauranteProvider><CalendarioReservas /></RestauranteProvider>
                     </ProtectedRoute>
                   }
                 />
@@ -90,7 +91,7 @@ const App = () => (
                   path="/dashboard/reservas"
                   element={
                     <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
-                      <ListadoReservas />
+                      <RestauranteProvider><ListadoReservas /></RestauranteProvider>
                     </ProtectedRoute>
                   }
                 />

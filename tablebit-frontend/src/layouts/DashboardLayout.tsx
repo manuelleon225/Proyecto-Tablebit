@@ -1,14 +1,23 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useRestaurante } from "@/context/RestauranteContext";
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
   CalendarDays, 
   List, 
   LogOut, 
-  ChevronLeft 
+  ChevronLeft,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -19,6 +28,7 @@ const navItems = [
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, logout } = useAuth();
+  const { selectedRestauranteId, setSelectedRestauranteId, misRestaurantes, restauranteActual } = useRestaurante();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -38,6 +48,27 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             <span className="font-display text-xl font-bold">TableBit</span>
           </Link>
+          {misRestaurantes.length > 1 && (
+            <div className="mt-3">
+              <Select value={String(selectedRestauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
+                <SelectTrigger className="w-full h-8 text-xs bg-sidebar-accent/30 border-sidebar-border text-sidebar-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {misRestaurantes.map((r: { id: number; nombre: string }) => (
+                    <SelectItem key={r.id} value={String(r.id)} className="text-xs">{r.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {restauranteActual && misRestaurantes.length <= 1 && (
+            <div className="mt-2 px-1">
+              <p className="text-xs text-sidebar-foreground/60 truncate" title={restauranteActual.nombre}>
+                {restauranteActual.nombre}
+              </p>
+            </div>
+          )}
         </div>
 
         <nav className="flex-1 px-4 space-y-1">

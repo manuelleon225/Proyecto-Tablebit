@@ -4,6 +4,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService, type CalendarioEvento } from "@/services/restauranteService";
 import { CalendarDays, ChevronLeft, ChevronRight, AlertCircle, Clock, Users, Mail, FileText, MapPin } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useRestaurante } from "@/context/RestauranteContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSEO } from "@/hooks/useSEO";
@@ -33,8 +34,8 @@ const CalendarioReservas = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvento, setSelectedEvento] = useState<CalendarioEvento | null>(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [selectedRestauranteId, setSelectedRestauranteId] = useState<number | null>(null);
   const { user } = useAuth();
+  const { selectedRestauranteId, setSelectedRestauranteId, misRestaurantes } = useRestaurante();
 
   useSEO({
     title: "TableBit - Calendario de reservas",
@@ -49,29 +50,7 @@ const CalendarioReservas = () => {
   const startOfMonth = new Date(year, month, 1).toISOString().split("T")[0];
   const endOfMonth = new Date(year, month + 1, 0).toISOString().split("T")[0];
 
-  // Query: restaurants for admin users
-  const { data: misRestaurantesRespuesta } = useQuery({
-    queryKey: ['mis-restaurantes'],
-    queryFn: async () => {
-      const res = await restauranteService.getMisRestaurantes();
-      return res.data;
-    },
-    enabled: !!user && !user.restaurante,
-    staleTime: 10 * 60 * 1000,
-  });
-
-  const misRestaurantes = user?.restaurante
-    ? [{ id: user.restaurante.id, nombre: user.restaurante.nombre }]
-    : (misRestaurantesRespuesta || []);
-
-  const restauranteId = selectedRestauranteId ?? user?.restaurante?.id ?? misRestaurantes[0]?.id;
-
-  // Auto-select first restaurant
-  useMemo(() => {
-    if (!selectedRestauranteId && misRestaurantes.length > 0) {
-      setSelectedRestauranteId(misRestaurantes[0].id);
-    }
-  }, [misRestaurantes, selectedRestauranteId]);
+  const restauranteId = selectedRestauranteId;
 
   const { data: response, isLoading: loading, error, refetch } = useQuery({
     queryKey: ['calendario', restauranteId, year, month],
@@ -114,7 +93,7 @@ const CalendarioReservas = () => {
           </div>
           <div className="flex items-center gap-2">
             {misRestaurantes.length > 1 && (
-              <Select value={String(restauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
+              <Select value={String(selectedRestauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
                 <SelectTrigger className="w-40 sm:w-48">
                   <SelectValue />
                 </SelectTrigger>

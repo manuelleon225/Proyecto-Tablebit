@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService, type Reserva } from "@/services/restauranteService";
 import { CalendarDays, Users, UtensilsCrossed, TrendingUp, AlertCircle, Clock, XCircle, CheckCircle2, Ban, Percent } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useRestaurante } from "@/context/RestauranteContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -19,42 +19,12 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [selectedRestauranteId, setSelectedRestauranteId] = useState<number | null>(null);
+  const { selectedRestauranteId, setSelectedRestauranteId, misRestaurantes, restauranteActual } = useRestaurante();
 
   useSEO({
     title: "TableBit - Dashboard",
     description: "Panel de administración de TableBit. Gestiona tus restaurantes y reservas.",
   });
-
-  // Query 1: restaurants the user manages
-  const { data: misRestaurantesRespuesta } = useQuery({
-    queryKey: ['mis-restaurantes'],
-    queryFn: async () => {
-      const res = await restauranteService.getMisRestaurantes();
-      return res.data;
-    },
-    enabled: !!user && !user.restaurante,
-    staleTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-
-  const misRestaurantes = user?.restaurante
-    ? [{ id: user.restaurante.id, nombre: user.restaurante.nombre }]
-    : (misRestaurantesRespuesta || []);
-
-  // Sync selectedRestauranteId when restaurant list loads or user changes
-  useEffect(() => {
-    if (!selectedRestauranteId && misRestaurantes.length > 0) {
-      setSelectedRestauranteId(misRestaurantes[0].id);
-    }
-  }, [misRestaurantes, user?.id]);
-
-  // Fallback when user has user.restaurante (admin_restaurante)
-  useEffect(() => {
-    if (user?.restaurante && !selectedRestauranteId) {
-      setSelectedRestauranteId(user.restaurante.id);
-    }
-  }, [user]);
 
   // Query 2: analytics data
   const {
@@ -101,8 +71,6 @@ const Dashboard = () => {
   };
 
   const isLoadingInitial = !selectedRestauranteId && misRestaurantes.length === 0;
-
-  const restauranteActual = misRestaurantes.find((r: { id: number }) => r.id === selectedRestauranteId);
   const analyticsErrorMessage = analyticsError
     ? "Error al cargar métricas del dashboard"
     : null;
