@@ -13,7 +13,11 @@ import { useSEO } from "@/hooks/useSEO";
 const registerSchema = z.object({
   name: z.string().min(1, "El nombre es requerido").max(255),
   email: z.string().email("Ingresa un email válido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
+  password: z.string()
+    .min(8, "Mínimo 8 caracteres")
+    .regex(/[A-Z]/, "Debe contener una mayúscula")
+    .regex(/[a-z]/, "Debe contener una minúscula")
+    .regex(/[^a-zA-Z0-9]/, "Debe contener un carácter especial"),
   passwordConfirm: z.string().min(1, "Confirma tu contraseña"),
 }).refine((data) => data.password === data.passwordConfirm, {
   message: "Las contraseñas no coinciden",
@@ -47,10 +51,12 @@ const Register = () => {
       password: data.password,
     });
     if (result.success) {
-      toast({ title: "¡Cuenta creada!", description: "Tu registro ha sido exitoso." });
-      navigate("/");
+      const role = result.user?.role || "cliente";
+      toast({ title: "¡Bienvenido!", description: "Tu cuenta ha sido creada correctamente." });
+      navigate(role === "cliente" ? "/" : "/dashboard");
     } else {
-      toast({ variant: "destructive", title: "Error", description: result.error || "No se pudo completar el registro" });
+      const msg = result.error || "No se pudo completar el registro";
+      toast({ variant: "destructive", title: "Error", description: msg });
     }
   };
 
@@ -118,7 +124,7 @@ const Register = () => {
                   id="password"
                   type="password"
                   {...register("password")}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                   className={`pl-10 ${errors.password ? "border-destructive" : ""}`}
                   autoComplete="new-password"
                 />

@@ -38,8 +38,9 @@ const Login = () => {
   const onSubmit = async (data: LoginForm) => {
     const result = await login(data);
     if (result.success) {
+      const role = result.user?.role || "cliente";
       toast({ title: "¡Bienvenido!", description: "Has iniciado sesión correctamente." });
-      navigate("/");
+      navigate(role === "cliente" ? "/" : "/dashboard");
     } else {
       toast({ variant: "destructive", title: "Error", description: result.error || "Credenciales inválidas" });
     }

@@ -7,8 +7,8 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: LoginData) => Promise<{ success: boolean; error?: string }>;
-  register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  login: (data: LoginData) => Promise<{ success: boolean; error?: string; user?: User }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => Promise<void>;
   updateProfile: (data: UpdateProfileData) => Promise<{ success: boolean; error?: string }>;
 }
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(result.token);
       localStorage.setItem("tablebit_token", result.token);
       localStorage.setItem("tablebit_user", JSON.stringify(result.user));
-      return { success: true };
+      return { success: true, user: result.user };
     } catch (error) {
       const apiError = handleApiError(error);
       return { success: false, error: apiError.message };
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(result.token);
       localStorage.setItem("tablebit_token", result.token);
       localStorage.setItem("tablebit_user", JSON.stringify(result.user));
-      return { success: true };
+      return { success: true, user: result.user };
     } catch (error) {
       const apiError = handleApiError(error);
       return { success: false, error: apiError.message };
