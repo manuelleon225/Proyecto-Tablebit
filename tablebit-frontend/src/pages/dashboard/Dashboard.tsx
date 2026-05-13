@@ -136,12 +136,12 @@ const Dashboard = () => {
       bgIcon: "bg-secondary/10",
     },
     {
-      label: "Tasa cancelación",
-      value: `${analytics?.tasa_cancelacion ?? 0}%`,
+      label: "Cancelaciones",
+      value: `${analytics?.canceladas ?? 0}`,
       icon: XCircle,
-      subtext: `${analytics?.no_shows ?? 0} no-shows`,
-      accent: analytics && analytics.tasa_cancelacion > 20 ? "text-destructive" : "text-muted-foreground",
-      bgIcon: "bg-muted/50",
+      subtext: `${analytics?.no_shows ?? 0} no-shows · ${analytics?.tasa_cancelacion ?? 0}% tasa`,
+      accent: analytics && (analytics.tasa_cancelacion > 20) ? "text-destructive" : "text-muted-foreground",
+      bgIcon: analytics && (analytics.tasa_cancelacion > 20) ? "bg-destructive/10" : "bg-muted/50",
     },
   ];
 
@@ -218,17 +218,20 @@ const Dashboard = () => {
                 statCards.map((s, i) => (
                   <div
                     key={s.label}
-                    className="rounded-xl border border-border bg-card p-5 shadow-sm animate-fade-in"
+                    className="rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in overflow-hidden"
                     style={{ animationDelay: `${i * 75}ms` }}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-muted-foreground">{s.label}</span>
-                      <div className={`h-9 w-9 rounded-lg ${s.bgIcon} flex items-center justify-center`}>
-                        <s.icon className={`h-4 w-4 ${s.accent}`} />
+                    <div className={`h-1 ${s.bgIcon.replace('bg-', 'bg-').replace('/10', '') || 'bg-primary'}`} />
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm text-muted-foreground">{s.label}</span>
+                        <div className={`h-9 w-9 rounded-lg ${s.bgIcon} flex items-center justify-center`}>
+                          <s.icon className={`h-4 w-4 ${s.accent}`} />
+                        </div>
                       </div>
+                      <p className="font-display text-2xl font-bold">{s.value}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{s.subtext}</p>
                     </div>
-                    <p className="font-display text-2xl font-bold">{s.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{s.subtext}</p>
                   </div>
                 ))
               )}
@@ -241,27 +244,28 @@ const Dashboard = () => {
                   <Clock className="h-5 w-5 text-muted-foreground" />
                   Horas pico
                 </h2>
-                {analytics?.horas_pico && analytics.horas_pico.length > 0 ? (
-                  <div className="space-y-3">
-                    {analytics.horas_pico.map((h: { hora: number; total: number }) => {
-                      const maxTotal = Math.max(...analytics.horas_pico.map((x: { total: number }) => x.total));
-                      const width = maxTotal > 0 ? (h.total / maxTotal) * 100 : 0;
-                      return (
-                        <div key={h.hora} className="flex items-center gap-3">
-                          <span className="text-sm font-medium w-12 text-right">
-                            {String(h.hora).padStart(2, "0")}:00
-                          </span>
-                          <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary/60 rounded-full transition-all"
-                              style={{ width: `${width}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-muted-foreground w-8">{h.total}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                    {analytics?.horas_pico && analytics.horas_pico.length > 0 ? (
+                      <div className="space-y-2">
+                        {analytics.horas_pico.map((h: { hora: number; total: number }, idx: number) => {
+                          const maxTotal = Math.max(...analytics.horas_pico.map((x: { total: number }) => x.total));
+                          const width = maxTotal > 0 ? (h.total / maxTotal) * 100 : 0;
+                          const intensity = 60 + (idx * 8);
+                          return (
+                            <div key={h.hora} className="flex items-center gap-3">
+                              <span className="text-xs font-medium w-10 text-right text-muted-foreground">
+                                {String(h.hora).padStart(2, "0")}:00
+                              </span>
+                              <div className="flex-1 h-5 bg-muted/30 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${width}%`, background: `linear-gradient(90deg, hsl(142, 76%, ${intensity}%), hsl(142, 70%, ${intensity - 15}%))` }}
+                                />
+                              </div>
+                              <span className="text-xs font-medium text-muted-foreground w-6 text-right">{h.total}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
                 ) : analyticsLoading ? (
                   <div className="space-y-3">
                     {Array.from({ length: 3 }).map((_, i) => (
@@ -338,33 +342,40 @@ const Dashboard = () => {
               ) : reservasErrorMessage ? (
                 <p className="text-sm text-destructive text-center py-8">{reservasErrorMessage}</p>
               ) : proximasReservas.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No hay reservas para hoy</p>
+                <div className="text-center py-10">
+                  <Clock className="h-8 w-8 mx-auto mb-2 text-muted-foreground/20" />
+                  <p className="text-sm text-muted-foreground">No hay reservas para hoy</p>
+                </div>
               ) : (
-                <div className="space-y-3">
-                  {proximasReservas.map((r: Reserva) => (
-                    <div
-                      key={r.id}
-                      className="flex items-center justify-between py-3 px-4 rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Clock className="h-4 w-4 text-primary" />
+                <div className="space-y-2">
+                  {proximasReservas.map((r: Reserva) => {
+                    const isPast = r.hora && r.hora.substring(0, 5) < new Date().toTimeString().substring(0, 5);
+                    return (
+                      <div
+                        key={r.id}
+                        className="flex items-center justify-between py-3 px-4 rounded-xl bg-card border border-border/50 hover:border-border hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`relative h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isPast ? 'bg-muted/30' : 'bg-primary/10'}`}>
+                            <Clock className={`h-4 w-4 ${isPast ? 'text-muted-foreground/50' : 'text-primary'}`} />
+                            {!isPast && <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-success animate-pulse" />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {r.cliente?.name || `Cliente #${r.cliente_id}`}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {r.hora?.substring(0, 5)} · {r.cantidad_personas} persona{r.cantidad_personas !== 1 ? "s" : ""}
+                              {r.mesa && ` · Mesa ${r.mesa.numero}`}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {r.cliente?.name || `Cliente #${r.cliente_id}`}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {r.hora?.substring(0, 5)} · {r.cantidad_personas} personas
-                            {r.mesa && ` · Mesa ${r.mesa.numero}`}
-                          </p>
-                        </div>
+                        <Badge className={`${ESTADO_CONFIG[r.estado]?.bg} ${ESTADO_CONFIG[r.estado]?.color}`}>
+                          {ESTADO_CONFIG[r.estado]?.label}
+                        </Badge>
                       </div>
-                      <Badge className={`${ESTADO_CONFIG[r.estado]?.bg} ${ESTADO_CONFIG[r.estado]?.color}`}>
-                        {ESTADO_CONFIG[r.estado]?.label}
-                      </Badge>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

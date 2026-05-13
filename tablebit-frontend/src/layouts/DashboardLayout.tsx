@@ -74,17 +74,22 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       </aside>
 
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-sidebar text-sidebar-foreground border-b border-sidebar-border flex items-center px-4 gap-4">
-        <Link to="/" className="font-display text-lg font-bold">TableBit</Link>
-        <nav className="flex-1 flex gap-1 overflow-x-auto">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-sidebar text-sidebar-foreground border-b border-sidebar-border flex items-center px-3 gap-2">
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <div className="h-7 w-7 rounded-lg bg-sidebar-primary flex items-center justify-center">
+            <UtensilsCrossed className="h-3.5 w-3.5 text-sidebar-primary-foreground" />
+          </div>
+          <span className="font-display text-base font-bold hidden xs:inline">TableBit</span>
+        </Link>
+        <nav className="flex-1 flex gap-0.5 overflow-x-auto scrollbar-hide justify-end">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs whitespace-nowrap ${
-                  isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/70"
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+                  isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
                 }`}
               >
                 <item.icon className="h-3.5 w-3.5" />

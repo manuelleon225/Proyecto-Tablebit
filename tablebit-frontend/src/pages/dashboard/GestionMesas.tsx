@@ -75,7 +75,7 @@ const GestionMesas = () => {
   });
 
   const errorMessage = error
-    ? (error as any)?.response?.data?.message || "No tienes un restaurante asociado"
+    ? (error as any)?.response?.data?.message || "Error al cargar las mesas"
     : null;
 
   const invalidateMesas = () => queryClient.invalidateQueries({ queryKey: ['mesas', restauranteId] });
@@ -268,9 +268,21 @@ const GestionMesas = () => {
             )}
 
             {filteredMesas.length === 0 ? (
-              <div className="text-center py-16 rounded-xl border border-border bg-card">
-                <UtensilsCrossed className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                <p className="text-muted-foreground">No hay mesas{filterEstado !== "todas" ? " en este estado" : ""}.</p>
+              <div className="text-center py-16 rounded-xl border border-dashed border-border/60 bg-card/50">
+                <UtensilsCrossed className="h-12 w-12 mx-auto mb-4 text-muted-foreground/20" />
+                <p className="text-muted-foreground font-medium mb-1">
+                  {filterEstado !== "todas" ? "No hay mesas en este estado" : "Aún no tienes mesas configuradas"}
+                </p>
+                <p className="text-xs text-muted-foreground/60 mb-4">
+                  {filterEstado !== "todas"
+                    ? "Prueba cambiando el filtro."
+                    : "Agrega tu primera mesa para empezar a recibir reservas."}
+                </p>
+                {filterEstado === "todas" && (
+                  <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
+                    <Plus className="h-4 w-4 mr-1.5" /> Agregar mesa
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
