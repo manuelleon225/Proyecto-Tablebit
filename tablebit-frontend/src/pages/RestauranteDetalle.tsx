@@ -42,7 +42,13 @@ const RestauranteDetalle = () => {
       setError(null);
       try {
         const res = await restauranteService.getById(Number(id));
-        setRestaurante(res.data);
+        const model = res.data.restaurante ?? res.data;
+        setRestaurante({
+          ...model,
+          rating_promedio: res.data.rating_promedio ?? (model as any).resenas_avg_rating ?? 0,
+          total_resenas: res.data.total_resenas ?? (model as any).resenas_count ?? 0,
+          abierto_ahora: res.data.abierto_ahora ?? model.abierto_ahora,
+        });
       } catch (err) {
         const apiError = handleApiError(err);
         setError(apiError.message);
@@ -79,7 +85,6 @@ const RestauranteDetalle = () => {
     setReservando(true);
     try {
       await restauranteService.reservaAutomatica({
-        cliente_id: user.id,
         restaurante_id: Number(id),
         fecha,
         hora,

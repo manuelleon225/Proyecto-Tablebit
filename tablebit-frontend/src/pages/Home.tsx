@@ -43,7 +43,8 @@ const Home = () => {
       const res = searchQuery
         ? await restauranteService.buscar({ nombre: searchQuery })
         : await restauranteService.getAll();
-      return res.data;
+      const data = res.data;
+      return Array.isArray(data) ? data : (data.data || []);
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -223,8 +224,8 @@ const Home = () => {
           ) : error ? (
             <div className="text-center py-14 sm:py-16 rounded-2xl border border-border bg-card max-w-5xl mx-auto">
               <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4 text-destructive/40" />
-              <p className="text-sm sm:text-base text-muted-foreground mb-1 font-medium">No se pudieron cargar los restaurantes</p>
-              <p className="text-xs sm:text-sm text-muted-foreground/60 mb-4">{(error as any)?.response?.data?.message || "Error de conexion"}</p>
+              <p className="text-sm sm:text-base text-muted-foreground mb-1 font-medium">No pudimos cargar los restaurantes</p>
+              <p className="text-xs sm:text-sm text-muted-foreground/60 mb-4 max-w-md mx-auto">Error de conexión con el servidor. Verifica tu conexión a internet e intenta de nuevo.</p>
               <Button variant="outline" size="sm" onClick={() => refetch()}>
                 Reintentar
               </Button>

@@ -40,11 +40,17 @@ api.interceptors.response.use(
   }
 );
 
+const getFirstFieldError = (errors?: Record<string, string[]>): string | null => {
+  if (!errors) return null;
+  const firstKey = Object.keys(errors)[0];
+  return errors[firstKey]?.[0] || null;
+};
+
 export const handleApiError = (error: unknown): ApiError => {
   if (axios.isAxiosError(error) && error.response) {
     const data = error.response.data;
     return {
-      message: data?.message || "Error inesperado",
+      message: getFirstFieldError(data?.errors) || data?.message || "Ha ocurrido un error inesperado. Por favor intenta nuevamente.",
       errors: data?.errors,
       status: error.response.status,
     };
