@@ -27,7 +27,7 @@ class Reservas extends Model
     ];
 
     protected $casts = [
-        'fecha' => 'date',
+        'fecha' => 'date:Y-m-d',
         'hora' => 'datetime:H:i',
         'hora_fin' => 'datetime:H:i',
     ];
