@@ -10,6 +10,7 @@ use App\Services\ReservaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 
 class ReservaController extends Controller
 {
@@ -23,6 +24,12 @@ class ReservaController extends Controller
 
         if ($request->has('restaurante_id')) {
             $query->where('restaurante_id', $request->restaurante_id);
+        }
+
+        $user = $request->user();
+        if ($user->role === 'admin_restaurante') {
+            $misRestaurantesIds = Restaurante::where('user_id', $user->id)->pluck('id');
+            $query->whereIn('restaurante_id', $misRestaurantesIds);
         }
 
         if ($request->has('estado')) {
@@ -48,6 +55,11 @@ class ReservaController extends Controller
     {
         $validated = $request->validated();
         $clienteId = $request->user()->id;
+
+        if (in_array($request->user()->role, ['admin', 'admin_restaurante', 'superadmin'])) {
+            $restaurante = Restaurante::findOrFail($validated['restaurante_id']);
+            $this->authorize('manageReservas', $restaurante);
+        }
 
         try {
             $reserva = $this->reservaService->crearReserva(
@@ -188,6 +200,10 @@ class ReservaController extends Controller
 
     public function calendarioRestaurante(Request $request, $restauranteId): JsonResponse
     {
+        $restaurante = Restaurante::findOrFail($restauranteId);
+
+        $this->authorize('manageReservas', $restaurante);
+
         $validated = $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date|after_or_equal:fecha_inicio',
@@ -229,10 +245,14 @@ class ReservaController extends Controller
         ]);
     }
 
-    public function dashboardRestaurante($restauranteId): JsonResponse
+    public function dashboardRestaurante(Request $request, $restauranteId): JsonResponse
     {
-        $fechaInicio = request()->input('fecha_inicio');
-        $fechaFin = request()->input('fecha_fin');
+        $restaurante = Restaurante::findOrFail($restauranteId);
+
+        $this->authorize('manageReservas', $restaurante);
+
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin');
 
         $analytics = $this->reservaService->getAnalyticsRestaurante(
             $restauranteId,
@@ -247,7 +267,7 @@ class ReservaController extends Controller
     {
         $user = $request->user();
 
-        $query = Reservas::with(['mesa', 'restaurante'])
+        $query = Reservas::with(['mesa', 'restaurante', 'cliente'])
             ->where('cliente_id', $user->id);
 
         if ($request->has('estado')) {
