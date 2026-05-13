@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { restauranteService, type Restaurante } from "@/services/restauranteService";
 import MainLayout from "@/layouts/MainLayout";
 import Loader from "@/components/Loader";
@@ -24,11 +25,11 @@ const RestauranteDetalle = () => {
   const [hora, setHora] = useState("");
   const [personas, setPersonas] = useState(2);
   const [duracion, setDuracion] = useState(2);
-  const [reservando, setReservando] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useSEO({
     title: restaurante ? `TableBit - ${restaurante.nombre}` : "TableBit - Cargando...",
@@ -59,6 +60,28 @@ const RestauranteDetalle = () => {
     fetch();
   }, [id]);
 
+  const reservaMutation = useMutation({
+    mutationFn: (data: Parameters<typeof restauranteService.reservaAutomatica>[0]) =>
+      restauranteService.reservaAutomatica(data),
+    onSuccess: () => {
+      const restauranteId = Number(id);
+      queryClient.invalidateQueries({ queryKey: ['mis-reservas'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-analytics', restauranteId] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-proximas-reservas', restauranteId] });
+      queryClient.invalidateQueries({ queryKey: ['calendario', restauranteId] });
+      queryClient.invalidateQueries({ queryKey: ['reservas-admin'] });
+      toast({
+        title: "¡Reserva creada!",
+        description: "Tu reserva ha sido confirmada exitosamente.",
+      });
+      navigate("/mis-reservas");
+    },
+    onError: (err) => {
+      const apiError = handleApiError(err);
+      toast({ variant: "destructive", title: "Error", description: apiError.message || "No se pudo crear la reserva" });
+    },
+  });
+
   const validateForm = (): string | null => {
     if (!fecha) return "Selecciona una fecha";
     if (!hora) return "Selecciona una hora";
@@ -67,7 +90,7 @@ const RestauranteDetalle = () => {
     return null;
   };
 
-  const handleReserva = async (e: React.FormEvent) => {
+  const handleReserva = (e: React.FormEvent) => {
     e.preventDefault();
 
     const validationError = validateForm();
@@ -82,26 +105,13 @@ const RestauranteDetalle = () => {
       return;
     }
 
-    setReservando(true);
-    try {
-      await restauranteService.reservaAutomatica({
-        restaurante_id: Number(id),
-        fecha,
-        hora,
-        duracion: duracion * 60,
-        cantidad_personas: personas,
-      });
-      toast({
-        title: "¡Reserva creada!",
-        description: "Tu reserva ha sido confirmada exitosamente.",
-      });
-      navigate("/mis-reservas");
-    } catch (err) {
-      const apiError = handleApiError(err);
-      toast({ variant: "destructive", title: "Error", description: apiError.message || "No se pudo crear la reserva" });
-    } finally {
-      setReservando(false);
-    }
+    reservaMutation.mutate({
+      restaurante_id: Number(id),
+      fecha,
+      hora,
+      duracion: duracion * 60,
+      cantidad_personas: personas,
+    });
   };
 
   const today = new Date().toISOString().split("T")[0];
@@ -300,7 +310,7 @@ const RestauranteDetalle = () => {
                   hora={hora}
                   personas={personas}
                   duracion={duracion}
-                  reservando={reservando}
+                  reservando={reservaMutation.isPending}
                   today={today}
                   onFechaChange={setFecha}
                   onHoraChange={setHora}
@@ -337,7 +347,7 @@ const RestauranteDetalle = () => {
                     hora={hora}
                     personas={personas}
                     duracion={duracion}
-                    reservando={reservando}
+                    reservando={reservaMutation.isPending}
                     today={today}
                     onFechaChange={setFecha}
                     onHoraChange={setHora}
