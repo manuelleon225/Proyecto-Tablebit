@@ -91,16 +91,21 @@ class RestauranteController extends Controller
             ->withCount('resenas');
 
         if ($request->filled('nombre')) {
-            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+            $safe = addcslashes($request->nombre, '%_');
+            $query->where('nombre', 'like', '%' . $safe . '%');
         }
 
         if ($request->filled('ciudad')) {
-            $query->where('ciudad', 'like', '%' . $request->ciudad . '%')
-                  ->orWhere('direccion', 'like', '%' . $request->ciudad . '%');
+            $safe = addcslashes($request->ciudad, '%_');
+            $query->where(function ($q) use ($safe) {
+                $q->where('ciudad', 'like', '%' . $safe . '%')
+                  ->orWhere('direccion', 'like', '%' . $safe . '%');
+            });
         }
 
         if ($request->filled('tipo_comida')) {
-            $query->where('tipo_comida', 'like', '%' . $request->tipo_comida . '%');
+            $safe = addcslashes($request->tipo_comida, '%_');
+            $query->where('tipo_comida', 'like', '%' . $safe . '%');
         }
 
         if ($request->filled('min_capacidad')) {
