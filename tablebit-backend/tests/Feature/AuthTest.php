@@ -15,7 +15,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
         ]);
 
         $response->assertStatus(201)
@@ -35,7 +35,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/register', [
             'name' => 'Hacker',
             'email' => 'hack@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
             'role' => 'admin',
         ]);
 
@@ -51,7 +51,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/register', [
             'name' => 'Hacker',
             'email' => 'hack2@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
             'role' => 'superadmin',
         ]);
 
@@ -65,7 +65,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/register', [
             'name' => 'Duplicate',
             'email' => 'dup@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
         ]);
 
         $response->assertStatus(422);
@@ -75,12 +75,12 @@ class AuthTest extends TestCase
     {
         Usuario::factory()->create([
             'email' => 'user@example.com',
-            'password' => bcrypt('password123'),
+            'password' => bcrypt('Test1234!'),
         ]);
 
         $response = $this->postJson('/api/login', [
             'email' => 'user@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
         ]);
 
         $response->assertStatus(200)
@@ -110,7 +110,7 @@ class AuthTest extends TestCase
     {
         $response = $this->postJson('/api/login', [
             'email' => 'noexiste@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
         ]);
 
         $response->assertStatus(401);
@@ -167,13 +167,13 @@ class AuthTest extends TestCase
     {
         Usuario::factory()->create([
             'email' => 'inactive@example.com',
-            'password' => bcrypt('password123'),
+            'password' => bcrypt('Test1234!'),
             'estado' => 'inactivo',
         ]);
 
         $response = $this->postJson('/api/login', [
             'email' => 'inactive@example.com',
-            'password' => 'password123',
+            'password' => 'Test1234!',
         ]);
 
         $response->assertStatus(401);
