@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRestaurante } from "@/context/RestauranteContext";
 import {
   LayoutDashboard, UtensilsCrossed, CalendarDays, List, LogOut, ChevronLeft,
-  Menu, X, Bell, ChevronDown,
+  Menu, X, Bell, ChevronDown, BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ const navItems = [
   { label: "Mesas", icon: UtensilsCrossed, path: "/dashboard/mesas" },
   { label: "Calendario", icon: CalendarDays, path: "/dashboard/calendario" },
   { label: "Reservas", icon: List, path: "/dashboard/reservas" },
+  { label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {

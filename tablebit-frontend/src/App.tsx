@@ -20,6 +20,7 @@ const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
 const GestionMesas = lazy(() => import("./pages/dashboard/GestionMesas"));
 const CalendarioReservas = lazy(() => import("./pages/dashboard/CalendarioReservas"));
 const ListadoReservas = lazy(() => import("./pages/dashboard/ListadoReservas"));
+const Analytics = lazy(() => import("./pages/dashboard/Analytics"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -92,6 +93,14 @@ const App = () => (
                   element={
                     <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
                       <RestauranteProvider><ListadoReservas /></RestauranteProvider>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/analytics"
+                  element={
+                    <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
+                      <RestauranteProvider><Analytics /></RestauranteProvider>
                     </ProtectedRoute>
                   }
                 />
