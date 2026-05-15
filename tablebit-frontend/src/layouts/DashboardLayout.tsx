@@ -47,7 +47,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="mt-4">
             {misRestaurantes.length > 1 ? (
               <Select value={String(selectedRestauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
-                <SelectTrigger className="w-full h-8 text-xs bg-sidebar-accent/50 border-sidebar-border text-sidebar-foreground/80">
+                <SelectTrigger className="w-full h-8 text-xs bg-sidebar-accent border-sidebar-border text-sidebar-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -23,9 +23,9 @@ interface DayHour {
 
 const defaultHours: DayHour[] = DAYS.map((_, i) => ({
   day_of_week: i,
-  is_closed: i === 0, // Monday closed by default
-  open_time: "09:00",
-  close_time: "23:00",
+  is_closed: false,
+  open_time: "",
+  close_time: "",
 }));
 
 const HorariosPage = () => {

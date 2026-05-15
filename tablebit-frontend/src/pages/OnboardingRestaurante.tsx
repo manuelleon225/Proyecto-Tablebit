@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Check, Building2, MapPin, Phone, UtensilsCrossed, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Building2, MapPin, Phone, UtensilsCrossed, Loader2, Sparkles, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import { restauranteService } from "@/services/restauranteService";
@@ -16,12 +16,7 @@ import { useSEO } from "@/hooks/useSEO";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-
-const CIUDADES = [
-  "Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena",
-  "Bucaramanga", "Pereira", "Manizales", "Cúcuta", "Santa Marta",
-  "Ibagué", "Villavicencio", "Armenia", "Sincelejo", "Neiva",
-];
+import { TIPOS_COMIDA, DEPARTAMENTOS } from "@/constants/colombia";
 
 const createSchema = z.object({
   nombre: z.string().min(2, "Mínimo 2 caracteres").max(100),
@@ -57,6 +52,9 @@ const OnboardingRestaurante = () => {
   });
 
   const values = watch();
+  const [depto, setDepto] = useState("");
+  const [otraComida, setOtraComida] = useState("");
+  const ciudades = depto ? (DEPARTAMENTOS[depto] || []) : [];
 
   const canProceed = async () => {
     if (step === 0) return !!(values.nombre?.trim() && values.tipo_comida?.trim());
@@ -130,8 +128,19 @@ const OnboardingRestaurante = () => {
                     {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tipo_comida">Tipo de comida *</Label>
-                    <Input id="tipo_comida" {...register("tipo_comida")} placeholder="Ej: Japonesa, Italiana, Mexicana" className={`h-11 bg-card/50 ${errors.tipo_comida ? "border-destructive" : ""}`} />
+                    <Label>Tipo de comida *</Label>
+                    <Select onValueChange={(v) => { setValue("tipo_comida", v); setOtraComida(v === "Otra" ? "" : "no"); }}>
+                      <SelectTrigger className={`h-11 bg-card/50 ${errors.tipo_comida ? "border-destructive" : ""}`}>
+                        <SelectValue placeholder="Selecciona tipo de cocina" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TIPOS_COMIDA.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {values.tipo_comida === "Otra" && (
+                      <Input placeholder="Especifica el tipo de comida" value={otraComida} onChange={(e) => { setOtraComida(e.target.value); setValue("tipo_comida", e.target.value); }}
+                        className="h-11 bg-card/50 mt-2" />
+                    )}
                     {errors.tipo_comida && <p className="text-xs text-destructive">{errors.tipo_comida.message}</p>}
                   </div>
                 </div>
@@ -143,17 +152,30 @@ const OnboardingRestaurante = () => {
                     <h2 className="font-display text-2xl font-bold">¿Dónde está ubicado?</h2>
                     <p className="text-sm text-muted-foreground mt-1">Dirección y contacto</p>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Ciudad *</Label>
-                    <Select onValueChange={(v) => setValue("ciudad", v)}>
-                      <SelectTrigger className={`h-11 bg-card/50 ${errors.ciudad ? "border-destructive" : ""}`}>
-                        <SelectValue placeholder="Selecciona una ciudad" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CIUDADES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {errors.ciudad && <p className="text-xs text-destructive">{errors.ciudad.message}</p>}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Departamento *</Label>
+                      <Select onValueChange={(v) => { setDepto(v); setValue("ciudad", ""); }}>
+                        <SelectTrigger className="h-11 bg-card/50">
+                          <SelectValue placeholder="Depto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(DEPARTAMENTOS).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ciudad *</Label>
+                      <Select onValueChange={(v) => setValue("ciudad", v)} disabled={!depto}>
+                        <SelectTrigger className={`h-11 bg-card/50 ${errors.ciudad ? "border-destructive" : ""}`}>
+                          <SelectValue placeholder={depto ? "Ciudad" : "Primero depto"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ciudades.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {errors.ciudad && <p className="text-xs text-destructive">{errors.ciudad.message}</p>}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="direccion">Dirección *</Label>

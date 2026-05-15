@@ -80,7 +80,10 @@ const GestionMesas = () => {
     ? (error as any)?.response?.data?.message || "Error al cargar las mesas"
     : null;
 
-  const invalidateMesas = () => queryClient.invalidateQueries({ queryKey: ['mesas', restauranteId] });
+  const invalidateMesas = () => {
+    queryClient.invalidateQueries({ queryKey: ['mesas', restauranteId] });
+    queryClient.invalidateQueries({ queryKey: ['mesas-mapa', restauranteId] });
+  };
 
   const createMutation = useMutation({
     mutationFn: (data: { restaurante_id: number; numero: number; capacidad: number }) =>
