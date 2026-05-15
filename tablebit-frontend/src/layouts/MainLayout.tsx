@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LogOut, UtensilsCrossed, Menu, X, User, ChevronRight } from "lucide-react";
+import { LogOut, UtensilsCrossed, Menu, X, User, ChevronRight, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
@@ -16,49 +16,35 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-    setMobileOpen(false);
-  };
+  const handleLogout = () => { logout(); navigate("/"); setMobileOpen(false); };
 
   const getUserInitials = () => {
     if (!user?.name) return "?";
-    return user.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
   const navLinks = [
     { to: "/", label: "Restaurantes" },
     ...(isAuthenticated ? [{ to: "/mis-reservas", label: "Mis Reservas" }] : []),
     ...(isAuthenticated && ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "")
-      ? [{ to: "/dashboard", label: "Dashboard" }]
-      : []),
+      ? [{ to: "/dashboard", label: "Dashboard" }] : []),
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Header */}
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "border-b border-border bg-background/95 backdrop-blur-md shadow-soft"
-            : "border-b border-border/50 bg-background/80 backdrop-blur-md"
+            ? "border-b border-border/50 bg-background/80 backdrop-blur-xl shadow-sm"
+            : "border-b border-transparent bg-background/50 backdrop-blur-md"
         }`}
       >
-        <div className="container flex h-14 sm:h-16 items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 group">
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl bg-primary flex items-center justify-center group-hover:shadow-lg transition-all">
+        <div className="container flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/30 transition-all duration-300">
               <UtensilsCrossed className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg sm:text-xl font-bold text-foreground tracking-tight">
-              TableBit
-            </span>
+            <span className="font-display text-lg sm:text-xl font-bold tracking-tight">TableBit</span>
           </Link>
 
           {/* Desktop nav */}
@@ -78,77 +64,48 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="hidden md:flex items-center gap-2">
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("/perfil")}
-                  className="text-muted-foreground"
-                >
-                  <User className="h-4 w-4 mr-1.5" />
-                  Perfil
+                <Button variant="ghost" size="sm" onClick={() => navigate("/perfil")} className="text-muted-foreground">
+                  <User className="h-4 w-4 mr-1.5" /> Perfil
                 </Button>
-                <div className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-muted/50">
+                <div className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                   <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-xs font-semibold text-primary">{getUserInitials()}</span>
                   </div>
-                  <span className="text-sm font-medium max-w-32 truncate">{user?.name}</span>
+                  <span className="text-sm font-medium max-w-28 truncate">{user?.name}</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-muted-foreground"
-                >
-                  <LogOut className="h-4 w-4 mr-1.5" />
-                  Salir
+                <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
+                  <LogOut className="h-4 w-4" />
                 </Button>
               </div>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
-                  Iniciar sesión
-                </Button>
-                <Button size="sm" onClick={() => navigate("/register")} className="rounded-full">
-                  Registrarse
-                </Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>Iniciar sesión</Button>
+                <Button size="sm" onClick={() => navigate("/register")} className="shadow-lg shadow-primary/20">Registrarse</Button>
               </>
             )}
           </div>
 
           {/* Mobile toggle */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
+          <button className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md animate-fade-in">
-            <div className="container py-4 space-y-1">
+          <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl animate-fade-in">
+            <div className="container py-4 space-y-1 px-4">
               {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
+                <Link key={link.to} to={link.to}
                   className="flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {link.label}
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  onClick={() => setMobileOpen(false)}>
+                  {link.label} <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </Link>
               ))}
-
-              <div className="pt-3 mt-3 border-t border-border">
+              <div className="pt-3 mt-3 border-t border-border/50">
                 {isAuthenticated ? (
-                  <div className="space-y-3">
-                    <Link
-                      to="/perfil"
-                      className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-muted transition-colors"
-                      onClick={() => setMobileOpen(false)}
-                    >
+                  <div className="space-y-3 px-4">
+                    <div className="flex items-center gap-3">
                       <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
                         <span className="text-sm font-semibold text-primary">{getUserInitials()}</span>
                       </div>
@@ -156,25 +113,15 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                         <p className="text-sm font-medium">{user?.name}</p>
                         <p className="text-xs text-muted-foreground">{user?.email}</p>
                       </div>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleLogout()}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Cerrar sesión
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
+                      <LogOut className="h-4 w-4 mr-2" /> Cerrar sesión
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-2 px-4">
-                    <Button variant="outline" className="w-full" onClick={() => { navigate("/login"); setMobileOpen(false); }}>
-                      Iniciar sesión
-                    </Button>
-                    <Button className="w-full rounded-full" onClick={() => { navigate("/register"); setMobileOpen(false); }}>
-                      Registrarse
-                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => { navigate("/login"); setMobileOpen(false); }}>Iniciar sesión</Button>
+                    <Button className="w-full" onClick={() => { navigate("/register"); setMobileOpen(false); }}>Registrarse</Button>
                   </div>
                 )}
               </div>
@@ -183,12 +130,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         )}
       </header>
 
-      {/* Main content */}
       <main className="flex-1">{children}</main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="container py-8 sm:py-10">
+      <footer className="border-t border-border/50 bg-muted/30">
+        <div className="container py-8 sm:py-10 px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -197,7 +142,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
               <span className="font-display text-sm font-bold">TableBit</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground text-center">
-              © {new Date().getFullYear()} TableBit. Todos los derechos reservados.
+              &copy; {new Date().getFullYear()} TableBit. Todos los derechos reservados.
             </p>
             <div className="flex gap-4 text-xs text-muted-foreground">
               <a href="#" className="hover:text-foreground transition-colors">Términos</a>
