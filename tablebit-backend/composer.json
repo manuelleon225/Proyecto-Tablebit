@@ -10,7 +10,10 @@
         "laravel/framework": "^12.0",
         "laravel/pulse": "*",
         "laravel/sanctum": "^4.3",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "railsware/mailtrap-php": "*",
+        "symfony/http-client": "^7.4",
+        "symfony/mailtrap-mailer": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

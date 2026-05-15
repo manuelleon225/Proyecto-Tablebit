@@ -11,8 +11,11 @@ use App\Policies\MesaPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Mailer\Bridge\Mailtrap\Transport\MailtrapTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Mail::extend('mailtrap', function (array $config) {
+            $dsnString = env('MAILTRAP_DSN', 'mailtrap+api://default');
+            return (new MailtrapTransportFactory())->create(Dsn::fromString($dsnString));
+        });
+
         Gate::policy(Restaurante::class, RestaurantePolicy::class);
         Gate::policy(Reservas::class, ReservaPolicy::class);
         Gate::policy(Mesa::class, MesaPolicy::class);
