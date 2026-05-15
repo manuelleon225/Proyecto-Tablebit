@@ -12,6 +12,7 @@ use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HorarioDiaController;
+use App\Http\Controllers\RestaurantHourController;
 use App\Http\Controllers\PasswordResetController;
 
 Route::get('/test', function () {
@@ -97,15 +98,15 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
     Route::get('/calendario/restaurante/{restauranteId}', [ReservaController::class, 'calendarioRestaurante'])
         ->middleware('role:admin,admin_restaurante,superadmin');
 
-    // Horarios
+    // Horarios (legacy)
     Route::get('/restaurantes/{restauranteId}/horarios', [HorarioDiaController::class, 'index']);
     Route::post('/restaurantes/{restauranteId}/horarios', [HorarioDiaController::class, 'store'])
         ->middleware('role:admin,admin_restaurante,superadmin');
-    Route::put('/horarios/{id}', [HorarioDiaController::class, 'update'])
+
+    // Restaurant Hours (new)
+    Route::get('/restaurantes/{restauranteId}/hours', [RestaurantHourController::class, 'index'])
         ->middleware('role:admin,admin_restaurante,superadmin');
-    Route::delete('/horarios/{id}', [HorarioDiaController::class, 'destroy'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
-    Route::post('/restaurantes/{restauranteId}/horarios/seed', [HorarioDiaController::class, 'seedDefaults'])
+    Route::put('/restaurantes/{restauranteId}/hours', [RestaurantHourController::class, 'update'])
         ->middleware('role:admin,admin_restaurante,superadmin');
 
     // Reseñas

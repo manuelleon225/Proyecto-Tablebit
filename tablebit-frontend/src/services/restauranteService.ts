@@ -257,6 +257,13 @@ export const restauranteService = {
   seedHorarios: (restauranteId: number) =>
     api.post(`/restaurantes/${restauranteId}/horarios/seed`),
 
+  // Restaurant Hours (new)
+  getHours: (restauranteId: number) =>
+    api.get(`/restaurantes/${restauranteId}/hours`),
+
+  updateHours: (restauranteId: number, data: { hours: any[] }) =>
+    api.put(`/restaurantes/${restauranteId}/hours`, data),
+
   // Favoritos
   getFavoritos: () => api.get("/favoritos"),
 
