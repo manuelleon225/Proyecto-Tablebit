@@ -14,6 +14,7 @@ class ImagenController extends Controller
     public function subirImagen(Request $request, $restauranteId): JsonResponse
     {
         $restaurante = Restaurante::findOrFail($restauranteId);
+        $this->authorize('update', $restaurante);
 
         $request->validate([
             'imagen' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
