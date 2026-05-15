@@ -60,30 +60,4 @@ export const ESTADO_MESA_CONFIG: Record<MesaEstado, {
   },
 };
 
-export const generateMockMesas = (): MesaItem[] => {
-  const mesas: MesaItem[] = [];
-  const estados: MesaEstado[] = ["disponible", "reservada", "ocupada", "limpieza", "disponible", "disponible"];
-  const shapes: MesaShape[] = ["circle", "rectangle", "booth", "circle", "rectangle", "circle"];
 
-  for (let i = 1; i <= 18; i++) {
-    const col = (i - 1) % 6;
-    const row = Math.floor((i - 1) / 6);
-    const cap = [2, 4, 4, 6, 2, 8, 4, 6, 2, 4, 6, 2, 8, 4, 4, 6, 2, 4][i - 1] || 4;
-    const idx = i % estados.length;
-
-    mesas.push({
-      id: `mesa-${i}`,
-      numero: i,
-      capacidad: cap,
-      shape: i > 12 ? "booth" : i % 3 === 0 ? "rectangle" : "circle",
-      estado: i % 7 === 0 ? "mantenimiento" : i % 5 === 0 ? "ocupada" : i % 3 === 0 ? "reservada" : "disponible",
-      x: 40 + col * 160 + Math.random() * 10,
-      y: 40 + row * 140 + Math.random() * 10,
-      width: cap >= 6 ? 80 : 64,
-      height: cap >= 6 ? 80 : 64,
-      cliente: i % 3 === 0 ? ["Ana M.", "Carlos L.", "María G.", "Pedro R.", "Laura F.", "Diego S."][i % 6] : undefined,
-      hora: i % 3 === 0 ? `${18 + (i % 4)}:00` : undefined,
-    });
-  }
-  return mesas;
-};

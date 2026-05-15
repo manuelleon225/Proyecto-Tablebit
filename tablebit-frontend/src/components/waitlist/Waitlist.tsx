@@ -14,13 +14,6 @@ interface WaitlistEntry {
   llegada: Date;
 }
 
-const generateMock = (): WaitlistEntry[] => [
-  { id: "1", name: "Ana Martínez", phone: "+57 300 123 4567", personas: 4, tiempo: 15, prioridad: "vip", llegada: new Date(Date.now() - 1000 * 60 * 5) },
-  { id: "2", name: "Carlos López", phone: "+57 310 987 6543", personas: 2, tiempo: 25, prioridad: "frecuente", llegada: new Date(Date.now() - 1000 * 60 * 10) },
-  { id: "3", name: "María García", phone: "+57 315 456 7890", personas: 6, tiempo: 35, prioridad: "normal", llegada: new Date(Date.now() - 1000 * 60 * 3) },
-  { id: "4", name: "Pedro Rodríguez", phone: "+57 320 789 0123", personas: 3, tiempo: 20, prioridad: "normal", llegada: new Date(Date.now() - 1000 * 60 * 8) },
-];
-
 const prioridadConfig = {
   vip: { label: "VIP", color: "text-warning bg-warning/10 border-warning/20" },
   frecuente: { label: "Frecuente", color: "text-primary bg-primary/10 border-primary/20" },
@@ -28,7 +21,7 @@ const prioridadConfig = {
 };
 
 export const Waitlist = () => {
-  const [entries, setEntries] = useState<WaitlistEntry[]>(generateMock);
+  const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPersonas, setNewPersonas] = useState(2);

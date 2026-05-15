@@ -1,6 +1,6 @@
 import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { type MesaEstado, ESTADO_MESA_CONFIG, generateMockMesas } from "./types";
+import { type MesaEstado, ESTADO_MESA_CONFIG } from "./types";
 import { motion } from "framer-motion";
 
 interface Props {
