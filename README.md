@@ -1,84 +1,59 @@
-# TableBit — Reserva de Mesas en Restaurantes
+<p align="center">
+  <img src="https://img.shields.io/badge/status-v1.0.0--beta-success" alt="Version">
+  <img src="https://img.shields.io/badge/PHP-8.3-777bb4" alt="PHP">
+  <img src="https://img.shields.io/badge/Laravel-12-ff2d20" alt="Laravel">
+  <img src="https://img.shields.io/badge/React-18-61dafb" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178c6" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind-4-06b6d4" alt="Tailwind">
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479a1" alt="MySQL">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+</p>
 
-**TableBit** es un SaaS moderno de gestión de reservas y mesas para restaurantes. Permite a los usuarios descubrir restaurantes, reservar mesas al instante, dejar reseñas y gestionar favoritos. Para administradores, ofrece un dashboard completo con analytics, calendario y gestión de mesas.
+<h1 align="center">🍽️ TableBit</h1>
+<p align="center"><strong>SaaS moderno de gestión de reservas para restaurantes</strong></p>
 
----
-
-## Stack Tecnológico
-
-| Capa | Tecnología |
-|------|-----------|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui |
-| **Backend** | Laravel 12, PHP 8.3, MySQL 8.0 |
-| **Auth** | Laravel Sanctum (tokens 7 días) |
-| **API** | RESTful JSON API con rate limiting |
-| **CI/CD** | GitHub Actions |
-| **Queue** | Database driver (Laravel Queue) |
-
----
-
-## Funcionalidades
-
-### Usuarios (Cliente)
-- 🔍 Buscar restaurantes por nombre, ciudad, tipo de comida
-- 📋 Ver detalle completo: horarios, mesas, reseñas, fotos
-- ✅ Reservar mesas con confirmación instantánea
-- ⭐ Dejar reseñas y calificaciones
-- ❤️ Gestionar favoritos
-- 📱 Panel "Mis Reservas" con filtros y cancelación
-
-### Administradores (Admin / Admin Restaurante)
-- 📊 Dashboard con KPIs: reservas hoy, ocupación, horas pico
-- 📅 Calendario interactivo de reservas
-- 🪑 Gestión completa de mesas (CRUD)
-- 📋 Listado de reservas con filtros
-- 📈 Analytics: reservas por día/semana, tendencias
-
-### Seguridad
-- 🔐 Autenticación con tokens Sanctum
-- 🛡️ Rate limiting diferenciado (auth, reservas, sensible)
-- 👮 Policies de autorización por rol
-- 🚫 Protección contra acceso cruzado a datos
-- 📝 Logging JSON estructurado
-- ✅ Health checks (API, DB, Cache)
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#tech-stack">Stack</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#architecture">Arquitectura</a> •
+  <a href="#deploy">Deploy</a> •
+  <a href="#demo">Demo</a>
+</p>
 
 ---
 
-## Arquitectura
+## ✨ Features
+
+| 🎯 **Reservas** | 📊 **Dashboard** | 🛠️ **Gestión** |
+|----------------|------------------|----------------|
+| Confirmación instantánea | KPIs en tiempo real | Mapa interactivo de mesas |
+| Disponibilidad en vivo | Analytics con gráficos | CRUD completo |
+| Email de confirmación | Horas pico y tendencias | Multi-restaurante |
+| Cancelación online | Ocupación por hora | Roles y permisos |
+
+| 🔔 **Notificaciones** | 🔐 **Seguridad** | 🚀 **Performance** |
+|----------------------|------------------|-------------------|
+| WelcomeMail automatizado | Laravel Sanctum tokens | React Query caching |
+| Confirmación de reserva | Rate limiting | Lazy loading |
+| Cancelación | Policies por rol | Code splitting |
+| Recordatorio (próximamente) | CORS + CSP headers | Server-side pagination |
+
+## 🛠️ Tech Stack
 
 ```
-tableBit/
-├── tablebit-frontend/       # React SPA (Vite)
-│   ├── src/
-│   │   ├── components/      # UI components + shadcn/ui
-│   │   ├── pages/           # Page components
-│   │   ├── layouts/         # MainLayout, DashboardLayout
-│   │   ├── services/        # API services (Axios)
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── context/         # AuthContext
-│   │   └── lib/             # Utilities
-│   └── public/
-├── tablebit-backend/        # Laravel API
-│   ├── app/
-│   │   ├── Http/Controllers/
-│   │   ├── Http/Requests/   # Form Request validation
-│   │   ├── Models/
-│   │   ├── Policies/        # Authorization
-│   │   └── Services/        # Business logic
-│   ├── database/
-│   │   ├── migrations/
-│   │   └── seeders/
-│   ├── routes/api.php
-│   └── tests/
+Frontend         Backend          Infraestructura
+React 18         Laravel 12       MySQL 8.0
+TypeScript 5     PHP 8.3          Redis 7
+Tailwind CSS 4   Sanctum Auth     Docker
+shadcn/ui        Reverb WS        Nginx
+React Query      Queue Jobs       GitHub Actions
+Zustand          Mailtrap/SMTP    Laravel Pulse
+Framer Motion    API REST         PWA + SEO
+Recharts         Form Requests    OpenGraph
 ```
 
----
-
-## Instalación
-
-### Requisitos
-- PHP 8.3+, MySQL 8.0, Composer 2.x
-- Node.js 20 LTS, npm
+## 🚀 Quick Start
 
 ### Backend
 
@@ -96,83 +71,104 @@ php artisan serve
 
 ```bash
 cd tablebit-frontend
-cp .env.example .env
 npm install
 npm run dev
 ```
 
----
+### Credenciales Demo
 
-## Credenciales Demo
+| Rol | Email | Password |
+|-----|-------|----------|
+| Admin | admin@test.com | admin123 |
+| Admin Restaurante | admin.rest1@test.com | Admin123! |
+| Cliente | ana@test.com | Cliente1! |
 
-| Rol | Email | Contraseña |
-|-----|-------|------------|
-| **Admin** | admin@test.com | admin123 |
-| **Super Admin** | superadmin@test.com | SuperAdmin123! |
-| **Admin Restaurante** | admin.rest1@test.com | Admin123! |
-| **Admin Restaurante** | admin.rest2@test.com | Admin123! |
-| **Cliente** | ana@test.com | Cliente1! |
+## 🏗️ Arquitectura
 
----
-
-## API Endpoints Principales
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/register` | Registro de usuario |
-| POST | `/api/login` | Inicio de sesión |
-| POST | `/api/logout` | Cierre de sesión |
-| GET | `/api/restaurantes` | Listado restaurantes |
-| GET | `/api/restaurantes/{id}` | Detalle restaurante |
-| GET | `/api/buscar-restaurantes` | Búsqueda restaurantes |
-| POST | `/api/disponibilidad` | Verificar disponibilidad |
-| POST | `/api/reserva-automatica` | Crear reserva |
-| GET | `/api/mis-reservas` | Reservas del usuario |
-| GET | `/api/dashboard/restaurante/{id}` | Dashboard analytics |
-| GET | `/api/calendario/restaurante/{id}` | Calendario reservas |
-| GET | `/api/health` | Health check API |
-
----
-
-## Testing
-
-```bash
-# Backend (PHPUnit)
-cd tablebit-backend && php artisan test
-
-# Frontend (Build verification)
-cd tablebit-frontend && npm run build
+```
+tableBit/
+├── tablebit-frontend/       # React SPA (Vite)
+│   ├── src/
+│   │   ├── components/      # UI + shadcn/ui + analytics + mesas
+│   │   ├── pages/           # Page components + dashboard/
+│   │   ├── layouts/         # MainLayout, DashboardLayout
+│   │   ├── services/        # Axios API services
+│   │   ├── stores/          # Zustand stores
+│   │   ├── hooks/           # Custom hooks
+│   │   └── lib/             # utils, date formatters
+│   └── public/              # PWA, favicon
+├── tablebit-backend/        # Laravel API
+│   ├── app/
+│   │   ├── Http/Controllers/   # REST API controllers
+│   │   ├── Http/Requests/      # FormRequest validation
+│   │   ├── Models/             # Eloquent models
+│   │   ├── Services/           # Business logic layer
+│   │   ├── Policies/           # Authorization
+│   │   └── Events/             # Broadcast events
+│   ├── database/
+│   │   ├── migrations/
+│   │   └── seeders/
+│   ├── routes/
+│   │   ├── api.php             # API routes
+│   │   └── channels.php        # WebSocket channels
+│   └── tests/
+├── docker-compose.yml
+├── .nginx/default.conf
+└── README.md
 ```
 
----
+## 📦 Deploy
 
-## Despliegue
-
-Ver [DEPLOY.md](tablebit-backend/DEPLOY.md) para instrucciones detalladas.
+### Docker (producción)
 
 ```bash
-# Deploy script automatizado
+docker compose up -d
+```
+
+### Manual
+
+```bash
+# Frontend
+cd tablebit-frontend && npm run build
+# Backend
 cd tablebit-backend && bash deploy.sh production
 ```
 
----
+### Variables de entorno producción
 
-## Roadmap
+```env
+APP_ENV=production
+APP_DEBUG=false
+DB_PASSWORD=<generar_segura>
+SESSION_DRIVER=redis
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+BROADCAST_CONNECTION=reverb
+```
 
-- [x] Core funcional (registro, login, restaurantes, reservas)
-- [x] Dashboard admin con analytics y calendario
-- [x] Gestión de mesas, reseñas y favoritos
-- [x] Seguridad: roles, rate limiting, policies
-- [x] CI/CD: GitHub Actions
-- [x] SEO, PWA, OpenGraph
-- [ ] Notificaciones por email (reservas)
-- [ ] Recordatorios automáticos
+## 🔐 Seguridad
+
+- **Auth**: Laravel Sanctum (tokens 7 días)
+- **Rate Limiting**: 10/min auth, 30/min disponibilidad, 20/min reservas
+- **Headers**: CSP, HSTS, X-Frame-Options, X-Content-Type-Options
+- **Authorization**: Policies por rol + RoleMiddleware
+- **Validation**: FormRequests (backend) + Zod (frontend)
+- **CORS**: Restringido a orígenes específicos
+
+## 📈 Roadmap
+
+- [x] Core: reservas, auth, restaurantes
+- [x] Dashboard: KPIs, analytics, calendario
+- [x] Mapa interactivo de mesas
+- [x] Emails: bienvenida, confirmación, cancelación
+- [x] Multi-restaurante con contexto persistente
+- [x] Notificaciones en tiempo real
+- [x] WebSockets con Laravel Reverb
+- [ ] Recordatorios automáticos 24h
 - [ ] Exportación de reportes (CSV/PDF)
-- [ ] Multi-idioma (ES/EN)
 - [ ] Modo oscuro
+- [ ] i18n (ES/EN)
 
----
-
-## Licencia
+## 📄 Licencia
 
 MIT &copy; 2026 TableBit
