@@ -24,7 +24,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const navLinks = [
-    { to: "/", label: "Restaurantes" },
+    { to: "/restaurantes", label: "Restaurantes" },
     ...(isAuthenticated ? [{ to: "/mis-reservas", label: "Mis Reservas" }] : []),
     ...(isAuthenticated && ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "")
       ? [{ to: "/dashboard", label: "Dashboard" }] : []),

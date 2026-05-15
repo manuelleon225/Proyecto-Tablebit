@@ -17,7 +17,7 @@ class RegisterRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:usuarios',
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*[^a-zA-Z0-9]).+$/'],
-            'role' => 'nullable|in:cliente',
+            'role' => 'nullable|in:cliente,admin_restaurante',
         ];
     }
 

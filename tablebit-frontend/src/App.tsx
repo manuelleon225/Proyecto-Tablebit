@@ -22,6 +22,8 @@ const CalendarioReservas = lazy(() => import("./pages/dashboard/CalendarioReserv
 const ListadoReservas = lazy(() => import("./pages/dashboard/ListadoReservas"));
 const Analytics = lazy(() => import("./pages/dashboard/Analytics"));
 const TableMapPage = lazy(() => import("./pages/dashboard/TableMapPage"));
+const RestaurantesPage = lazy(() => import("./pages/RestaurantesPage"));
+const OnboardingRestaurante = lazy(() => import("./pages/OnboardingRestaurante"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -46,9 +48,18 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/buscar-restaurantes" element={<Home />} />
+                <Route path="/restaurantes" element={<RestaurantesPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/restaurantes/:id" element={<RestauranteDetalle />} />
+                <Route
+                  path="/onboarding/restaurante"
+                  element={
+                    <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
+                      <OnboardingRestaurante />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/mis-reservas"
                   element={
