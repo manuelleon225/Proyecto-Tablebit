@@ -45,7 +45,8 @@ const OnboardingRestaurante = () => {
     setLoading(true);
     try {
       const res = await restauranteService.crear({
-        user_id: user!.id, nombre: form.nombre, direccion: form.direccion, telefono: form.telefono,
+        nombre: form.nombre, direccion: form.direccion, telefono: form.telefono,
+        ciudad: form.ciudad, tipo_comida: form.tipo_comida, capacidad_total: form.capacidad_total,
       });
       setCreatedId(res.data.restaurante?.id || res.data.id);
       setStep(3);

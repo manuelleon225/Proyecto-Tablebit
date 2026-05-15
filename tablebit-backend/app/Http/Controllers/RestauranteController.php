@@ -29,10 +29,14 @@ class RestauranteController extends Controller
     {
         $validated = $request->validated();
         $validated['estado'] = 'activo';
+        $validated['user_id'] = $request->user()->id;
 
         $this->authorize('create', Restaurante::class);
 
         $restaurante = Restaurante::create($validated);
+
+        // Associate owner via pivot
+        $restaurante->users()->attach($request->user()->id, ['role' => 'owner']);
         $restaurante->load(['horarios']);
 
         return response()->json([
@@ -161,7 +165,7 @@ class RestauranteController extends Controller
     {
         $user = $request->user();
 
-        if ($user->role === 'superadmin' || $user->role === 'admin') {
+        if ($user->role === 'superadmin') {
             $restaurantes = Restaurante::with(['mesas', 'imagenes'])
                 ->withAvg('resenas', 'rating')
                 ->withCount('resenas')

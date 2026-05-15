@@ -159,7 +159,7 @@ export const restauranteService = {
   buscar: (params: { nombre?: string; ciudad?: string; tipo_comida?: string; ordenar?: string; per_page?: number }) =>
     api.get("/buscar-restaurantes", { params }),
 
-  crear: (data: { user_id: number; nombre: string; direccion: string; telefono?: string }) =>
+  crear: (data: { nombre: string; direccion: string; telefono?: string; ciudad?: string; tipo_comida?: string; capacidad_total?: number }) =>
     api.post("/restaurantes", data),
 
   actualizar: (id: number, data: Partial<Restaurante>) =>

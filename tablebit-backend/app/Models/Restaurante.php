@@ -36,6 +36,13 @@ class Restaurante extends Model
         return $this->belongsTo(Usuario::class, 'user_id');
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(Usuario::class, 'restaurant_user', 'restaurante_id', 'user_id')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
     public function mesas()
     {
         return $this->hasMany(Mesa::class);
