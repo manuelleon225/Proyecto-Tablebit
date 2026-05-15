@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Reservas;
 use App\Models\Mesa;
 use App\Models\Restaurante;
+use App\Models\RestaurantHour;
 use App\Models\HorarioDia;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -338,29 +339,47 @@ class ReservaService
 
     private function validarHorarioRestaurante($restaurante, $fecha, $hora)
     {
+        $dayOfWeek = Carbon::parse($fecha)->dayOfWeek; // 0=Sunday, 1=Monday ... 6=Saturday
+        // Convert to 0=Monday, 6=Sunday
+        $dayIndex = $dayOfWeek === 0 ? 6 : $dayOfWeek - 1;
+
+        // Prefer new restaurant_hours table
+        $hour = RestaurantHour::where('restaurante_id', $restaurante->id)
+            ->where('day_of_week', $dayIndex)
+            ->first();
+
+        if ($hour) {
+            if ($hour->is_closed) {
+                return ['valido' => false, 'mensaje' => 'El restaurante está cerrado este día'];
+            }
+            if ($hour->open_time && $hour->close_time) {
+                $apertura = is_string($hour->open_time) ? substr($hour->open_time, 0, 5) : $hour->open_time->format('H:i');
+                $cierre = is_string($hour->close_time) ? substr($hour->close_time, 0, 5) : $hour->close_time->format('H:i');
+                $horaStr = is_string($hora) ? substr($hora, 0, 5) : (is_object($hora) ? $hora->format('H:i') : substr((string)$hora, 0, 5));
+
+                if ($horaStr < $apertura || $horaStr > $cierre) {
+                    return ['valido' => false, 'mensaje' => "El restaurante está abierto de {$apertura} a {$cierre}"];
+                }
+            }
+            return ['valido' => true];
+        }
+
+        // Legacy fallback: HorarioDia
         $diaSemana = strtolower(Carbon::parse($fecha)->locale('es')->dayName);
-
         $diaMap = [
-            'monday' => 'lunes',
-            'tuesday' => 'martes',
-            'wednesday' => 'miercoles',
-            'thursday' => 'jueves',
-            'friday' => 'viernes',
-            'saturday' => 'sabado',
-            'sunday' => 'domingo',
+            'monday' => 'lunes', 'tuesday' => 'martes', 'wednesday' => 'miercoles',
+            'thursday' => 'jueves', 'friday' => 'viernes', 'saturday' => 'sabado', 'sunday' => 'domingo',
         ];
-
         $diaNormalizado = $diaMap[$diaSemana] ?? $diaSemana;
+        $horarioLegacy = $restaurante->horarios->firstWhere('dia', $diaNormalizado);
 
-        $horario = $restaurante->horarios->firstWhere('dia', $diaNormalizado);
-
-        if ($horario && !$horario->activo) {
+        if ($horarioLegacy && !$horarioLegacy->activo) {
             return ['valido' => false, 'mensaje' => 'El restaurante está cerrado los ' . $diaNormalizado . 's'];
         }
 
-        if ($horario && $horario->hora_apertura && $horario->hora_cierre) {
-            $apertura = is_string($horario->hora_apertura) ? $horario->hora_apertura : $horario->hora_apertura->format('H:i');
-            $cierre = is_string($horario->hora_cierre) ? $horario->hora_cierre : $horario->hora_cierre->format('H:i');
+        if ($horarioLegacy && $horarioLegacy->hora_apertura && $horarioLegacy->hora_cierre) {
+            $apertura = is_string($horarioLegacy->hora_apertura) ? $horarioLegacy->hora_apertura : $horarioLegacy->hora_apertura->format('H:i');
+            $cierre = is_string($horarioLegacy->hora_cierre) ? $horarioLegacy->hora_cierre : $horarioLegacy->hora_cierre->format('H:i');
             $horaStr = is_string($hora) ? $hora : (is_object($hora) ? $hora->format('H:i') : $hora);
 
             if ($horaStr < $apertura || $horaStr > $cierre) {
