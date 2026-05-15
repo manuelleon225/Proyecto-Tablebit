@@ -9,11 +9,12 @@ class MesaPolicy
 {
     public function view(Usuario $user, Mesa $mesa): bool
     {
+        // Admin roles can view if they manage the restaurant
         if (in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])) {
-            return true;
+            if ($user->role === 'superadmin' || $user->role === 'admin') return true;
+            return $user->restaurantes()->where('restaurante_id', $mesa->restaurante_id)->exists();
         }
-
-        return true;
+        return true; // public can view
     }
 
     public function create(Usuario $user): bool
@@ -23,12 +24,13 @@ class MesaPolicy
 
     public function update(Usuario $user, Mesa $mesa): bool
     {
-        return in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])
-            && ($mesa->restaurante->user_id === $user->id || in_array($user->role, ['admin', 'superadmin']));
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        return $user->restaurantes()->where('restaurante_id', $mesa->restaurante_id)->exists();
     }
 
     public function delete(Usuario $user, Mesa $mesa): bool
     {
-        return in_array($user->role, ['admin', 'superadmin']);
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        return $user->restaurantes()->where('restaurante_id', $mesa->restaurante_id)->exists();
     }
 }

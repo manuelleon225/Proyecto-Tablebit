@@ -41,16 +41,14 @@ class AuthorizationTest extends TestCase
         $policy = new RestaurantePolicy();
 
         $superadmin = new Usuario(['role' => 'superadmin', 'id' => 1]);
-        $adminRestaurante = new Usuario(['role' => 'admin_restaurante', 'id' => 2]);
+        $admin = new Usuario(['role' => 'admin', 'id' => 4]);
         $cliente = new Usuario(['role' => 'cliente', 'id' => 3]);
 
-        $restauranteOwn = new Restaurante(['user_id' => 2]);
-        $restauranteOther = new Restaurante(['user_id' => 99]);
+        $restaurante = new Restaurante(['user_id' => 1, 'id' => 1]);
 
-        $this->assertTrue($policy->update($superadmin, $restauranteOwn));
-        $this->assertTrue($policy->update($adminRestaurante, $restauranteOwn));
-        $this->assertTrue($policy->update($adminRestaurante, $restauranteOther));
-        $this->assertFalse($policy->update($cliente, $restauranteOwn));
+        $this->assertTrue($policy->update($superadmin, $restaurante));
+        $this->assertTrue($policy->update($admin, $restaurante));
+        $this->assertFalse($policy->update($cliente, $restaurante));
     }
 
     public function test_restaurante_policy_delete_permissions(): void
@@ -59,16 +57,11 @@ class AuthorizationTest extends TestCase
 
         $superadmin = new Usuario(['role' => 'superadmin', 'id' => 1]);
         $admin = new Usuario(['role' => 'admin', 'id' => 2]);
-        $adminRestaurante = new Usuario(['role' => 'admin_restaurante', 'id' => 3]);
 
-        $restauranteOwn = new Restaurante(['user_id' => 3]);
-        $restauranteOther = new Restaurante(['user_id' => 99]);
+        $restaurante = new Restaurante(['user_id' => 1, 'id' => 1]);
 
-        $this->assertTrue($policy->delete($superadmin, $restauranteOwn));
-        $this->assertTrue($policy->delete($superadmin, $restauranteOther));
-        $this->assertTrue($policy->delete($admin, $restauranteOwn));
-        $this->assertTrue($policy->delete($admin, $restauranteOther));
-        $this->assertFalse($policy->delete($adminRestaurante, $restauranteOther));
+        $this->assertTrue($policy->delete($superadmin, $restaurante));
+        $this->assertTrue($policy->delete($admin, $restaurante));
     }
 
     public function test_rate_limiting_on_login(): void

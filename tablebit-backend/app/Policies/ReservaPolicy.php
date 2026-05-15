@@ -9,35 +9,31 @@ class ReservaPolicy
 {
     public function view(Usuario $user, Reservas $reserva): bool
     {
-        if (in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])) {
-            return $reserva->restaurante->user_id === $user->id
-                || in_array($user->role, ['admin', 'superadmin']);
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        if ($user->role === 'admin_restaurante') {
+            return $user->restaurantes()->where('restaurante_id', $reserva->restaurante_id)->exists();
         }
-
         return $reserva->cliente_id === $user->id;
     }
 
     public function update(Usuario $user, Reservas $reserva): bool
     {
-        if (in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])) {
-            return $reserva->restaurante->user_id === $user->id
-                || in_array($user->role, ['admin', 'superadmin']);
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        if ($user->role === 'admin_restaurante') {
+            return $user->restaurantes()->where('restaurante_id', $reserva->restaurante_id)->exists();
         }
-
         return $reserva->cliente_id === $user->id;
     }
 
     public function cancel(Usuario $user, Reservas $reserva): bool
     {
-        if (in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])) {
-            return true;
-        }
-
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        if ($user->role === 'admin_restaurante') return true;
         return $reserva->cliente_id === $user->id;
     }
 
     public function delete(Usuario $user, Reservas $reserva): bool
     {
-        return in_array($user->role, ['admin', 'superadmin']);
+        return in_array($user->role, ['superadmin', 'admin']);
     }
 }

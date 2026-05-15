@@ -14,7 +14,7 @@ class RestaurantePolicy
 
     public function view(Usuario $user, Restaurante $restaurante): bool
     {
-        return true;
+        return true; // public API — anyone can view restaurant details
     }
 
     public function create(Usuario $user): bool
@@ -24,29 +24,28 @@ class RestaurantePolicy
 
     public function update(Usuario $user, Restaurante $restaurante): bool
     {
-        if (in_array($user->role, ['superadmin'])) return true;
-
-        return $restaurante->user_id === $user->id
-            || in_array($user->role, ['admin', 'admin_restaurante']);
+        if ($user->role === 'superadmin') return true;
+        if ($user->role === 'admin') return true;
+        // Check via pivot
+        return $user->restaurantes()->where('restaurante_id', $restaurante->id)->exists();
     }
 
     public function delete(Usuario $user, Restaurante $restaurante): bool
     {
-        if (in_array($user->role, ['superadmin'])) return true;
-
-        return $restaurante->user_id === $user->id
-            || $user->role === 'admin';
+        if ($user->role === 'superadmin') return true;
+        if ($user->role === 'admin') return true;
+        return $user->restaurantes()->where('restaurante_id', $restaurante->id)->exists();
     }
 
     public function manageMesas(Usuario $user, Restaurante $restaurante): bool
     {
-        return in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])
-            && ($restaurante->user_id === $user->id || in_array($user->role, ['admin', 'superadmin']));
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        return $user->restaurantes()->where('restaurante_id', $restaurante->id)->wherePivot('role', 'owner')->exists();
     }
 
     public function manageReservas(Usuario $user, Restaurante $restaurante): bool
     {
-        return in_array($user->role, ['admin', 'admin_restaurante', 'superadmin'])
-            && ($restaurante->user_id === $user->id || in_array($user->role, ['admin', 'superadmin']));
+        if (in_array($user->role, ['superadmin', 'admin'])) return true;
+        return $user->restaurantes()->where('restaurante_id', $restaurante->id)->exists();
     }
 }
