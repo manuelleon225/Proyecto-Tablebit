@@ -161,11 +161,18 @@ class RestauranteController extends Controller
     {
         $user = $request->user();
 
-        $restaurantes = Restaurante::where('user_id', $user->id)
-            ->with(['mesas', 'imagenes'])
-            ->withAvg('resenas', 'rating')
-            ->withCount('resenas')
-            ->get();
+        if ($user->role === 'superadmin' || $user->role === 'admin') {
+            $restaurantes = Restaurante::with(['mesas', 'imagenes'])
+                ->withAvg('resenas', 'rating')
+                ->withCount('resenas')
+                ->get();
+        } else {
+            $restaurantes = $user->restaurantes()
+                ->with(['mesas', 'imagenes'])
+                ->withAvg('resenas', 'rating')
+                ->withCount('resenas')
+                ->get();
+        }
 
         return response()->json($restaurantes);
     }

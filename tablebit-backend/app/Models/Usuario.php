@@ -38,6 +38,13 @@ class Usuario extends Authenticatable
         return $this->hasOne(Restaurante::class, 'user_id');
     }
 
+    public function restaurantes()
+    {
+        return $this->belongsToMany(Restaurante::class, 'restaurant_user', 'user_id', 'restaurante_id')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
     public function reservas()
     {
         return $this->hasMany(Reservas::class, 'cliente_id');

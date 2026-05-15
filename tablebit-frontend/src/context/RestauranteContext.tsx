@@ -16,19 +16,19 @@ const RestauranteContext = createContext<RestauranteContextType | undefined>(und
 export const RestauranteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
 
+  const isAdmin = user && ["admin", "admin_restaurante", "superadmin"].includes(user.role);
+
   const { data: misRestaurantesRespuesta, isLoading } = useQuery({
     queryKey: ['mis-restaurantes'],
     queryFn: async () => {
       const res = await restauranteService.getMisRestaurantes();
       return res.data;
     },
-    enabled: !!user && !user.restaurante,
+    enabled: !!isAdmin,
     staleTime: 10 * 60 * 1000,
   });
 
-  const misRestaurantes: { id: number; nombre: string }[] = user?.restaurante
-    ? [{ id: user.restaurante.id, nombre: user.restaurante.nombre }]
-    : (misRestaurantesRespuesta || []);
+  const misRestaurantes: { id: number; nombre: string }[] = misRestaurantesRespuesta || [];
 
   const [selectedRestauranteId, setSelectedRestauranteIdState] = useState<number | null>(() => {
     const saved = localStorage.getItem("tablebit_restaurante_id");

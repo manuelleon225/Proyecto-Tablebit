@@ -31,7 +31,7 @@ class ReservaController extends Controller
 
         $user = $request->user();
         if ($user->role === 'admin_restaurante') {
-            $misRestaurantesIds = Restaurante::where('user_id', $user->id)->pluck('id');
+            $misRestaurantesIds = $user->restaurantes()->pluck('restaurante_id');
             $query->whereIn('restaurante_id', $misRestaurantesIds);
         }
 

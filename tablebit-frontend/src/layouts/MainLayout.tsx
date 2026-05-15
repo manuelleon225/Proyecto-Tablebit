@@ -23,12 +23,18 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     return user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  const navLinks = [
-    { to: "/restaurantes", label: "Restaurantes" },
-    ...(isAuthenticated ? [{ to: "/mis-reservas", label: "Mis Reservas" }] : []),
-    ...(isAuthenticated && ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "")
-      ? [{ to: "/dashboard", label: "Dashboard" }] : []),
-  ];
+  const isAdmin = ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "");
+
+  const navLinks = isAuthenticated && isAdmin
+    ? [
+        { to: "/dashboard", label: "Dashboard" },
+        { to: "/dashboard/reservas", label: "Reservas" },
+        { to: "/dashboard/mesas", label: "Mesas" },
+      ]
+    : [
+        { to: "/restaurantes", label: "Restaurantes" },
+        ...(isAuthenticated ? [{ to: "/mis-reservas", label: "Mis Reservas" }] : []),
+      ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
