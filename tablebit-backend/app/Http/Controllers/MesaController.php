@@ -103,6 +103,8 @@ class MesaController extends Controller
 
     public function delRestaurante($restauranteId): JsonResponse
     {
+        $restaurante = Restaurante::findOrFail($restauranteId);
+        $this->authorize('manageReservas', $restaurante);
         $mesas = Mesa::where('restaurante_id', $restauranteId)
             ->orderBy('numero', 'asc')
             ->get();
