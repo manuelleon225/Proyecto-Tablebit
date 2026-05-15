@@ -22,6 +22,7 @@ const CalendarioReservas = lazy(() => import("./pages/dashboard/CalendarioReserv
 const ListadoReservas = lazy(() => import("./pages/dashboard/ListadoReservas"));
 const Analytics = lazy(() => import("./pages/dashboard/Analytics"));
 const TableMapPage = lazy(() => import("./pages/dashboard/TableMapPage"));
+const MisRestaurantesPage = lazy(() => import("./pages/dashboard/MisRestaurantesPage"));
 const RestaurantesPage = lazy(() => import("./pages/RestaurantesPage"));
 const OnboardingRestaurante = lazy(() => import("./pages/OnboardingRestaurante"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -121,6 +122,14 @@ const App = () => (
                   element={
                     <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
                       <RestauranteProvider><TableMapPage /></RestauranteProvider>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/restaurantes"
+                  element={
+                    <ProtectedRoute requiredRole={["admin", "admin_restaurante", "superadmin"]}>
+                      <RestauranteProvider><MisRestaurantesPage /></RestauranteProvider>
                     </ProtectedRoute>
                   }
                 />
