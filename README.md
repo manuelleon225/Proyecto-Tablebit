@@ -79,6 +79,8 @@ npm run dev
 
 | Rol | Email | Password |
 |-----|-------|----------|
+| **Admin Demo** | admin@tablebit.com | password |
+| **Cliente Demo** | carlos@demo.com | password |
 | Admin | admin@test.com | admin123 |
 | Admin Restaurante | admin.rest1@test.com | Admin123! |
 | Cliente | ana@test.com | Cliente1! |

@@ -245,7 +245,12 @@ class DatabaseSeeder extends Seeder
         $this->command->info("Reservas creadas: {$reservasCreadas}");
 
         // ========================
-        // 6. E2E Test Users
+        // 6. Demo Data
+        // ========================
+        $this->call(DemoDataSeeder::class);
+
+        // ========================
+        // 7. E2E Test Users
         // ========================
         $this->call(E2ETestSeeder::class);
     }
