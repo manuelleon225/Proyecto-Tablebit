@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useRestaurante } from "@/context/RestauranteContext";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import {
   LayoutDashboard, UtensilsCrossed, CalendarDays, List, LogOut, ChevronLeft,
-  Menu, X, Bell, ChevronDown, BarChart3, Table2,
+  Menu, X, ChevronDown, BarChart3, Table2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -138,10 +139,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-              <Bell className="h-4 w-4 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
-            </button>
+            <NotificationCenter />
             <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-border">
               <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-xs font-semibold text-primary">{user?.name?.charAt(0)?.toUpperCase() || "?"}</span>

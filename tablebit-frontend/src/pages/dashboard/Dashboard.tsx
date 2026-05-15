@@ -1,17 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService, type Reserva } from "@/services/restauranteService";
-import { CalendarDays, Users, UtensilsCrossed, TrendingUp, AlertCircle, Clock, XCircle, CheckCircle2, Ban, Percent, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { CalendarDays, Users, UtensilsCrossed, TrendingUp, AlertCircle, Clock, XCircle, CheckCircle2, Ban, Percent } from "lucide-react";
 import { useRestaurante } from "@/context/RestauranteContext";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
-import { ESTADO_CONFIG } from "@/constants/estados";
 import { DashboardCard } from "@/components/ui/dashboard-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ActivityFeed } from "@/components/notifications/ActivityFeed";
+import { Waitlist } from "@/components/waitlist/Waitlist";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -107,6 +106,21 @@ const Dashboard = () => {
               ) : statCards.map((s, i) => (
                 <DashboardCard key={s.label} {...s} style={{ animationDelay: `${i * 75}ms` }} className="animate-fade-in" />
               ))}
+            </div>
+
+            {/* Activity + Waitlist */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-border/50 bg-card p-5 shadow-card">
+                <h2 className="font-display text-base font-semibold mb-3 flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
+                  </span>
+                  Actividad reciente
+                </h2>
+                <ActivityFeed />
+              </div>
+              <Waitlist />
             </div>
 
             {/* Horas pico + Métricas */}
