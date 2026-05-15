@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRestaurante } from "@/context/RestauranteContext";
 import {
   LayoutDashboard, UtensilsCrossed, CalendarDays, List, LogOut, ChevronLeft,
-  Menu, X, Bell, ChevronDown, BarChart3,
+  Menu, X, Bell, ChevronDown, BarChart3, Table2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { label: "Mesas", icon: UtensilsCrossed, path: "/dashboard/mesas" },
+  { label: "Mapa", icon: Table2, path: "/dashboard/mapa-mesas" },
   { label: "Calendario", icon: CalendarDays, path: "/dashboard/calendario" },
   { label: "Reservas", icon: List, path: "/dashboard/reservas" },
   { label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
