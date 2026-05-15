@@ -36,12 +36,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch {
           localStorage.removeItem("tablebit_token");
           localStorage.removeItem("tablebit_user");
+          localStorage.removeItem("tablebit_restaurante_id");
           setUser(null);
           setToken(null);
         }
       } catch {
         localStorage.removeItem("tablebit_token");
         localStorage.removeItem("tablebit_user");
+        localStorage.removeItem("tablebit_restaurante_id");
       }
     }
     setIsLoading(false);
@@ -94,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
     localStorage.removeItem("tablebit_token");
     localStorage.removeItem("tablebit_user");
+    localStorage.removeItem("tablebit_restaurante_id");
   }, []);
 
   const updateProfile = useCallback(async (data: UpdateProfileData) => {

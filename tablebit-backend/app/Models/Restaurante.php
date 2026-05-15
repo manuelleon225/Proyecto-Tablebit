@@ -63,6 +63,11 @@ class Restaurante extends Model
         return $this->hasMany(HorarioDia::class);
     }
 
+    public function hours()
+    {
+        return $this->hasMany(RestaurantHour::class);
+    }
+
     public function resenas()
     {
         return $this->hasMany(Resena::class);

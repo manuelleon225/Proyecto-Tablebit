@@ -30,10 +30,7 @@ export const RestauranteProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const misRestaurantes: { id: number; nombre: string }[] = misRestaurantesRespuesta || [];
 
-  const [selectedRestauranteId, setSelectedRestauranteIdState] = useState<number | null>(() => {
-    const saved = localStorage.getItem("tablebit_restaurante_id");
-    return saved ? Number(saved) : null;
-  });
+  const [selectedRestauranteId, setSelectedRestauranteIdState] = useState<number | null>(null);
 
   const setSelectedRestauranteId = useCallback((id: number) => {
     setSelectedRestauranteIdState(id);

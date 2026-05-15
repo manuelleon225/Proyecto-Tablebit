@@ -33,6 +33,7 @@ api.interceptors.response.use(
       if (token) {
         localStorage.removeItem("tablebit_token");
         localStorage.removeItem("tablebit_user");
+        localStorage.removeItem("tablebit_restaurante_id");
         window.dispatchEvent(new CustomEvent("auth:logout"));
       }
     }
