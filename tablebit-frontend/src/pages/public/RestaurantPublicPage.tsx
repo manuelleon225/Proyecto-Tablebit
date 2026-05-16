@@ -3,11 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import MainLayout from "@/layouts/MainLayout";
 import { restauranteService } from "@/services/restauranteService";
-import { CalendarDays, Clock, MapPin, Phone, Users, Star, CheckCircle2, ChevronRight, ImageIcon, Wifi, Car, Dog, Sun, Wind, ExternalLink } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Phone, Users, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSEO } from "@/hooks/useSEO";
 import RestaurantCard from "@/components/RestaurantCard";
 import StructuredData from "@/components/StructuredData";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { RestaurantMap } from "@/components/restaurant/RestaurantMap";
 import { useState } from "react";
 
 const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -140,6 +142,12 @@ const RestaurantPublicPage = () => {
                 ))}
               </div>
             </div>
+
+            {/* Reviews */}
+            <ReviewsSection restauranteId={restaurante.id} />
+
+            {/* Map */}
+            <RestaurantMap lat={restaurante.lat} lng={restaurante.lng} nombre={restaurante.nombre} direccion={restaurante.direccion} />
 
             {/* Gallery - if images exist */}
             {Array.isArray(restaurante.imagenes) && restaurante.imagenes.length > 0 && (
