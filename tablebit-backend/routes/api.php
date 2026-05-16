@@ -11,7 +11,6 @@ use App\Http\Controllers\ImagenController;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\HealthController;
-use App\Http\Controllers\HorarioDiaController;
 use App\Http\Controllers\RestaurantHourController;
 use App\Http\Controllers\PasswordResetController;
 
@@ -101,12 +100,7 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
     Route::get('/calendario/restaurante/{restauranteId}', [ReservaController::class, 'calendarioRestaurante'])
         ->middleware('role:admin,admin_restaurante,superadmin');
 
-    // Horarios (legacy)
-    Route::get('/restaurantes/{restauranteId}/horarios', [HorarioDiaController::class, 'index']);
-    Route::post('/restaurantes/{restauranteId}/horarios', [HorarioDiaController::class, 'store'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
-
-    // Restaurant Hours (new)
+    // Restaurant Hours
     Route::get('/restaurantes/{restauranteId}/hours', [RestaurantHourController::class, 'index'])
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::put('/restaurantes/{restauranteId}/hours', [RestaurantHourController::class, 'update'])
