@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRestauranteRequest;
 use App\Http\Requests\UpdateRestauranteRequest;
 use App\Models\Restaurante;
+use App\Models\RestaurantHour;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -154,6 +155,36 @@ class RestauranteController extends Controller
 
         return response()->json([
             'restaurante' => $restaurante,
+            'rating_promedio' => round($restaurante->resenas_avg_rating ?? 0, 1),
+            'total_resenas' => $restaurante->resenas_count ?? 0,
+            'resenas_recientes' => $resenasRecientes,
+            'abierto_ahora' => $restaurante->estaAbiertoAhora(),
+        ]);
+    }
+
+    public function showPublicBySlug($slug): JsonResponse
+    {
+        $restaurante = Restaurante::with(['mesas' => function ($q) {
+                $q->whereNotIn('estado', ['inactiva', 'mantenimiento']);
+            }, 'imagenes'])
+            ->withAvg('resenas', 'rating')
+            ->withCount('resenas')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $hours = RestaurantHour::where('restaurante_id', $restaurante->id)
+            ->orderBy('day_of_week')
+            ->get();
+
+        $resenasRecientes = $restaurante->resenas()
+            ->with('cliente')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'restaurante' => $restaurante,
+            'hours' => $hours,
             'rating_promedio' => round($restaurante->resenas_avg_rating ?? 0, 1),
             'total_resenas' => $restaurante->resenas_count ?? 0,
             'resenas_recientes' => $resenasRecientes,

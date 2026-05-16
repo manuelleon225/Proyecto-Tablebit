@@ -171,6 +171,9 @@ export const restauranteService = {
   getPublic: (id: number) =>
     api.get(`/restaurantes/${id}/public`),
 
+  getPublicBySlug: (slug: string) =>
+    api.get(`/public/restaurantes/${slug}`),
+
   getResenas: (restauranteId: number, page = 1) =>
     api.get(`/restaurantes/${restauranteId}/resenas`, { params: { page } }),
 

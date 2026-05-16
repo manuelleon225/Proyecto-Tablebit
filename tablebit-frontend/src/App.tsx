@@ -25,6 +25,7 @@ const TableMapPage = lazy(() => import("./pages/dashboard/TableMapPage"));
 const MisRestaurantesPage = lazy(() => import("./pages/dashboard/MisRestaurantesPage"));
 const HorariosPage = lazy(() => import("./pages/dashboard/HorariosPage"));
 const RestaurantesPage = lazy(() => import("./pages/RestaurantesPage"));
+const RestaurantPublicPage = lazy(() => import("./pages/public/RestaurantPublicPage"));
 const OnboardingRestaurante = lazy(() => import("./pages/OnboardingRestaurante"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/restaurantes/:id" element={<RestauranteDetalle />} />
+                <Route path="/restaurante/:slug" element={<RestaurantPublicPage />} />
                 <Route
                   path="/onboarding/restaurante"
                   element={
