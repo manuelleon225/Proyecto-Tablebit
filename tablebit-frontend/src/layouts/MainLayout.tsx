@@ -37,7 +37,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
@@ -136,7 +136,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         )}
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1" role="main">{children}</main>
 
       <footer className="border-t border-border/50 bg-muted/30">
         <div className="container py-8 sm:py-10 px-4 sm:px-6">

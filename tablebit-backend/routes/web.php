@@ -2,8 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Models\Restaurante;
+
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/sitemap.xml', function () {
+    $restaurantes = Restaurante::where('estado', 'activo')->whereNotNull('slug')->get(['slug', 'updated_at']);
+
+    return response()->view('sitemap', [
+        'restaurantes' => $restaurantes,
+        'url' => config('app.url', 'https://tablebit.com'),
+    ])->header('Content-Type', 'text/xml');
 });
 
 Route::middleware(['auth:sanctum', \App\Http\Middleware\RoleMiddleware::class . ':admin,superadmin'])->group(function () {
