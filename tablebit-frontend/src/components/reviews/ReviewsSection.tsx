@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, MessageSquare, User, ThumbsUp, Clock } from "lucide-react";
@@ -38,7 +38,7 @@ const StarRating = ({ value, onChange, size = "sm" }: { value: number; onChange?
   );
 };
 
-const ReviewCard = ({ review }: { review: any }) => (
+const ReviewCard = memo(({ review }: { review: any }) => (
   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
     className="p-4 rounded-xl border border-border/50 bg-card shadow-card">
     <div className="flex items-start gap-3">
@@ -51,11 +51,11 @@ const ReviewCard = ({ review }: { review: any }) => (
           <StarRating value={review.rating} />
           <span className="text-xs text-muted-foreground ml-auto">{timeAgo(review.created_at)}</span>
         </div>
-        {review.comentario && <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{review.comentario}</p>}
-      </div>
+      {review.comentario && <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{review.comentario}</p>}
     </div>
-  </motion.div>
-);
+  </div>
+</motion.div>
+));
 
 const CreateReviewForm = ({ restauranteId, onCreated }: { restauranteId: number; onCreated: () => void }) => {
   const { user } = useAuth();

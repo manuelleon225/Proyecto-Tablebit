@@ -96,8 +96,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <Button variant="ghost" size="sm" className="text-sidebar-foreground/50 hover:text-sidebar-foreground h-8 text-xs flex-1" onClick={() => navigate("/")}>
             <ChevronLeft className="h-3.5 w-3.5 mr-1" /> Sitio
           </Button>
-          <Button variant="ghost" size="sm" className="text-sidebar-foreground/50 hover:text-destructive h-8 text-xs" onClick={handleLogout}>
-            <LogOut className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="text-sidebar-foreground/50 hover:text-destructive h-8 text-xs" onClick={handleLogout} aria-label="Cerrar sesión">
+            <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -115,10 +115,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col animate-slide-in">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col animate-slide-in overflow-y-auto">
             <div className="flex justify-end p-3">
-              <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-sidebar-accent/50 text-sidebar-foreground/60">
-                <X className="h-5 w-5" />
+              <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-sidebar-accent/50 text-sidebar-foreground/60" aria-label="Cerrar menú">
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
             <SidebarContent />
@@ -131,9 +131,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Top bar */}
         <header className="sticky top-0 z-20 h-14 lg:h-16 border-b border-border/50 bg-background/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 gap-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-muted transition-colors">
-              <Menu className="h-5 w-5 text-foreground" />
-            </button>
+<button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-muted transition-colors" aria-label="Abrir menú">
+          <Menu className="h-5 w-5 text-foreground" aria-hidden="true" />
+        </button>
             <div>
               <h2 className="font-display text-sm font-semibold hidden sm:block">
                 {navItems.find((i) => isActive(i.path))?.label || "Dashboard"}

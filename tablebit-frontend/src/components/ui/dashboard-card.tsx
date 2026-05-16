@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +14,7 @@ interface DashboardCardProps {
   style?: React.CSSProperties;
 }
 
-export const DashboardCard = ({
+export const DashboardCard = memo(({
   label, value, icon: Icon, subtext, trend, accent = "text-primary", bgIcon = "bg-primary/10", className, style,
 }: DashboardCardProps) => (
   <div
@@ -42,4 +43,4 @@ export const DashboardCard = ({
     </div>
     <div className="absolute -bottom-6 -right-6 h-16 w-16 rounded-full bg-gradient-to-br from-primary/[0.03] to-transparent blur-xl" />
   </div>
-);
+));
