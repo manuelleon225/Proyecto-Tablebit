@@ -34,6 +34,8 @@ Route::get('/buscar-restaurantes', [RestauranteController::class, 'buscar'])->mi
 Route::get('/restaurantes/{id}', [RestauranteController::class, 'show'])->middleware('throttle:global');
 Route::get('/restaurantes/{id}/public', [RestauranteController::class, 'showPublic'])->middleware('throttle:global');
 Route::get('/restaurantes/{id}/resenas', [ResenaController::class, 'index'])->middleware('throttle:global');
+Route::get('/restaurantes/{id}/reviews', [RestaurantReviewController::class, 'index']);
+Route::post('/restaurantes/{id}/reviews', [RestaurantReviewController::class, 'store'])->middleware('auth:sanctum');
 Route::get('/public/restaurantes/{slug}', [RestauranteController::class, 'showPublicBySlug'])->middleware('throttle:global');
 
 // Health checks
