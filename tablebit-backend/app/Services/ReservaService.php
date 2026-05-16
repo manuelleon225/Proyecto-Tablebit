@@ -7,6 +7,7 @@ use App\Models\Mesa;
 use App\Models\Restaurante;
 use App\Models\RestaurantHour;
 use App\Models\HorarioDia;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -126,6 +127,8 @@ class ReservaService
 
             $reserva->load(['cliente', 'mesa', 'restaurante']);
 
+            Cache::forget("analytics.{$restauranteId}." . Carbon::parse($fecha)->toDateString() . "." . Carbon::parse($fecha)->toDateString());
+
             return $reserva;
         });
     }
@@ -154,6 +157,8 @@ class ReservaService
             $reserva->save();
 
             $reserva->load(['cliente', 'mesa', 'restaurante']);
+
+            Cache::forget("analytics.{$reserva->restaurante_id}." . Carbon::parse($reserva->fecha)->toDateString() . "." . Carbon::parse($reserva->fecha)->toDateString());
 
             return $reserva;
         });
@@ -200,13 +205,14 @@ class ReservaService
 
     public function getAnalyticsRestaurante($restauranteId, $fechaInicio = null, $fechaFin = null)
     {
-        $fechaInicio = $fechaInicio ?? Carbon::today()->toDateString();
-        $fechaFin = $fechaFin ?? Carbon::today()->toDateString();
+        $cacheKey = "analytics.{$restauranteId}.{$fechaInicio}.{$fechaFin}";
 
-        $reservas = Reservas::where('restaurante_id', $restauranteId)
-            ->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+        return Cache::remember($cacheKey, 300, function () use ($restauranteId, $fechaInicio, $fechaFin) {
+            $fechaInicio = $fechaInicio ?? Carbon::today()->toDateString();
+            $fechaFin = $fechaFin ?? Carbon::today()->toDateString();
 
-        $totalReservas = (clone $reservas)->count();
+            $reservas = Reservas::where('restaurante_id', $restauranteId)
+                ->whereBetween('fecha', [$fechaInicio, $fechaFin]);
         $confirmadas = (clone $reservas)->where('estado', 'confirmada')->count();
         $completadas = (clone $reservas)->where('estado', 'completada')->count();
         $canceladas = (clone $reservas)->where('estado', 'cancelada')->count();
@@ -274,6 +280,7 @@ class ReservaService
             'reservas_por_dia' => $reservasPorDia,
             'reservas_por_semana' => $reservasPorSemana,
         ];
+        });
     }
 
     private function buscarMejorMesa($restauranteId, $fecha, $hora, $personas, $duracion)

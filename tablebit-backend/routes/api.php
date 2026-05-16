@@ -50,7 +50,7 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
 
     // Restaurantes (admin)
     Route::post('/restaurantes', [RestauranteController::class, 'store'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
+        ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:10,1']);
     Route::put('/restaurantes/{id}', [RestauranteController::class, 'update'])
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::delete('/restaurantes/{id}', [RestauranteController::class, 'destroy'])
@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
 
     // Imagenes
     Route::post('/restaurantes/{id}/imagenes', [ImagenController::class, 'subirImagen'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
+        ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:10,1']);
     Route::delete('/imagenes/{id}', [ImagenController::class, 'eliminarImagen'])
         ->middleware('role:admin,admin_restaurante,superadmin');
 
@@ -68,7 +68,7 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
     Route::get('/mesas', [MesaController::class, 'index']);
     Route::get('/mesas/restaurante/{restauranteId}', [MesaController::class, 'delRestaurante']);
     Route::post('/mesas', [MesaController::class, 'store'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
+        ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:20,1']);
     Route::put('/mesas/{id}', [MesaController::class, 'update'])
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::delete('/mesas/{id}', [MesaController::class, 'destroy'])
