@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Restaurante extends Model
 {
@@ -14,6 +15,7 @@ class Restaurante extends Model
     protected $fillable = [
         'user_id',
         'nombre',
+        'slug',
         'direccion',
         'telefono',
         'estado',
@@ -152,5 +154,40 @@ class Restaurante extends Model
     public function scopePorTipoComida($query, $tipo)
     {
         return $query->where('tipo_comida', 'like', "%{$tipo}%");
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($restaurante) {
+            if (empty($restaurante->slug) && !empty($restaurante->nombre)) {
+                $restaurante->slug = static::generateUniqueSlug($restaurante->nombre);
+            }
+        });
+
+        static::updating(function ($restaurante) {
+            if ($restaurante->isDirty('nombre') && !$restaurante->isDirty('slug')) {
+                $restaurante->slug = static::generateUniqueSlug($restaurante->nombre, $restaurante->id);
+            }
+        });
+    }
+
+    private static function generateUniqueSlug(string $name, ?int $excludeId = null): string
+    {
+        $slug = Str::slug($name);
+        $base = $slug;
+        $counter = 1;
+        while (true) {
+            $query = static::where('slug', $slug);
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+            if (!$query->exists()) {
+                break;
+            }
+            $slug = $base . '-' . $counter++;
+        }
+        return $slug;
     }
 }
