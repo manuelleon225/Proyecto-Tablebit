@@ -212,6 +212,7 @@ class ReservaService
 
             $reservas = Reservas::where('restaurante_id', $restauranteId)
                 ->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+            $totalReservas = (clone $reservas)->count();
         $confirmadas = (clone $reservas)->where('estado', 'confirmada')->count();
         $completadas = (clone $reservas)->where('estado', 'completada')->count();
         $canceladas = (clone $reservas)->where('estado', 'cancelada')->count();
