@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DisponibilidadRequest;
 use App\Http\Requests\StoreReservaRequest;
+use App\Jobs\SendReservationCancellation;
+use App\Jobs\SendReservationConfirmation;
 use App\Mail\ReservationCancelledMail;
 use App\Mail\ReservationConfirmedMail;
 use App\Models\Reservas;
@@ -78,18 +80,12 @@ class ReservaController extends Controller
             );
 
             try {
-                Mail::to($reserva->cliente->email)->send(new ReservationConfirmedMail($reserva));
-                Log::info('Correo de confirmación de reserva enviado', [
-                    'reserva_id' => $reserva->id,
-                    'email' => $reserva->cliente->email,
-                    'mailer' => config('mail.default'),
-                ]);
+                SendReservationConfirmation::dispatch($reserva);
             } catch (\Throwable $e) {
-                Log::warning('Error al enviar correo de confirmación de reserva', [
+                Log::warning('Error al encolar correo de confirmación de reserva', [
                     'reserva_id' => $reserva->id,
                     'email' => $reserva->cliente->email,
                     'error' => $e->getMessage(),
-                    'mailer' => config('mail.default'),
                 ]);
             }
 
@@ -202,18 +198,12 @@ class ReservaController extends Controller
             );
 
             try {
-                Mail::to($reserva->cliente->email)->send(new ReservationConfirmedMail($reserva));
-                Log::info('Correo de confirmación de reserva enviado', [
-                    'reserva_id' => $reserva->id,
-                    'email' => $reserva->cliente->email,
-                    'mailer' => config('mail.default'),
-                ]);
+                SendReservationConfirmation::dispatch($reserva);
             } catch (\Throwable $e) {
-                Log::warning('Error al enviar correo de confirmación de reserva', [
+                Log::warning('Error al encolar correo de confirmación de reserva', [
                     'reserva_id' => $reserva->id,
                     'email' => $reserva->cliente->email,
                     'error' => $e->getMessage(),
-                    'mailer' => config('mail.default'),
                 ]);
             }
 
@@ -331,18 +321,12 @@ class ReservaController extends Controller
             $reserva = $this->reservaService->cancelarReserva($id);
 
             try {
-                Mail::to($reserva->cliente->email)->send(new ReservationCancelledMail($reserva));
-                Log::info('Correo de cancelación de reserva enviado', [
-                    'reserva_id' => $reserva->id,
-                    'email' => $reserva->cliente->email,
-                    'mailer' => config('mail.default'),
-                ]);
+                SendReservationCancellation::dispatch($reserva);
             } catch (\Throwable $e) {
-                Log::warning('Error al enviar correo de cancelación de reserva', [
+                Log::warning('Error al encolar correo de cancelación de reserva', [
                     'reserva_id' => $reserva->id,
                     'email' => $reserva->cliente->email,
                     'error' => $e->getMessage(),
-                    'mailer' => config('mail.default'),
                 ]);
             }
 

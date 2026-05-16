@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Mail\WelcomeMail;
+use App\Jobs\SendWelcomeMail;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,17 +27,10 @@ class AuthController extends Controller
         ]);
 
         try {
-            Mail::to($user->email)->send(new WelcomeMail($user));
-            Log::info('Correo de bienvenida enviado', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'mailer' => config('mail.default'),
-            ]);
+            SendWelcomeMail::dispatch($user);
         } catch (\Throwable $e) {
-            Log::warning('Error al enviar correo de bienvenida', [
+            Log::warning('Error al encolar correo de bienvenida', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'mailer' => config('mail.default'),
                 'error' => $e->getMessage(),
             ]);
         }
