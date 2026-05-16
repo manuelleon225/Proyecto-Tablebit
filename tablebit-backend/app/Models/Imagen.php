@@ -13,6 +13,7 @@ class Imagen extends Model
         'tipo',
         'nombre_original',
         'tamanio_kb',
+        'orden',
     ];
 
     public function restaurante()

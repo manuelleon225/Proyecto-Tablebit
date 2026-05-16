@@ -22,6 +22,7 @@ class Restaurante extends Model
         'descripcion',
         'imagen',
         'portada',
+        'logo',
         'ciudad',
         'tipo_comida',
         'horario_apertura',

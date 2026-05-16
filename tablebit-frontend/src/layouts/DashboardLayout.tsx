@@ -43,24 +43,39 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
           <span className="font-display text-lg font-bold tracking-tight">TableBit</span>
         </Link>
-        {restauranteActual && (
-          <div className="mt-4">
-            {misRestaurantes.length > 1 ? (
-              <Select value={String(selectedRestauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
-                <SelectTrigger className="w-full h-8 text-xs bg-sidebar-accent border-sidebar-border text-sidebar-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {misRestaurantes.map((r: { id: number; nombre: string }) => (
-                    <SelectItem key={r.id} value={String(r.id)} className="text-xs">{r.nombre}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="text-xs text-sidebar-foreground/50 truncate px-1">{restauranteActual.nombre}</p>
-            )}
-          </div>
-        )}
+                {restauranteActual && (
+                  <div className="mt-4 space-y-1">
+                    <div className="flex items-center gap-2 px-1">
+                      <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {restauranteActual.logo ? (
+                          <img src={`/storage/${restauranteActual.logo}`} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-[10px] font-bold text-primary">{restauranteActual.nombre?.[0]}</span>
+                        )}
+                      </div>
+                      {misRestaurantes.length <= 1 && (
+                        <p className="text-xs text-sidebar-foreground/70 truncate font-medium">{restauranteActual.nombre}</p>
+                      )}
+                    </div>
+                    {misRestaurantes.length > 1 && (
+                      <Select value={String(selectedRestauranteId)} onValueChange={(v) => setSelectedRestauranteId(Number(v))}>
+                        <SelectTrigger className="w-full h-8 text-xs bg-sidebar-accent border-sidebar-border text-sidebar-foreground">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {misRestaurantes.map((r: { id: number; nombre: string; logo?: string }) => (
+                            <SelectItem key={r.id} value={String(r.id)} className="text-xs flex items-center gap-2">
+                              <span className="flex items-center gap-2">
+                                {r.logo && <img src={`/storage/${r.logo}`} alt="" className="h-4 w-4 rounded object-cover" />}
+                                {r.nombre}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                )}
       </div>
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map((item) => {
