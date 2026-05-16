@@ -16,7 +16,7 @@ import { useSEO } from "@/hooks/useSEO";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { TIPOS_COMIDA, DEPARTAMENTOS } from "@/constants/colombia";
+import { TIPOS_COMIDA, DEPARTAMENTOS, DEPARTAMENTOS_LIST } from "@/constants/colombia";
 
 const createSchema = z.object({
   nombre: z.string().min(2, "Mínimo 2 caracteres").max(100),
@@ -157,10 +157,10 @@ const OnboardingRestaurante = () => {
                       <Label>Departamento *</Label>
                       <Select onValueChange={(v) => { setDepto(v); setValue("ciudad", ""); }}>
                         <SelectTrigger className="h-11 bg-card/50">
-                          <SelectValue placeholder="Depto" />
+                          <SelectValue placeholder="Selecciona un departamento" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.keys(DEPARTAMENTOS).map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                          {DEPARTAMENTOS_LIST.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
