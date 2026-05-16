@@ -11,6 +11,14 @@ use Illuminate\Support\Str;
 
 class ImagenController extends Controller
 {
+    public function index($restauranteId): JsonResponse
+    {
+        $restaurante = Restaurante::findOrFail($restauranteId);
+        $this->authorize('manageReservas', $restaurante);
+        $imagenes = Imagen::where('restaurante_id', $restauranteId)->orderBy('created_at', 'desc')->get();
+        return response()->json($imagenes);
+    }
+
     public function subirImagen(Request $request, $restauranteId): JsonResponse
     {
         $restaurante = Restaurante::findOrFail($restauranteId);

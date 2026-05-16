@@ -61,6 +61,8 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
         ->middleware('role:admin,admin_restaurante,superadmin');
 
     // Imagenes
+    Route::get('/restaurantes/{id}/imagenes', [ImagenController::class, 'index'])
+        ->middleware('role:admin,admin_restaurante,superadmin');
     Route::post('/restaurantes/{id}/imagenes', [ImagenController::class, 'subirImagen'])
         ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:10,1']);
     Route::delete('/imagenes/{id}', [ImagenController::class, 'eliminarImagen'])
