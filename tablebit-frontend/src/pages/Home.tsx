@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { restauranteService } from "@/services/restauranteService";
 import MainLayout from "@/layouts/MainLayout";
 import RestaurantCard from "@/components/RestaurantCard";
 import StructuredData from "@/components/StructuredData";
-import { Search, AlertCircle, ChevronRight, Sparkles, Check, ArrowRight, Star, Users, Clock, Shield, BarChart3, Bell, Smartphone } from "lucide-react";
+import { Search, AlertCircle, ChevronRight, Sparkles, Check, ArrowRight, Star, Users, Clock, Shield, BarChart3, Bell, Smartphone, CalendarDays, UtensilsCrossed, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -52,8 +52,16 @@ const faq = [
 const Home = () => {
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "");
+
+  // Redirect admin users to dashboard
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
 
   useSEO({ title: "TableBit - Reserva de Mesas en Restaurantes", description: "SaaS moderno de gestión de reservas para restaurantes. Dashboard, analytics, notificaciones y más.", canonical: "https://tablebit.com/" });
 
@@ -76,50 +84,79 @@ const Home = () => {
 
   return (
     <MainLayout>
-      {/* ══════ HERO ══════ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700 min-h-[80vh] sm:min-h-[75vh] flex items-center">
-        <div className="absolute inset-0">
-          <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-secondary/10 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMjBoLTAuMDEiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA0KSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+PC9zdmc+')] opacity-20" />
-        </div>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full relative z-10 text-center py-16 sm:py-20">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs sm:text-sm font-medium text-white/80 mb-6 sm:mb-8 border border-white/10">
-            <Sparkles className="h-3.5 w-3.5" />
-            SaaS de gestión de reservas para restaurantes
-          </div>
-          <h1 className="font-display text-[clamp(2.25rem,6vw,4.5rem)] font-bold text-white leading-[1.08] tracking-tight max-w-5xl mx-auto">
-            Gestiona tu restaurante
-            <br />
-            <span className="text-secondary">como un profesional</span>
-          </h1>
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
-            Dashboard en tiempo real, reservas automáticas, analytics y gestión de mesas. Todo en un solo lugar.
-          </p>
-          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate("/register")} className="h-12 px-8 sm:px-10 text-base shadow-xl shadow-primary/30 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary">
-              Comenzar gratis <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/login")} className="h-12 px-8 sm:px-10 text-base bg-white/5 text-white border-white/20 hover:bg-white/10 hover:text-white">
-              Iniciar sesión
-            </Button>
-          </div>
-          <form onSubmit={handleSearch} className="mt-10 sm:mt-12 mx-auto max-w-lg">
-            <div className="flex gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-1.5 border border-white/10">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar restaurantes..." className="pl-10 bg-transparent border-0 text-white placeholder:text-white/40 h-11 focus-visible:ring-0" />
-              </div>
-              <Button type="submit" size="sm" className="h-11 px-5">Buscar</Button>
+      {/* ══════ HERO (contextual por auth) ══════ */}
+      {isAuthenticated ? (
+        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700 py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full relative z-10 text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-white/80 mb-6 border border-white/10">
+              <UtensilsCrossed className="h-3.5 w-3.5" />
+              Bienvenido de nuevo, {user?.name}
             </div>
-          </form>
-          <div className="mt-8 sm:mt-10 flex items-center justify-center gap-6 sm:gap-8 text-xs sm:text-sm text-white/40">
-            <span className="flex items-center gap-1.5"><Star className="h-4 w-4 fill-secondary text-secondary" /> 4.9/5</span>
-            <span className="flex items-center gap-1.5"><Users className="h-4 w-4" /> 150+ restaurantes</span>
-            <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> 99.9% uptime</span>
+            <h1 className="font-display text-4xl sm:text-5xl font-bold text-white leading-[1.1] tracking-tight max-w-3xl mx-auto">
+              Explora y reserva en tus restaurantes favoritos
+            </h1>
+            <p className="mt-4 text-lg text-white/60 max-w-xl mx-auto">
+              Encuentra el lugar perfecto para tu próxima experiencia gastronómica.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+              <Button size="lg" onClick={() => navigate("/restaurantes")} className="h-12 px-8 text-base shadow-xl shadow-primary/30 bg-gradient-to-r from-primary to-primary/90">
+                Explorar restaurantes <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate("/mis-reservas")} className="h-12 px-8 text-base bg-white/5 text-white border-white/20 hover:bg-white/10">
+                <CalendarDays className="h-4 w-4 mr-2" /> Mis reservas
+              </Button>
+            </div>
+            <form onSubmit={handleSearch} className="mt-8 mx-auto max-w-lg">
+              <div className="flex gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-1.5 border border-white/10">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar restaurantes..." className="pl-10 bg-transparent border-0 text-white placeholder:text-white/40 h-11 focus-visible:ring-0" />
+                </div>
+                <Button type="submit" size="sm" className="h-11 px-5">Buscar</Button>
+              </div>
+            </form>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700 min-h-[80vh] sm:min-h-[75vh] flex items-center">
+          <div className="absolute inset-0">
+            <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-secondary/10 blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMjBoLTAuMDEiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA0KSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+PC9zdmc+')] opacity-20" />
+          </div>
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full relative z-10 text-center py-16 sm:py-20">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-white/80 mb-6 border border-white/10">
+              <Sparkles className="h-3.5 w-3.5" /> SaaS de gestión de reservas para restaurantes
+            </div>
+            <h1 className="font-display text-[clamp(2.25rem,6vw,4.5rem)] font-bold text-white leading-[1.08] tracking-tight max-w-5xl mx-auto">
+              Gestiona tu restaurante <br /><span className="text-secondary">como un profesional</span>
+            </h1>
+            <p className="mt-4 text-lg text-white/60 max-w-xl mx-auto">Dashboard en tiempo real, reservas automáticas, analytics y gestión de mesas.</p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+              <Button size="lg" onClick={() => navigate("/register")} className="h-12 px-8 text-base shadow-xl shadow-primary/30 bg-gradient-to-r from-primary to-primary/90">
+                Comenzar gratis <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate("/login")} className="h-12 px-8 text-base bg-white/5 text-white border-white/20 hover:bg-white/10">
+                Iniciar sesión
+              </Button>
+            </div>
+            <form onSubmit={handleSearch} className="mt-10 mx-auto max-w-lg">
+              <div className="flex gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-1.5 border border-white/10">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar restaurantes..." className="pl-10 bg-transparent border-0 text-white placeholder:text-white/40 h-11" />
+                </div>
+                <Button type="submit" size="sm" className="h-11 px-5">Buscar</Button>
+              </div>
+            </form>
+            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-white/40">
+              <span className="flex items-center gap-1.5"><Star className="h-4 w-4 fill-secondary text-secondary" /> 4.9/5</span>
+              <span className="flex items-center gap-1.5"><Users className="h-4 w-4" /> 150+ restaurantes</span>
+              <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> 99.9% uptime</span>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ══════ FEATURES ══════ */}
       <Section>
