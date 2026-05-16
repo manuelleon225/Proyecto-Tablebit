@@ -1,12 +1,13 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import MainLayout from "@/layouts/MainLayout";
 import { restauranteService } from "@/services/restauranteService";
-import { CalendarDays, Clock, MapPin, Phone, Users, Star, ChevronRight, CheckCircle2 } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Phone, Users, Star, CheckCircle2, ChevronRight, ImageIcon, Wifi, Car, Dog, Sun, Wind, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSEO } from "@/hooks/useSEO";
-import { formatDate } from "@/lib/date";
+import RestaurantCard from "@/components/RestaurantCard";
+import StructuredData from "@/components/StructuredData";
 import { useState } from "react";
 
 const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -111,6 +112,15 @@ const RestaurantPublicPage = () => {
               <div>
                 <h2 className="font-display text-xl font-semibold mb-3">Sobre el restaurante</h2>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{restaurante.descripcion}</p>
+                {restaurante.amenities && Array.isArray(restaurante.amenities) && restaurante.amenities.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {restaurante.amenities.map((a: string) => (
+                      <span key={a} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs font-medium">
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -131,9 +141,34 @@ const RestaurantPublicPage = () => {
               </div>
             </div>
 
+            {/* Gallery - if images exist */}
+            {Array.isArray(restaurante.imagenes) && restaurante.imagenes.length > 0 && (
+              <div>
+                <h2 className="font-display text-xl font-semibold mb-4">Galería</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {restaurante.imagenes.slice(0, 6).map((img: any, i: number) => (
+                    <div key={img.id || i} className="aspect-square rounded-xl overflow-hidden bg-muted group cursor-pointer">
+                      <img src={`/storage/${img.ruta}`} alt={`${restaurante.nombre} - Foto ${i + 1}`}
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Related restaurants */}
+            {Array.isArray(data?.related) && data.related.length > 0 && (
+              <div>
+                <h2 className="font-display text-xl font-semibold mb-4">También te puede interesar</h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {data.related.map((r: any) => <RestaurantCard key={r.id} restaurante={r} />)}
+                </div>
+              </div>
+            )}
+
             {/* Empty state */}
             {!restaurante.descripcion && hours.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground text-sm">
+              <div className="text-center py-12 text-muted-foreground text-sm" role="status">
                 <p>El restaurante aún no ha completado su perfil</p>
               </div>
             )}
@@ -181,6 +216,33 @@ const RestaurantPublicPage = () => {
           </div>
         </div>
       </div>
+      {/* JSON-LD Structured Data */}
+      <StructuredData data={{
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        name: restaurante.nombre,
+        description: restaurante.descripcion || undefined,
+        image: restaurante.imagen ? `https://tablebit.com/storage/${restaurante.imagen}` : undefined,
+        servesCuisine: restaurante.tipo_comida || undefined,
+        telephone: restaurante.telefono || undefined,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: restaurante.direccion || undefined,
+          addressLocality: restaurante.ciudad || undefined,
+          addressCountry: "CO",
+        },
+        openingHoursSpecification: hours.filter((h: any) => !h.is_closed).map((h: any) => ({
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][h.day_of_week],
+          opens: h.open_time?.substring(0, 5),
+          closes: h.close_time?.substring(0, 5),
+        })),
+        aggregateRating: data?.total_resenas > 0 ? {
+          "@type": "AggregateRating",
+          ratingValue: data.rating_promedio,
+          reviewCount: data.total_resenas,
+        } : undefined,
+      }} />
     </MainLayout>
   );
 };

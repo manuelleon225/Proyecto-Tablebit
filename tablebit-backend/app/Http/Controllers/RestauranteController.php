@@ -182,9 +182,25 @@ class RestauranteController extends Controller
             ->limit(5)
             ->get();
 
+        $related = Restaurante::where('id', '!=', $restaurante->id)
+            ->where('estado', 'activo')
+            ->where(function ($q) use ($restaurante) {
+                if ($restaurante->ciudad) {
+                    $q->where('ciudad', $restaurante->ciudad);
+                }
+                if ($restaurante->tipo_comida) {
+                    $q->orWhere('tipo_comida', $restaurante->tipo_comida);
+                }
+            })
+            ->withAvg('resenas', 'rating')
+            ->withCount('resenas')
+            ->limit(3)
+            ->get();
+
         return response()->json([
             'restaurante' => $restaurante,
             'hours' => $hours,
+            'related' => $related,
             'rating_promedio' => round($restaurante->resenas_avg_rating ?? 0, 1),
             'total_resenas' => $restaurante->resenas_count ?? 0,
             'resenas_recientes' => $resenasRecientes,
