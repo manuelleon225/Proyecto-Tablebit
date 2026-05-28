@@ -1,0 +1,24 @@
+# OpenCode
+opencode-config/
+opencode.json
+
+# Docker
+docker-compose.yml
+.nginx/
+tablebit-frontend/Dockerfile
+tablebit-frontend/docker-compose.yml
+tablebit-frontend/nginx/
+
+# Architecture docs
+CTX_ARCHITECTURE.md
+
+# Temp scripts
+tablebit-backend/tmp_*.php
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
