@@ -13,12 +13,13 @@
 <p align="center"><strong>SaaS moderno de gestión de reservas para restaurantes</strong></p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#tech-stack">Stack</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#architecture">Arquitectura</a> •
-  <a href="#deploy">Deploy</a> •
-  <a href="#demo">Demo</a>
+  <a href="#features">✨ Features</a> •
+  <a href="#tech-stack">🛠 Stack</a> •
+  <a href="#quick-start">🚀 Quick Start</a> •
+  <a href="#architecture">🏗 Arquitectura</a> •
+  <a href="#deploy">📦 Deploy</a> •
+  <a href="#security">🔐 Seguridad</a> •
+  <a href="#roadmap">📈 Roadmap</a>
 </p>
 
 ---
@@ -41,21 +42,16 @@
 
 ## 🛠️ Tech Stack
 
-```
-Frontend         Backend          Infraestructura
-React 18         Laravel 12       MySQL 8.0
-TypeScript 5     PHP 8.3          Redis 7
-Tailwind CSS 4   Sanctum Auth     Docker
-shadcn/ui        Reverb WS        Nginx
-React Query      Queue Jobs       GitHub Actions
-Zustand          Mailtrap/SMTP    Laravel Pulse
-Framer Motion    API REST         PWA + SEO
-Recharts         Form Requests    OpenGraph
-```
+| Categoría | Tecnologías |
+|-----------|-------------|
+| **Frontend** | React 18 · TypeScript 5 · Tailwind CSS 4 · shadcn/ui · React Query · Zustand · Framer Motion · Recharts |
+| **Backend** | Laravel 12 · PHP 8.3 · Sanctum Auth · Reverb WS · Queue Jobs · Mailtrap/SMTP · API REST · Form Requests |
+| **Infraestructura** | MySQL 8.0 · Redis 7 · Docker · Nginx · GitHub Actions · Laravel Pulse · PWA + SEO · OpenGraph |
 
 ## 🚀 Quick Start
 
-### Backend
+<details>
+<summary><b>🐘 Backend — Laravel API</b></summary>
 
 ```bash
 cd tablebit-backend
@@ -66,24 +62,27 @@ php artisan key:generate
 php artisan migrate --seed
 php artisan serve
 ```
+</details>
 
-### Frontend
+<details>
+<summary><b>⚛️ Frontend — React SPA</b></summary>
 
 ```bash
 cd tablebit-frontend
 npm install
 npm run dev
 ```
+</details>
 
-### Credenciales Demo
-
-| Rol | Email | Password |
-|-----|-------|----------|
-| **Admin Demo** | admin@tablebit.com | password |
-| **Cliente Demo** | carlos@demo.com | password |
-| Admin | admin@test.com | admin123 |
-| Admin Restaurante | admin.rest1@test.com | Admin123! |
-| Cliente | ana@test.com | Cliente1! |
+> 💡 **Credenciales Demo**
+>
+> | Rol | Email | Password |
+> |-----|-------|----------|
+> | **Admin Demo** | admin@tablebit.com | password |
+> | **Cliente Demo** | carlos@demo.com | password |
+> | Admin | admin@test.com | admin123 |
+> | Admin Restaurante | admin.rest1@test.com | Admin123! |
+> | Cliente | ana@test.com | Cliente1! |
 
 ## 🏗️ Arquitectura
 
@@ -121,13 +120,16 @@ tableBit/
 
 ## 📦 Deploy
 
-### Docker (producción)
+<details>
+<summary><b>🐳 Docker (producción)</b></summary>
 
 ```bash
 docker compose up -d
 ```
+</details>
 
-### Manual
+<details>
+<summary><b>⚙️ Manual</b></summary>
 
 ```bash
 # Frontend
@@ -135,8 +137,10 @@ cd tablebit-frontend && npm run build
 # Backend
 cd tablebit-backend && bash deploy.sh production
 ```
+</details>
 
-### Variables de entorno producción
+<details>
+<summary><b>🔐 Variables de entorno producción</b></summary>
 
 ```env
 APP_ENV=production
@@ -147,15 +151,20 @@ CACHE_STORE=redis
 QUEUE_CONNECTION=redis
 BROADCAST_CONNECTION=reverb
 ```
+</details>
 
 ## 🔐 Seguridad
 
-- **Auth**: Laravel Sanctum (tokens 7 días)
-- **Rate Limiting**: 10/min auth, 30/min disponibilidad, 20/min reservas
-- **Headers**: CSP, HSTS, X-Frame-Options, X-Content-Type-Options
-- **Authorization**: Policies por rol + RoleMiddleware
-- **Validation**: FormRequests (backend) + Zod (frontend)
-- **CORS**: Restringido a orígenes específicos
+| Componente | Implementación |
+|-----------|----------------|
+| **Auth** | Laravel Sanctum (tokens 7 días) |
+| **Rate Limiting** | 10/min auth · 30/min disponibilidad · 20/min reservas |
+| **Headers** | CSP · HSTS · X-Frame-Options · X-Content-Type-Options |
+| **Authorization** | Policies por rol + RoleMiddleware |
+| **Validation** | FormRequests (backend) + Zod (frontend) |
+| **CORS** | Restringido a orígenes específicos |
+
+> ⚠️ **Aviso de seguridad:** Las contraseñas en entorno de desarrollo son inseguras (`123456`, `admin123`). Para producción, usar contraseñas seguras y HTTPS.
 
 ## 📈 Roadmap
 
