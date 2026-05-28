@@ -1,3 +1,11 @@
+# Envs
+tablebit-backend/.env
+tablebit-frontend/.env
+tablebit-frontend/.env.local
+
+# Dependencies
+tablebit-frontend/node_modules/
+
 # OpenCode
 opencode-config/
 opencode.json
