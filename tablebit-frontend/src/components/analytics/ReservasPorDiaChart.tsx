@@ -38,7 +38,7 @@ export const ReservasPorDiaChart = ({ data, loading }: Props) => {
 
   const chartData = data.slice(-range).map((d) => ({
     ...d,
-    fecha: new Date(d.fecha).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
+    fecha: (() => { const p = d.fecha?.split("-").map(Number); return p ? new Date(p[0], p[1] - 1, p[2]).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }) : d.fecha; })(),
   }));
 
   return (

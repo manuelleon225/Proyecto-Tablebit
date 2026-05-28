@@ -8,6 +8,7 @@ use App\Jobs\SendWelcomeMail;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -18,13 +19,24 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        $user = Usuario::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] ?? 'cliente',
-            'estado' => 'activo'
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = Usuario::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => $validated['role'] ?? 'cliente',
+                'estado' => 'activo'
+            ]);
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Error al registrar usuario', [
+                'error' => $e->getMessage(),
+                'data' => $validated,
+            ]);
+            return response()->json(['message' => 'Error al registrar usuario'], 500);
+        }
 
         try {
             SendWelcomeMail::dispatch($user);
@@ -35,11 +47,16 @@ class AuthController extends Controller
             ]);
         }
 
+        $hasRestaurant = $user->restaurantes()->count() > 0 || !is_null($user->restaurante);
+        $requiresOnboarding = in_array($user->role, ['admin', 'admin_restaurante'])
+            && !$hasRestaurant;
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'requires_onboarding' => $requiresOnboarding,
         ], 201);
     }
 
@@ -57,11 +74,16 @@ class AuthController extends Controller
 
         $user->load('restaurante');
 
+        $hasRestaurant = $user->restaurantes()->count() > 0 || !is_null($user->restaurante);
+        $requiresOnboarding = in_array($user->role, ['admin', 'admin_restaurante'])
+            && !$hasRestaurant;
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'requires_onboarding' => $requiresOnboarding,
         ]);
     }
 

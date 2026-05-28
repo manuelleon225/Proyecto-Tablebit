@@ -20,7 +20,7 @@ export const DashboardCard = memo(({
   <div
     className={cn(
       "group relative overflow-hidden rounded-xl border border-border/50 bg-card p-5",
-      "shadow-card hover:shadow-card-hover transition-all duration-300",
+      "shadow-card hover:shadow-card-hover transition-all duration-300 motion-safe:hover:transform-gpu",
       className
     )}
     style={style}

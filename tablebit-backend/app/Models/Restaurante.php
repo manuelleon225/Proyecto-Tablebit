@@ -23,15 +23,18 @@ class Restaurante extends Model
         'imagen',
         'portada',
         'logo',
+        'banner',
         'ciudad',
         'tipo_comida',
         'horario_apertura',
         'horario_cierre',
         'capacidad_total',
+        'branding',
     ];
 
     protected $casts = [
         'capacidad_total' => 'integer',
+        'branding' => 'array',
     ];
 
     public function user()

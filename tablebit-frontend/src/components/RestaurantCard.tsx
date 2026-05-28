@@ -1,105 +1,79 @@
-import { type Restaurante } from "@/services/restauranteService";
-import { MapPin, Clock, Users, Star, ChevronRight } from "lucide-react";
+import type { Restaurante } from "@/types/restaurante";
+import { MapPin, Star, Clock, CalendarDays, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getImageUrl, getImageVariantUrl, CARD_VARIANT, PLACEHOLDER_LOGO } from "@/lib/image";
 
 interface RestaurantCardProps {
   restaurante: Restaurante;
 }
 
 const RestaurantCard = ({ restaurante }: RestaurantCardProps) => {
-  const getGradient = (id: number) => {
-    const gradients = [
-      "from-emerald-400 to-teal-500",
-      "from-amber-400 to-orange-500",
-      "from-blue-400 to-indigo-500",
-      "from-pink-400 to-rose-500",
-      "from-purple-400 to-violet-500",
-      "from-cyan-400 to-blue-500",
-    ];
-    return gradients[id % gradients.length];
-  };
+  const linkTo = restaurante.slug ? `/restaurante/${restaurante.slug}` : `/restaurantes/${restaurante.id}`;
 
   return (
-    <Link
-      to={`/restaurantes/${restaurante.id}`}
-      className="group block rounded-2xl border border-border bg-card overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/20"
-    >
-      {/* Image area */}
+    <Link to={linkTo} className="group block rounded-2xl border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-0.5">
+      {/* Image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {restaurante.imagen ? (
-          <img
-            src={restaurante.imagen}
-            alt={restaurante.nombre}
-            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-          />
+          <img src={getImageVariantUrl(restaurante.imagen, CARD_VARIANT) || getImageUrl(restaurante.imagen) || ""}
+            alt={restaurante.nombre} loading="lazy"
+            className="h-full w-full object-cover transition-all duration-700 group-hover:scale-[1.04]" />
         ) : (
-          <div className={`h-full w-full bg-gradient-to-br ${getGradient(restaurante.id)} flex items-center justify-center`}>
-            <span className="font-display text-5xl sm:text-6xl text-white/80 drop-shadow-lg">
-              {restaurante.nombre[0]?.toUpperCase()}
-            </span>
+          <div className="h-full w-full bg-gradient-to-br from-muted/80 to-muted flex items-center justify-center">
+            <span className="font-display text-5xl text-muted-foreground/20">{restaurante.nombre?.[0]}</span>
           </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
 
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-
-        {/* Top right badge */}
         {restaurante.tipo_comida && (
-          <div className="absolute top-3 right-3">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-background/90 backdrop-blur-sm shadow-md">
-              {restaurante.tipo_comida}
-            </span>
-          </div>
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-medium bg-background/80 backdrop-blur-sm shadow-sm">
+            {restaurante.tipo_comida}
+          </span>
         )}
 
-        {/* Bottom left - capacity */}
-        {restaurante.capacidad_total && (
-          <div className="absolute bottom-3 left-3">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-background/90 backdrop-blur-sm shadow-md text-muted-foreground">
-              <Users className="h-3 w-3" />
-              {restaurante.capacidad_total}
-            </span>
-          </div>
-        )}
+        {/* Rating on image */}
+        <span className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium bg-background/80 backdrop-blur-sm shadow-sm">
+          <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+          {restaurante.rating_promedio?.toFixed(1) || "—"}
+        </span>
+
+        {/* Hover CTA */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <span className="px-4 py-2 rounded-xl bg-white text-foreground text-sm font-semibold shadow-lg translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-2">
+            <CalendarDays className="h-4 w-4" /> Ver restaurante
+          </span>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-2">
+      <div className="p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          {restaurante.logo && (
+            <img src={getImageUrl(restaurante.logo) || PLACEHOLDER_LOGO} alt=""
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover ring-1 ring-border flex-shrink-0 mt-0.5" />
+          )}
           <div className="flex-1 min-w-0">
-            <h3 className="font-display text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors truncate leading-snug">
-              {restaurante.nombre}
-            </h3>
-
-            {restaurante.direccion && (
-              <p className="mt-1.5 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="truncate">{restaurante.direccion}</span>
-              </p>
-            )}
+            <h3 className="font-display text-base sm:text-lg font-semibold leading-snug group-hover:text-primary transition-colors truncate">{restaurante.nombre}</h3>
+            <p className="mt-1 flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{restaurante.ciudad || restaurante.direccion}</span>
+            </p>
           </div>
-
-          {/* Hover arrow */}
-          <ChevronRight className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+          <ChevronRight className="h-5 w-5 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-2" />
         </div>
 
-        {/* Bottom info row */}
-        <div className="mt-3.5 pt-3.5 border-t border-border/50 flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="mt-3 pt-3 border-t border-border/30 flex items-center gap-3 text-xs text-muted-foreground">
           {restaurante.horario_apertura && (
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {restaurante.horario_apertura} – {restaurante.horario_cierre}
+            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{restaurante.horario_apertura?.substring(0,5)}</span>
+          )}
+          {restaurante.capacidad_total && (
+            <span className="flex items-center gap-1"><svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              {restaurante.capacidad_total} pax
             </span>
           )}
-          <span className="flex items-center gap-1 ml-auto">
-            <Star className="h-3 w-3 text-warning fill-warning" />
-            {restaurante.rating_promedio
-              ? restaurante.rating_promedio.toFixed(1)
-              : "N/A"}
-            {restaurante.total_resenas !== undefined && (
-              <span className="text-muted-foreground/60">({restaurante.total_resenas})</span>
-            )}
+          <span className="ml-auto flex items-center gap-1">
+            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+            {restaurante.rating_promedio?.toFixed(1) || "—"}
           </span>
         </div>
       </div>

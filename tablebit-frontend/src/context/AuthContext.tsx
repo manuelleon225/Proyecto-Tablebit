@@ -7,10 +7,12 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  requiresOnboarding: boolean;
   login: (data: LoginData) => Promise<{ success: boolean; error?: string; user?: User }>;
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => Promise<void>;
   updateProfile: (data: UpdateProfileData) => Promise<{ success: boolean; error?: string }>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [requiresOnboarding, setRequiresOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const validateToken = useCallback(async () => {
@@ -28,10 +31,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsedUser = JSON.parse(savedUser) as User;
         setToken(savedToken);
         setUser(parsedUser);
+        setRequiresOnboarding(parsedUser.requires_onboarding ?? false);
 
         try {
           const me = await authService.getMe();
           setUser(me);
+          setRequiresOnboarding(me.requires_onboarding ?? false);
           localStorage.setItem("tablebit_user", JSON.stringify(me));
         } catch {
           localStorage.removeItem("tablebit_token");
@@ -39,6 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem("tablebit_restaurante_id");
           setUser(null);
           setToken(null);
+          setRequiresOnboarding(false);
         }
       } catch {
         localStorage.removeItem("tablebit_token");
@@ -57,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleLogout = () => {
       setUser(null);
       setToken(null);
+      setRequiresOnboarding(false);
     };
     window.addEventListener("auth:logout", handleLogout);
     return () => window.removeEventListener("auth:logout", handleLogout);
@@ -67,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await authService.login(data);
       setUser(result.user);
       setToken(result.token);
+      setRequiresOnboarding(result.requires_onboarding ?? false);
       localStorage.setItem("tablebit_token", result.token);
       localStorage.setItem("tablebit_user", JSON.stringify(result.user));
       return { success: true, user: result.user };
@@ -81,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await authService.register(data);
       setUser(result.user);
       setToken(result.token);
+      setRequiresOnboarding(result.requires_onboarding ?? false);
       localStorage.setItem("tablebit_token", result.token);
       localStorage.setItem("tablebit_user", JSON.stringify(result.user));
       return { success: true, user: result.user };
@@ -94,6 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authService.logout();
     setUser(null);
     setToken(null);
+    setRequiresOnboarding(false);
     localStorage.removeItem("tablebit_token");
     localStorage.removeItem("tablebit_user");
     localStorage.removeItem("tablebit_restaurante_id");
@@ -111,9 +121,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const updateUser = useCallback((newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem("tablebit_user", JSON.stringify(newUser));
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated: !!user, isLoading, login, register, logout, updateProfile }}
+      value={{ user, token, isAuthenticated: !!user, isLoading, requiresOnboarding, login, register, logout, updateProfile, updateUser }}
     >
       {children}
     </AuthContext.Provider>

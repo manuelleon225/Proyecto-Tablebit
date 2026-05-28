@@ -102,7 +102,20 @@
     border-style: solid;
     border-color: hsl(var(--border));
   }
-  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    scrollbar-gutter: stable;
+  }
+  @supports (padding: env(safe-area-inset-bottom)) {
+    :root {
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+  }
   body {
     margin: 0; padding: 0; min-height: 100vh;
     background-color: hsl(var(--background));
@@ -112,6 +125,29 @@
     -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 { margin: 0; font-family: var(--font-display); letter-spacing: -0.025em; }
+
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 8px;
+    z-index: 9999;
+    padding: 8px 16px;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    transition: top 0.15s;
+  }
+  .skip-link:focus {
+    top: 8px;
+  }
 }
 
 @layer utilities {
@@ -138,10 +174,34 @@
 
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .overscroll-contain { overscroll-behavior: contain; }
+
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-area-top { padding-top: env(safe-area-inset-top, 0px); }
 
   .animate-fade-in { animation: fade-in 0.35s ease-out both; }
   .animate-slide-up { animation: slide-up 0.4s ease-out both; }
   .animate-scale-in { animation: scale-in 0.2s ease-out both; }
+  .motion-safe\:transform-gpu { backface-visibility: hidden; }
+  .motion-safe\:animate-shimmer { animation: shimmer 2s linear infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe\:animate-pulse { animation: none !important; }
+    .motion-safe\:animate-shimmer { animation: none !important; }
+    .motion-safe\:transition-all { transition: none !important; }
+    .motion-safe\:duration-200 { transition-duration: 0s !important; }
+    .motion-safe\:hover\:shadow-md { box-shadow: none !important; }
+    .motion-safe\:hover\:transform-gpu { transform: none !important; }
+    .motion-safe\:hover\:-translate-y-0\.5 { transform: none !important; }
+    .motion-safe\:hover\:transform-gpu { transform: none !important; }
+    .animate-fade-in { animation: none !important; opacity: 1 !important; }
+    .animate-slide-up { animation: none !important; opacity: 1 !important; }
+    .animate-scale-in { animation: none !important; opacity: 1 !important; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
 @keyframes fade-in {

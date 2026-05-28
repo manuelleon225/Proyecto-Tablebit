@@ -8,22 +8,30 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('imagenes', function (Blueprint $table) {
-            $table->integer('orden')->default(0)->after('tamanio_kb');
-        });
+        if (!Schema::hasColumn('imagenes', 'orden')) {
+            Schema::table('imagenes', function (Blueprint $table) {
+                $table->integer('orden')->default(0)->after('tamanio_kb');
+            });
+        }
 
-        Schema::table('restaurantes', function (Blueprint $table) {
-            $table->string('logo')->nullable()->after('imagen');
-        });
+        if (!Schema::hasColumn('restaurantes', 'logo')) {
+            Schema::table('restaurantes', function (Blueprint $table) {
+                $table->string('logo')->nullable()->after('imagen');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('imagenes', function (Blueprint $table) {
-            $table->dropColumn('orden');
-        });
-        Schema::table('restaurantes', function (Blueprint $table) {
-            $table->dropColumn('logo');
-        });
+        if (Schema::hasColumn('imagenes', 'orden')) {
+            Schema::table('imagenes', function (Blueprint $table) {
+                $table->dropColumn('orden');
+            });
+        }
+        if (Schema::hasColumn('restaurantes', 'logo')) {
+            Schema::table('restaurantes', function (Blueprint $table) {
+                $table->dropColumn('logo');
+            });
+        }
     }
 };

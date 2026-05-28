@@ -1,21 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { restauranteService } from "@/services/restauranteService";
+import type { Restaurante } from "@/types/restaurante";
 import { useAuth } from "@/context/AuthContext";
 
-interface RestauranteContextType {
+export interface RestauranteContextType {
   selectedRestauranteId: number | null;
   setSelectedRestauranteId: (id: number) => void;
-  misRestaurantes: { id: number; nombre: string }[];
-  restauranteActual: { id: number; nombre: string } | null;
+  misRestaurantes: Restaurante[];
+  restauranteActual: Restaurante | null;
   isLoading: boolean;
 }
 
-const RestauranteContext = createContext<RestauranteContextType | undefined>(undefined);
+export const RestauranteContext = createContext<RestauranteContextType | undefined>(undefined);
 
 export const RestauranteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-
+  const queryClient = useQueryClient();
   const isAdmin = user && ["admin", "admin_restaurante", "superadmin"].includes(user.role);
 
   const { data: misRestaurantesRespuesta, isLoading } = useQuery({
@@ -28,20 +29,35 @@ export const RestauranteProvider: React.FC<{ children: React.ReactNode }> = ({ c
     staleTime: 10 * 60 * 1000,
   });
 
-  const misRestaurantes: { id: number; nombre: string }[] = misRestaurantesRespuesta || [];
+  const misRestaurantes: Restaurante[] = misRestaurantesRespuesta || [];
+  const STORAGE_KEY = "tablebit.active_restaurant_id";
 
-  const [selectedRestauranteId, setSelectedRestauranteIdState] = useState<number | null>(null);
+  const [selectedRestauranteId, setSelectedRestauranteIdState] = useState<number | null>(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return Number(stored);
+    return null;
+  });
 
   const setSelectedRestauranteId = useCallback((id: number) => {
     setSelectedRestauranteIdState(id);
-    localStorage.setItem("tablebit_restaurante_id", String(id));
-  }, []);
+    localStorage.setItem(STORAGE_KEY, String(id));
+    queryClient.invalidateQueries({ queryKey: ['dashboard-analytics'] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard-proximas-reservas'] });
+    queryClient.invalidateQueries({ queryKey: ['reservas-admin'] });
+    queryClient.invalidateQueries({ queryKey: ['mesas'] });
+    queryClient.invalidateQueries({ queryKey: ['calendario'] });
+    queryClient.invalidateQueries({ queryKey: ['imagenes'] });
+  }, [queryClient]);
 
   useEffect(() => {
-    if (!selectedRestauranteId && misRestaurantes.length > 0) {
-      setSelectedRestauranteId(misRestaurantes[0].id);
+    if (misRestaurantes.length === 0) return;
+    const exists = misRestaurantes.some((r) => r.id === selectedRestauranteId);
+    if (!exists) {
+      const fallback = misRestaurantes[0]?.id || null;
+      if (fallback) setSelectedRestauranteId(fallback);
+      else setSelectedRestauranteIdState(null);
     }
-  }, [misRestaurantes, selectedRestauranteId, setSelectedRestauranteId]);
+  }, [misRestaurantes]);
 
   const restauranteActual = misRestaurantes.find((r) => r.id === selectedRestauranteId) || null;
 

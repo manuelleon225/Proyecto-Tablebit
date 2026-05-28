@@ -10,6 +10,8 @@ interface Props {
   className?: string;
 }
 
+const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY || "";
+
 export const RestaurantMap = ({ lat, lng, nombre, direccion, className }: Props) => {
   if (!lat || !lng) {
     return (
@@ -30,18 +32,26 @@ export const RestaurantMap = ({ lat, lng, nombre, direccion, className }: Props)
     }
   };
 
+  const hasKey = !!GOOGLE_MAPS_KEY;
+
   return (
     <div className={`space-y-3 ${className || ""}`}>
       <div className="h-48 sm:h-56 rounded-xl overflow-hidden bg-muted border border-border/50 relative">
-        <img
-          src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=800x400&markers=color:red%7C${lat},${lng}&key=YOUR_KEY`}
-          alt={`Mapa de ${nombre}`}
-          className="h-full w-full object-cover"
-          loading="lazy"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
+        {hasKey ? (
+          <img
+            src={`https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=800x400&markers=color:red%7C${lat},${lng}&key=${GOOGLE_MAPS_KEY}`}
+            alt={`Mapa de ${nombre}`}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        ) : (
+          <div className="h-full w-full bg-muted flex items-center justify-center">
+            <MapPin className="h-8 w-8 text-muted-foreground/30" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-black/5" />
       </div>
       <div className="flex gap-2 flex-wrap">

@@ -27,4 +27,11 @@ class LoginRequest extends FormRequest
             'password.required' => 'La contraseña es requerida',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => strtolower(trim($this->email)),
+        ]);
+    }
 }

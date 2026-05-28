@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import DashboardLayout from "@/layouts/DashboardLayout";
-import { restauranteService, type Mesa } from "@/services/restauranteService";
+import { restauranteService } from "@/services/restauranteService";
+import type { Mesa } from "@/types/restaurante";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, AlertCircle, Loader2, UtensilsCrossed, Edit2, Save, X } from "lucide-react";
+import { Plus, Trash2, AlertCircle, Loader2, Edit2, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRestaurante } from "@/context/RestauranteContext";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { useSEO } from "@/hooks/useSEO";
+import { TableGridSkeleton } from "@/components/skeletons/TableGridSkeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,6 +76,7 @@ const GestionMesas = () => {
     },
     enabled: !!restauranteId,
     staleTime: 2 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
   const errorMessage = error
@@ -183,7 +186,7 @@ const GestionMesas = () => {
   }, {} as Record<string, number>);
 
   return (
-    <DashboardLayout>
+    <>
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
@@ -228,15 +231,7 @@ const GestionMesas = () => {
         )}
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card p-5 animate-pulse">
-                <div className="h-5 w-20 bg-muted rounded mb-3" />
-                <div className="h-4 w-16 bg-muted rounded mb-3" />
-                <div className="h-6 w-20 bg-muted rounded-full" />
-              </div>
-            ))}
-          </div>
+          <TableGridSkeleton />
         ) : errorMessage ? (
           <div className="text-center py-16 rounded-xl border border-border bg-card">
             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive/50" />
@@ -273,22 +268,11 @@ const GestionMesas = () => {
             )}
 
             {filteredMesas.length === 0 ? (
-              <div className="text-center py-16 rounded-xl border border-dashed border-border/60 bg-card/50">
-                <UtensilsCrossed className="h-12 w-12 mx-auto mb-4 text-muted-foreground/20" />
-                <p className="text-muted-foreground font-medium mb-1">
-                  {filterEstado !== "todas" ? "No hay mesas en este estado" : "Aún no tienes mesas configuradas"}
-                </p>
-                <p className="text-xs text-muted-foreground/60 mb-4">
-                  {filterEstado !== "todas"
-                    ? "Prueba cambiando el filtro."
-                    : "Agrega tu primera mesa para empezar a recibir reservas."}
-                </p>
-                {filterEstado === "todas" && (
-                  <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
-                    <Plus className="h-4 w-4 mr-1.5" /> Agregar mesa
-                  </Button>
-                )}
-              </div>
+              filterEstado !== "todas" ? (
+                <EmptyState variant="table" title="No hay mesas en este estado" description="Prueba cambiando el filtro para ver otras mesas." />
+              ) : (
+                <EmptyState variant="table" title="Aún no tienes mesas" description="Agrega tu primera mesa para empezar a recibir reservas." action={{ label: "Crear mesa", onClick: () => setShowForm(true) }} />
+              )
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredMesas.map((mesa) => {
@@ -381,7 +365,7 @@ const GestionMesas = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </>
   );
 };
 

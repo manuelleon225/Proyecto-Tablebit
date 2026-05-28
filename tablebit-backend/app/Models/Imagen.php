@@ -14,6 +14,11 @@ class Imagen extends Model
         'nombre_original',
         'tamanio_kb',
         'orden',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
     ];
 
     public function restaurante()

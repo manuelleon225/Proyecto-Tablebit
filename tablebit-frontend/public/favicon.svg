@@ -1,10 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#22c55e"/>
       <stop offset="100%" stop-color="#16a34a"/>
     </linearGradient>
   </defs>
-  <rect width="100" height="100" rx="20" fill="url(#bg)"/>
-  <text x="50" y="66" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="white" text-anchor="middle" letter-spacing="-2">T</text>
+  <rect width="512" height="512" rx="96" fill="url(#g)"/>
+  <g transform="translate(256,256) scale(1.1)">
+    <path d="M120 180c0-44 72-80 136-80s136 36 136 80c0 30-34 56-80 68v84c0 22-25 40-56 40s-56-18-56-40v-84c-46-12-80-38-80-68z" fill="none" stroke="white" stroke-width="20" stroke-linecap="round"/>
+    <path d="M160 160h192" stroke="white" stroke-width="12" stroke-linecap="round"/>
+    <path d="M200 220l48-48 48 48" stroke="white" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <circle cx="256" cy="172" r="8" fill="white"/>
+  </g>
 </svg>

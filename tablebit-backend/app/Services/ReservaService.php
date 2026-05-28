@@ -8,6 +8,7 @@ use App\Models\Restaurante;
 use App\Models\RestaurantHour;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ReservaService
@@ -128,6 +129,15 @@ class ReservaService
 
             Cache::forget("analytics.{$restauranteId}." . Carbon::parse($fecha)->toDateString() . "." . Carbon::parse($fecha)->toDateString());
 
+            Log::info('Reserva creada', [
+                'reserva_id' => $reserva->id,
+                'restaurante_id' => $restauranteId,
+                'mesa_id' => $mesaId,
+                'personas' => $personas,
+                'fecha' => $fecha,
+                'hora' => $horaInicio,
+            ]);
+
             return $reserva;
         });
     }
@@ -158,6 +168,12 @@ class ReservaService
             $reserva->load(['cliente', 'mesa', 'restaurante']);
 
             Cache::forget("analytics.{$reserva->restaurante_id}." . Carbon::parse($reserva->fecha)->toDateString() . "." . Carbon::parse($reserva->fecha)->toDateString());
+
+            Log::info('Reserva cancelada', [
+                'reserva_id' => $reserva->id,
+                'restaurante_id' => $reserva->restaurante_id,
+                'motivo' => 'solicitud_cliente',
+            ]);
 
             return $reserva;
         });
@@ -204,15 +220,12 @@ class ReservaService
 
     public function getAnalyticsRestaurante($restauranteId, $fechaInicio = null, $fechaFin = null)
     {
-        $cacheKey = "analytics.{$restauranteId}.{$fechaInicio}.{$fechaFin}";
+        $fechaInicio = $fechaInicio ?? Carbon::today()->toDateString();
+        $fechaFin = $fechaFin ?? Carbon::today()->toDateString();
 
-        return Cache::remember($cacheKey, 300, function () use ($restauranteId, $fechaInicio, $fechaFin) {
-            $fechaInicio = $fechaInicio ?? Carbon::today()->toDateString();
-            $fechaFin = $fechaFin ?? Carbon::today()->toDateString();
-
-            $reservas = Reservas::where('restaurante_id', $restauranteId)
-                ->whereBetween('fecha', [$fechaInicio, $fechaFin]);
-            $totalReservas = (clone $reservas)->count();
+        $reservas = Reservas::where('restaurante_id', $restauranteId)
+            ->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+        $totalReservas = (clone $reservas)->count();
         $confirmadas = (clone $reservas)->where('estado', 'confirmada')->count();
         $completadas = (clone $reservas)->where('estado', 'completada')->count();
         $canceladas = (clone $reservas)->where('estado', 'cancelada')->count();
@@ -280,7 +293,6 @@ class ReservaService
             'reservas_por_dia' => $reservasPorDia,
             'reservas_por_semana' => $reservasPorSemana,
         ];
-        });
     }
 
     private function buscarMejorMesa($restauranteId, $fecha, $hora, $personas, $duracion)
@@ -289,6 +301,7 @@ class ReservaService
             ->where('capacidad', '>=', $personas)
             ->whereNotIn('estado', ['inactiva', 'mantenimiento'])
             ->orderBy('capacidad', 'asc')
+            ->lockForUpdate()
             ->get();
 
         foreach ($mesas as $mesa) {
@@ -371,6 +384,31 @@ class ReservaService
             return ['valido' => true];
         }
 
+        // Fallback to old horario_dias table
+        $diasMap = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+        $diaNombre = $diasMap[$dayOfWeek] ?? null;
+        if ($diaNombre && $restaurante->relationLoaded('horarios')) {
+            $oldHour = $restaurante->horarios->firstWhere('dia', $diaNombre);
+            if ($oldHour) {
+                if (!$oldHour->activo) {
+                    return ['valido' => false, 'mensaje' => 'El restaurante está cerrado este día'];
+                }
+                $apertura = is_string($oldHour->hora_apertura) ? substr($oldHour->hora_apertura, 0, 5) : ($oldHour->hora_apertura ? $oldHour->hora_apertura->format('H:i') : null);
+                $cierre = is_string($oldHour->hora_cierre) ? substr($oldHour->hora_cierre, 0, 5) : ($oldHour->hora_cierre ? $oldHour->hora_cierre->format('H:i') : null);
+                $horaStr = is_string($hora) ? substr($hora, 0, 5) : (is_object($hora) ? $hora->format('H:i') : substr((string)$hora, 0, 5));
+
+                if ($apertura && $cierre && ($horaStr < $apertura || $horaStr > $cierre)) {
+                    return ['valido' => false, 'mensaje' => "El restaurante está abierto de {$apertura} a {$cierre}"];
+                }
+                return ['valido' => true];
+            }
+        }
+
+        // No hours configured at all — allow but log warning
+        Log::warning('Reserva sin validación de horario — restaurante sin horarios configurados', [
+            'restaurante_id' => $restaurante->id,
+            'dia' => $dayIndex,
+        ]);
         return ['valido' => true];
     }
 

@@ -16,7 +16,7 @@ class UpdateRestauranteRequest extends FormRequest
         return [
             'nombre' => 'sometimes|string|max:255',
             'direccion' => 'sometimes|string|max:255',
-            'telefono' => 'nullable|string|max:50',
+            'telefono' => 'nullable|string|regex:/^\+57\d{10}$/',
             'estado' => 'sometimes|in:activo,inactivo',
             'descripcion' => 'nullable|string|max:1000',
             'ciudad' => 'nullable|string|max:100',
@@ -26,6 +26,9 @@ class UpdateRestauranteRequest extends FormRequest
             'capacidad_total' => 'nullable|integer|min:1',
             'imagen' => 'nullable|string|max:500',
             'portada' => 'nullable|string|max:500',
+            'branding.primary_color' => 'nullable|string|max:50',
+            'branding.secondary_color' => 'nullable|string|max:50',
+            'branding.accent_color' => 'nullable|string|max:50',
         ];
     }
 }

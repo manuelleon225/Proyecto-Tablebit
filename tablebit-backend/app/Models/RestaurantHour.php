@@ -15,8 +15,8 @@ class RestaurantHour extends Model
     ];
 
     protected $casts = [
-        'open_time' => 'datetime:H:i',
-        'close_time' => 'datetime:H:i',
+        'open_time' => 'string',
+        'close_time' => 'string',
         'is_closed' => 'boolean',
     ];
 

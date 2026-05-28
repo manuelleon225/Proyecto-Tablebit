@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService } from "@/services/restauranteService";
 import { useRestaurante } from "@/context/RestauranteContext";
 import { useSEO } from "@/hooks/useSEO";
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Save, AlertCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
@@ -59,6 +59,7 @@ const HorariosPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['restaurant-hours', selectedRestauranteId] });
+      queryClient.invalidateQueries({ queryKey: ['mis-restaurantes'] });
       toast({ title: "Horarios guardados", description: "Los horarios se actualizaron correctamente." });
     },
     onError: (err) => {
@@ -76,14 +77,11 @@ const HorariosPage = () => {
 
   if (!selectedRestauranteId) {
     return (
-      <DashboardLayout>
         <div className="text-center py-20 text-muted-foreground">Selecciona un restaurante para configurar horarios</div>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
       <div className="space-y-6 max-w-2xl">
         <div className="flex items-center justify-between">
           <div>
@@ -97,7 +95,7 @@ const HorariosPage = () => {
 
         {isLoading ? (
           <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-16 bg-muted animate-pulse rounded-xl" />)}
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
           </div>
         ) : (
           <div className="space-y-2">
@@ -134,7 +132,6 @@ const HorariosPage = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 };
 

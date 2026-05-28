@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { restauranteService, type Reserva } from "@/services/restauranteService";
+import { restauranteService } from "@/services/restauranteService";
+import type { Reserva } from "@/types/restaurante";
 import MainLayout from "@/layouts/MainLayout";
 import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
@@ -149,7 +150,7 @@ const MisReservas = () => {
   }, [reservas]);
 
   const cancelar = async () => {
-    if (!cancelingId) return;
+    if (!cancelingId || cancelMutation.isPending) return;
     setShowCancelDialog(false);
     try {
       await cancelMutation.mutateAsync(cancelingId);

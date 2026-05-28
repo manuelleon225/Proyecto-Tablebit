@@ -8,6 +8,7 @@ use App\Models\Restaurante;
 use App\Models\RestaurantHour;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RestauranteController extends Controller
 {
@@ -28,22 +29,31 @@ class RestauranteController extends Controller
 
     public function store(StoreRestauranteRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-        $validated['estado'] = 'activo';
-        $validated['user_id'] = $request->user()->id;
-
         $this->authorize('create', Restaurante::class);
 
-        $restaurante = Restaurante::create($validated);
+        DB::beginTransaction();
+        try {
+            $validated = $request->validated();
+            $validated['estado'] = 'activo';
+            $validated['user_id'] = $request->user()->id;
 
-        // Associate owner via pivot
-        $restaurante->users()->attach($request->user()->id, ['role' => 'owner']);
-        $restaurante->load(['horarios']);
+            $restaurante = Restaurante::create($validated);
+            $restaurante->users()->attach($request->user()->id, ['role' => 'owner']);
+            $restaurante->load(['horarios']);
 
-        return response()->json([
-            'message' => 'Restaurante creado',
-            'restaurante' => $restaurante
-        ], 201);
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Restaurante creado',
+                'restaurante' => $restaurante
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error al crear el restaurante',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function show($id): JsonResponse

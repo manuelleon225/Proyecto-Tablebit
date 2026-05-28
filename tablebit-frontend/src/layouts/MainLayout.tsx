@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut, UtensilsCrossed, Menu, X, User, ChevronRight, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getImageUrl, handleImageError, PLACEHOLDER_AVATAR } from "@/lib/image";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -74,8 +75,13 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                   <User className="h-4 w-4 mr-1.5" /> Perfil
                 </Button>
                 <div className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
-                  <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-xs font-semibold text-primary">{getUserInitials()}</span>
+                  <div className="h-7 w-7 rounded-full bg-muted overflow-hidden flex items-center justify-center">
+                    {user?.avatar ? (
+                      <img src={getImageUrl(user.avatar) || PLACEHOLDER_AVATAR} alt="" className="h-full w-full object-cover"
+                        onError={(e) => handleImageError(e, PLACEHOLDER_AVATAR)} />
+                    ) : (
+                      <span className="text-xs font-semibold text-primary">{getUserInitials()}</span>
+                    )}
                   </div>
                   <span className="text-sm font-medium max-w-28 truncate">{user?.name}</span>
                 </div>
@@ -112,8 +118,13 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                 {isAuthenticated ? (
                   <div className="space-y-3 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-primary">{getUserInitials()}</span>
+                      <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center">
+                        {user?.avatar ? (
+                          <img src={getImageUrl(user.avatar) || PLACEHOLDER_AVATAR} alt="" className="h-full w-full object-cover"
+                            onError={(e) => handleImageError(e, PLACEHOLDER_AVATAR)} />
+                        ) : (
+                          <span className="text-sm font-semibold text-primary">{getUserInitials()}</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium">{user?.name}</p>

@@ -13,7 +13,7 @@ export function formatDate(
 ): string {
   if (!fecha) return "Fecha no disponible";
 
-  const d = new Date(fecha);
+  const d = new Date(fecha + "T12:00:00");
   if (isNaN(d.getTime())) return "Fecha no disponible";
 
   return d.toLocaleDateString(LOCALE, FORMAT_OPTIONS[format]);

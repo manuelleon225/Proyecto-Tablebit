@@ -6,12 +6,18 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UsuarioController extends Controller
 {
     public function me(Request $request): JsonResponse
     {
         $user = $request->user()->load('restaurante');
+        $hasRestaurant = $user->restaurantes()->count() > 0 || !is_null($user->restaurante);
+        $requiresOnboarding = in_array($user->role, ['admin', 'admin_restaurante'])
+            && !$hasRestaurant;
+        $user->requires_onboarding = $requiresOnboarding;
         return response()->json($user);
     }
 
@@ -91,6 +97,34 @@ class UsuarioController extends Controller
         return response()->json([
             'message' => 'Usuario actualizado',
             'user'    => $user
+        ]);
+    }
+
+    public function uploadAvatar(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $file = $request->file('avatar');
+        $extension = $file->getClientOriginalExtension();
+        $nombreArchivo = 'avatar-' . Str::uuid() . '.' . $extension;
+        $directorio = 'usuarios/' . $user->id . '/avatar';
+        $ruta = $file->storeAs($directorio, $nombreArchivo, 'public');
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->avatar = $ruta;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Avatar actualizado',
+            'avatar_url' => Storage::url($ruta),
+            'user' => $user,
         ]);
     }
 

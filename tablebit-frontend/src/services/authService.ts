@@ -11,6 +11,7 @@ export interface User {
   estado?: string;
   avatar?: string;
   restaurante?: { id: number; nombre: string };
+  requires_onboarding?: boolean;
 }
 
 export interface LoginData {
@@ -46,6 +47,7 @@ export interface PasswordConfirmData {
 export interface AuthResponse {
   user: User;
   token: string;
+  requires_onboarding?: boolean;
 }
 
 export const validateLogin = (data: LoginData): ApiError | null => {

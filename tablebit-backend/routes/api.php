@@ -49,6 +49,7 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
     Route::get('/usuarios/me', [UsuarioController::class, 'me'])->withoutMiddleware('throttle:global');
     Route::put('/usuarios/me', [UsuarioController::class, 'updateMe'])->middleware('throttle:sensitive');
     Route::patch('/usuarios/me', [UsuarioController::class, 'updateMe'])->middleware('throttle:sensitive');
+    Route::post('/profile/avatar', [UsuarioController::class, 'uploadAvatar'])->middleware('throttle:10,1');
 
     // Restaurantes (admin)
     Route::post('/restaurantes', [RestauranteController::class, 'store'])
@@ -65,8 +66,10 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
         ->middleware('role:admin,admin_restaurante,superadmin');
     Route::post('/restaurantes/{id}/imagenes', [ImagenController::class, 'subirImagen'])
         ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:10,1']);
+    Route::put('/imagenes/reordenar', [ImagenController::class, 'reordenar'])
+        ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:30,1']);
     Route::delete('/imagenes/{id}', [ImagenController::class, 'eliminarImagen'])
-        ->middleware('role:admin,admin_restaurante,superadmin');
+        ->middleware(['role:admin,admin_restaurante,superadmin', 'throttle:20,1']);
 
     // Mesas
     Route::get('/mesas', [MesaController::class, 'index']);
@@ -120,4 +123,24 @@ Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
 
     // Resource routes (fallback)
     Route::apiResource('usuarios', UsuarioController::class)->except(['me']);
+
+    // Realtime polling
+    Route::get('/realtime/poll', [App\Http\Controllers\RealtimeController::class, 'poll']);
+
+    // Admin routes
+    Route::prefix('admin')->middleware('role:superadmin')->group(function () {
+        Route::middleware('throttle:120,1')->group(function () {
+            Route::get('/audit-logs', [App\Http\Controllers\AdminController::class, 'auditLogs']);
+            Route::get('/system-health', [App\Http\Controllers\AdminController::class, 'systemHealth']);
+            Route::get('/alerts', [App\Http\Controllers\AdminController::class, 'alerts']);
+            Route::get('/analytics/summary', [App\Http\Controllers\AdminController::class, 'analyticsSummary']);
+            Route::get('/analytics/range', [App\Http\Controllers\AdminController::class, 'analyticsRange']);
+            Route::get('/system-health-score', [App\Http\Controllers\AdminController::class, 'systemHealthScore']);
+            Route::get('/observability/snapshot', [App\Http\Controllers\AdminController::class, 'observabilitySnapshot']);
+        });
+        Route::middleware('throttle:30,1')->group(function () {
+            Route::post('/alerts/resolve/{id}', [App\Http\Controllers\AdminController::class, 'resolveAlert']);
+        });
+        Route::get('/stream', [App\Http\Controllers\RealtimeStreamController::class, 'stream']);
+    });
 });

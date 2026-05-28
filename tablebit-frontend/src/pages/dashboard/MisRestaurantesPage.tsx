@@ -1,21 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import DashboardLayout from "@/layouts/DashboardLayout";
 import { restauranteService } from "@/services/restauranteService";
 import { useRestaurante } from "@/context/RestauranteContext";
 import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
-import { Plus, Store, Users, CalendarDays, UtensilsCrossed, ChevronRight, Building2, MapPin } from "lucide-react";
+import { Plus, Store, Users, CalendarDays, UtensilsCrossed, ChevronRight, Building2, MapPin, ImageIcon } from "lucide-react";
 
 const MisRestaurantesPage = () => {
-  const { misRestaurantes } = useRestaurante();
+  const { misRestaurantes, setSelectedRestauranteId } = useRestaurante();
   const navigate = useNavigate();
 
   useSEO({ title: "TableBit - Mis restaurantes", description: "Gestiona tus restaurantes." });
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -35,7 +33,7 @@ const MisRestaurantesPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07 }}
               className="group rounded-xl border border-border/50 bg-card p-5 shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => { setSelectedRestauranteId(r.id); navigate("/dashboard/media"); }}
             >
               <div className="flex items-start gap-4">
                 <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0 border border-primary/10">
@@ -72,7 +70,6 @@ const MisRestaurantesPage = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 };
 

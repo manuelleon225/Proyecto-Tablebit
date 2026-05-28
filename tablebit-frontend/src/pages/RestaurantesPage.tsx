@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { restauranteService } from "@/services/restauranteService";
 import MainLayout from "@/layouts/MainLayout";
@@ -6,15 +6,23 @@ import RestaurantCard from "@/components/RestaurantCard";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 
 const tipos = ["Todos", "Japonesa", "Italiana", "Mexicana", "Internacional", "Española"];
 
 const RestaurantesPage = () => {
-  const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialQ = searchParams.get("q") || "";
+  const [search, setSearch] = useState(initialQ);
+  const [searchQuery, setSearchQuery] = useState(initialQ);
   const [tipoFilter, setTipoFilter] = useState("Todos");
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const q = searchParams.get("q") || "";
+    if (q) { setSearch(q); setSearchQuery(q); }
+  }, [searchParams]);
 
   useSEO({ title: "TableBit - Restaurantes", description: "Encuentra los mejores restaurantes cerca de ti." });
 

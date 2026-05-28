@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#f0fdf4" rx="16"/>
+  <g transform="translate(100,100)">
+    <circle cx="0" cy="-10" r="30" fill="#22c55e" opacity="0.2"/>
+    <path d="M-25,5 L-40,55 L40,55 L25,5 Z" fill="#22c55e" opacity="0.15"/>
+    <text x="0" y="85" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="14" fill="#22c55e" opacity="0.4">Logo</text>
+  </g>
+</svg>

@@ -51,7 +51,6 @@ const faq = [
 // ─── Component ───────────────────────────────────────────────
 const Home = () => {
   const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const isAdmin = ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "");
@@ -63,24 +62,19 @@ const Home = () => {
     }
   }, [isAuthenticated, isAdmin, navigate]);
 
-  useSEO({ title: "TableBit - Reserva de Mesas en Restaurantes", description: "SaaS moderno de gestión de reservas para restaurantes. Dashboard, analytics, notificaciones y más.", canonical: "https://tablebit.com/" });
+  useSEO({ title: "TableBit - Reserva de Mesas en Restaurantes", description: "SaaS moderno de gestión de reservas para restaurantes. Dashboard, analytics, notificaciones y más.", canonical: window.location.origin });
 
   const { data: restaurantes = [], isLoading: loading, error, refetch } = useQuery({
-    queryKey: ['restaurantes', searchQuery],
+    queryKey: ['restaurantes'],
     queryFn: async () => {
-      const res = searchQuery ? await restauranteService.buscar({ nombre: searchQuery }) : await restauranteService.getAll();
+      const res = await restauranteService.getAll();
       const data = res.data;
       return Array.isArray(data) ? data : (data.data || []);
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setSearchQuery(search.trim()); };
-  const handleClearSearch = () => { setSearch(""); setSearchQuery(""); };
-
-  const displayRestaurantes = search.trim()
-    ? restaurantes.filter((r: any) => r.nombre?.toLowerCase().includes(search.toLowerCase()) || r.direccion?.toLowerCase().includes(search.toLowerCase()) || r.tipo_comida?.toLowerCase().includes(search.toLowerCase()))
-    : restaurantes;
+  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); const q = search.trim(); if (q) navigate(`/restaurantes?q=${encodeURIComponent(q)}`); };
 
   return (
     <MainLayout>
@@ -178,8 +172,8 @@ const Home = () => {
       <Section bg="bg-muted/30">
         <div className="flex items-center justify-between mb-8 sm:mb-10">
           <div>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">{searchQuery ? `Resultados para "${searchQuery}"` : "Restaurantes populares"}</h2>
-            {!loading && displayRestaurantes.length > 0 && <p className="mt-1 text-sm text-muted-foreground">{displayRestaurantes.length} encontrado{displayRestaurantes.length !== 1 ? "s" : ""}</p>}
+            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">{search.trim() ? `Resultados para "${search.trim()}"` : "Restaurantes populares"}</h2>
+            {!loading && restaurantes.length > 0 && <p className="mt-1 text-sm text-muted-foreground">{restaurantes.length} encontrado{restaurantes.length !== 1 ? "s" : ""}</p>}
           </div>
         </div>
         {loading ? (
@@ -202,7 +196,7 @@ const Home = () => {
             <p className="text-xs text-muted-foreground/60 mb-5">Error de conexión. Verifica tu conexión a internet.</p>
             <Button variant="outline" size="sm" onClick={() => refetch()}>Reintentar</Button>
           </div>
-        ) : displayRestaurantes.length === 0 ? (
+        ) : restaurantes.length === 0 ? (
           <div className="text-center py-16 sm:py-20 rounded-2xl border-2 border-dashed border-border/60 bg-card/50 mx-auto max-w-lg">
             <Search className="h-10 w-10 mx-auto mb-4 text-muted-foreground/20" />
             <p className="text-base text-muted-foreground font-medium">No se encontraron restaurantes</p>
@@ -210,7 +204,7 @@ const Home = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayRestaurantes.map((r: any) => <RestaurantCard key={r.id} restaurante={r} />)}
+            {restaurantes.map((r: any) => <RestaurantCard key={r.id} restaurante={r} />)}
           </div>
         )}
       </Section>

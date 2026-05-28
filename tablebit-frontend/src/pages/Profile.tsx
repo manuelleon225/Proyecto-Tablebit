@@ -13,6 +13,9 @@ import { Separator } from "@/components/ui/separator";
 import { User, Mail, Lock, Save, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
+import api from "@/services/api";
+import { getImageUrl } from "@/lib/image";
+import { MediaUploader } from "@/components/media/MediaUploader";
 
 const profileSchema = z.object({
   name: z.string().min(1, "El nombre es requerido").max(255),
@@ -31,10 +34,25 @@ type ProfileForm = z.infer<typeof profileSchema>;
 type PasswordForm = z.infer<typeof passwordSchema>;
 
 const Profile = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, updateUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(getImageUrl(user?.avatar));
+
+  const handleAvatarUpload = async (files: File[]) => {
+    try {
+      const form = new FormData();
+      form.append("avatar", files[0]);
+      await api.post("/profile/avatar", form);
+      const meRes = await api.get("/usuarios/me");
+      updateUser(meRes.data);
+      setAvatarUrl(getImageUrl(meRes.data.avatar));
+      toast({ title: "Avatar actualizado", description: "Tu foto de perfil se ha actualizado." });
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo subir el avatar." });
+    }
+  };
 
   useSEO({
     title: "TableBit - Mi perfil",
@@ -116,6 +134,29 @@ const Profile = () => {
             <h1 className="font-display text-2xl sm:text-3xl font-bold">Mi Perfil</h1>
             <p className="text-muted-foreground mt-1">Gestiona tu información personal</p>
           </div>
+
+          {/* Avatar Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Foto de Perfil</CardTitle>
+              <CardDescription>Tu avatar en TableBit</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                <MediaUploader
+                  type="avatar"
+                  preview={avatarUrl}
+                  onUpload={handleAvatarUpload}
+                  fallback={<span className="text-2xl font-bold text-primary">{user?.name?.[0]?.toUpperCase() || "?"}</span>}
+                  enableCrop
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground">JPG, PNG o WebP · Máx 2MB</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Profile Card */}
           <Card>

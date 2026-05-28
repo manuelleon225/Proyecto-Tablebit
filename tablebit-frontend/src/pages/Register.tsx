@@ -8,16 +8,16 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Mail, Lock, User as UserIcon, Sparkles, UtensilsCrossed, Search, Building2 } from "lucide-react";
+import { Loader2, Mail, Lock, User as UserIcon, Sparkles, UtensilsCrossed, Search, Building2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
 import AuthLayout from "@/layouts/AuthLayout";
 import { cn } from "@/lib/utils";
 
 const registerSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido").max(255),
-  email: z.string().email("Ingresa un email válido"),
-  password: z.string().min(8, "Mínimo 8 caracteres").regex(/[A-Z]/, "Debe contener una mayúscula").regex(/[a-z]/, "Debe contener una minúscula").regex(/[^a-zA-Z0-9]/, "Debe contener un carácter especial"),
+  name: z.string().min(2, "Mínimo 2 caracteres").max(255).trim(),
+  email: z.string().email("Ingresa un email válido").max(255).transform((v) => v.toLowerCase().trim()),
+  password: z.string().min(8, "Mínimo 8 caracteres").max(128, "Máximo 128 caracteres").regex(/[A-Z]/, "Debe contener una mayúscula").regex(/[a-z]/, "Debe contener una minúscula").regex(/[^a-zA-Z0-9]/, "Debe contener un carácter especial"),
   passwordConfirm: z.string().min(1, "Confirma tu contraseña"),
 }).refine((data) => data.password === data.passwordConfirm, { message: "Las contraseñas no coinciden", path: ["passwordConfirm"] });
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -35,6 +35,8 @@ const Register = () => {
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<RoleOption>("cliente");
   const [step, setStep] = useState<"role" | "form">("role");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   useSEO({ title: "TableBit - Crear cuenta", description: "Regístrate en TableBit." });
 
@@ -128,7 +130,11 @@ const Register = () => {
                 <Label htmlFor="password">Contraseña</Label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                  <Input id="password" type="password" {...register("password")} placeholder="Mínimo 8 caracteres" className={`pl-10 h-11 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all ${errors.password ? "border-destructive" : ""}`} autoComplete="new-password" />
+                  <Input id="password" type={showPassword ? "text" : "password"} {...register("password")} placeholder="Mínimo 8 caracteres" className={`pl-10 pr-10 h-11 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all ${errors.password ? "border-destructive" : ""}`} autoComplete="new-password" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
                 {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
               </div>
@@ -136,7 +142,11 @@ const Register = () => {
                 <Label htmlFor="passwordConfirm">Confirmar contraseña</Label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                  <Input id="passwordConfirm" type="password" {...register("passwordConfirm")} placeholder="Repite tu contraseña" className={`pl-10 h-11 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all ${errors.passwordConfirm ? "border-destructive" : ""}`} autoComplete="new-password" />
+                  <Input id="passwordConfirm" type={showPasswordConfirm ? "text" : "password"} {...register("passwordConfirm")} placeholder="Repite tu contraseña" className={`pl-10 pr-10 h-11 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all ${errors.passwordConfirm ? "border-destructive" : ""}`} autoComplete="new-password" />
+                  <button type="button" onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} tabIndex={-1}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    {showPasswordConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
                 {errors.passwordConfirm && <p className="text-xs text-destructive mt-1">{errors.passwordConfirm.message}</p>}
               </div>

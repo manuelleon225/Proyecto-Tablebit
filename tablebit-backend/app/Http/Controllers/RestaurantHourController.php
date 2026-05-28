@@ -31,8 +31,8 @@ class RestaurantHourController extends Controller
             'hours' => 'required|array|size:7',
             'hours.*.day_of_week' => 'required|integer|between:0,6',
             'hours.*.is_closed' => 'required|boolean',
-            'hours.*.open_time' => 'exclude_if:hours.*.is_closed,true|required|date_format:H:i',
-            'hours.*.close_time' => 'exclude_if:hours.*.is_closed,true|required|date_format:H:i|after:hours.*.open_time',
+            'hours.*.open_time' => 'nullable|date_format:H:i',
+            'hours.*.close_time' => 'nullable|date_format:H:i',
         ]);
 
         $saved = [];
@@ -47,6 +47,12 @@ class RestaurantHourController extends Controller
             );
             $saved[] = $hour;
         }
+
+        // Sync legacy columns for dashboard checklist compatibility
+        $firstOpen = collect($saved)->firstWhere('is_closed', false);
+        $restaurante->horario_apertura = $firstOpen ? ($firstOpen->open_time instanceof \Carbon\Carbon ? $firstOpen->open_time->format('H:i') : $firstOpen->open_time) : null;
+        $restaurante->horario_cierre = $firstOpen ? ($firstOpen->close_time instanceof \Carbon\Carbon ? $firstOpen->close_time->format('H:i') : $firstOpen->close_time) : null;
+        $restaurante->save();
 
         return response()->json(['message' => 'Horarios actualizados', 'hours' => $saved]);
     }

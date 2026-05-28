@@ -1,29 +1,41 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
+import { useRestaurante } from "@/context/RestauranteContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Check, Building2, MapPin, Phone, UtensilsCrossed, Loader2, Sparkles, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Building2, MapPin, Phone, UtensilsCrossed, Loader2, Sparkles, ChevronDown, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import { restauranteService } from "@/services/restauranteService";
+import { authService } from "@/services/authService";
 import { useSEO } from "@/hooks/useSEO";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { TIPOS_COMIDA, DEPARTAMENTOS, DEPARTAMENTOS_LIST } from "@/constants/colombia";
+import api from "@/services/api";
+import { MediaUploader } from "@/components/media/MediaUploader";
+import { PhoneInputField } from "@/components/forms/PhoneInputField";
+import { normalizePhone, validateColombianMobile } from "@/lib/phone";
+import BrandingEditor from "@/components/branding/BrandingEditor";
+import { DEFAULT_BRANDING } from "@/lib/branding";
+import type { BrandingConfig } from "@/lib/branding";
+
+const PHONE_REGEX = /^\+\d{1,4}\d{6,11}$/;
 
 const createSchema = z.object({
   nombre: z.string().min(2, "Mínimo 2 caracteres").max(100),
   tipo_comida: z.string().min(2, "Selecciona un tipo"),
   direccion: z.string().min(5, "Dirección muy corta").max(255),
   ciudad: z.string().min(2, "Selecciona una ciudad"),
-  telefono: z.string().regex(/^[0-9+\-\s()]{7,15}$/, "Teléfono inválido").optional().or(z.literal("")),
+  telefono: z.string().min(1, "El teléfono es obligatorio").refine((v) => validateColombianMobile(v), "Ingresa un número celular colombiano válido"),
   descripcion: z.string().min(10, "Mínimo 10 caracteres").max(1000),
   capacidad_total: z.coerce.number().min(1, "Mínimo 1 persona").max(9999),
 });
@@ -40,9 +52,19 @@ const steps = [
 const OnboardingRestaurante = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { setSelectedRestauranteId } = useRestaurante();
+  const { updateUser } = useAuth();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [createdNombre, setCreatedNombre] = useState("");
+  const [branding, setBranding] = useState<Partial<BrandingConfig>>({
+    primary_color: DEFAULT_BRANDING.primary_color,
+    secondary_color: DEFAULT_BRANDING.secondary_color,
+    accent_color: DEFAULT_BRANDING.accent_color,
+  });
+  const [brandingOpen, setBrandingOpen] = useState(false);
+  const createdIdRef = useRef<number | null>(null);
+
 
   useSEO({ title: "TableBit - Configurar restaurante", description: "Crea tu restaurante en TableBit." });
 
@@ -58,13 +80,13 @@ const OnboardingRestaurante = () => {
 
   const canProceed = async () => {
     if (step === 0) return !!(values.nombre?.trim() && values.tipo_comida?.trim());
-    if (step === 1) return !!(values.direccion?.trim() && values.ciudad);
+    if (step === 1) return !!(values.direccion?.trim() && values.ciudad && values.telefono && validateColombianMobile(values.telefono));
     if (step === 2) return !!(values.descripcion?.trim() && values.capacidad_total > 0);
     return true;
   };
 
   const handleNext = async () => {
-    const fields = step === 0 ? ["nombre", "tipo_comida"] : step === 1 ? ["direccion", "ciudad"] : ["descripcion", "capacidad_total"];
+    const fields = step === 0 ? ["nombre", "tipo_comida"] as const : step === 1 ? ["direccion", "ciudad", "telefono"] as const : ["descripcion", "capacidad_total"] as const;
     const valid = await trigger(fields as any);
     if (valid) setStep(step + 1);
   };
@@ -72,12 +94,21 @@ const OnboardingRestaurante = () => {
   const onSubmit = async () => {
     setLoading(true);
     try {
-      await restauranteService.crear({
+      const payload: any = {
         nombre: values.nombre, direccion: values.direccion, ciudad: values.ciudad,
-        tipo_comida: values.tipo_comida, telefono: values.telefono || undefined,
+        tipo_comida: values.tipo_comida, telefono: normalizePhone(values.telefono),
         descripcion: values.descripcion, capacidad_total: values.capacidad_total,
-      });
-      setCreatedNombre(values.nombre);
+      };
+      if (brandingOpen) payload.branding = branding;
+      const res = await restauranteService.crear(payload);
+      const created = res.data?.restaurante;
+      if (created?.id) {
+        setSelectedRestauranteId(created.id);
+        createdIdRef.current = created.id;
+        queryClient.invalidateQueries({ queryKey: ['mis-restaurantes'] });
+        // Refresh auth state to set requiresOnboarding=false
+        try { const me = await authService.getMe(); updateUser(me); } catch {}
+      }
       setStep(3);
       toast({ title: "Restaurante creado", description: "Todo listo para gestionar reservas." });
     } catch (err) {
@@ -92,6 +123,9 @@ const OnboardingRestaurante = () => {
       <header className="sticky top-0 z-50 border-b border-border/30 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex h-14 sm:h-16 items-center justify-between">
           <div className="flex items-center gap-2.5">
+            <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-lg hover:bg-muted/50 transition-colors active:scale-95" aria-label="Volver">
+              <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+            </button>
             <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
               <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
             </div>
@@ -184,9 +218,12 @@ const OnboardingRestaurante = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="telefono">Teléfono</Label>
-                      <Input id="telefono" {...register("telefono")} placeholder="3001234567" className={`h-11 bg-card/50 ${errors.telefono ? "border-destructive" : ""}`} />
-                      {errors.telefono && <p className="text-xs text-destructive">{errors.telefono.message}</p>}
+                      <PhoneInputField
+                        value={values.telefono || ""}
+                        onChange={(v) => setValue("telefono", v)}
+                        error={errors.telefono?.message}
+                        defaultCountry="CO"
+                      />
                     </div>
                   </div>
                 </div>
@@ -208,13 +245,71 @@ const OnboardingRestaurante = () => {
                     <Input id="capacidad_total" type="number" {...register("capacidad_total")} min={1} className={`h-11 bg-card/50 ${errors.capacidad_total ? "border-destructive" : ""}`} />
                     {errors.capacidad_total && <p className="text-xs text-destructive">{errors.capacidad_total.message}</p>}
                   </div>
+
+                  <div className="border-t border-border/30 pt-4">
+                    <button type="button" onClick={() => setBrandingOpen(!brandingOpen)}
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
+                    >
+                      <Palette className="h-4 w-4" />
+                      <span>Colores de marca</span>
+                      <span className="text-[10px] text-muted-foreground">(opcional)</span>
+                      <ChevronDown className={`h-4 w-4 ml-auto transition-transform ${brandingOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {brandingOpen && (
+                      <div className="mt-3">
+                        <BrandingEditor branding={branding} onChange={(b) => setBranding(b)} />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
               {step === 3 && (
-                <div className="text-center py-8">
+                <div className="text-center py-6">
                   <div className="h-16 w-16 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-4"><Check className="h-8 w-8 text-success" /></div>
                   <h2 className="font-display text-2xl font-bold">¡Restaurante creado!</h2>
-                  <p className="text-sm text-muted-foreground mt-2 mb-8 max-w-sm mx-auto">{createdNombre} está listo. Configura mesas y horarios.</p>
+                  <p className="text-sm text-muted-foreground mt-2 mb-8 max-w-sm mx-auto">{values.nombre} está listo.</p>
+
+                  {createdIdRef.current && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-xl mx-auto text-left">
+                      <div className="rounded-xl border border-border/40 bg-card p-4 space-y-3">
+                        <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">Logo</p>
+                        <MediaUploader
+                          type="logo"
+                          enableCrop
+                          cropShape="round"
+                          cropAspect={1}
+                          onUpload={async (files) => {
+                            const form = new FormData();
+                            form.append("imagen", files[0]);
+                            form.append("tipo", "logo");
+                            const res = await api.post(`/restaurantes/${createdIdRef.current}/imagenes`, form);
+                            const updated = res.data?.restaurante;
+                            if (updated) queryClient.setQueryData(['mis-restaurantes'], (old: any) => Array.isArray(old) ? old.map((r: any) => r.id === updated.id ? updated : r) : [updated]);
+                            queryClient.invalidateQueries({ queryKey: ['mis-restaurantes'] });
+                            toast({ title: "Logo subido", description: "Logo del restaurante actualizado." });
+                          }}
+                        />
+                      </div>
+                      <div className="rounded-xl border border-border/40 bg-card p-4 space-y-3">
+                        <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">Portada</p>
+                        <MediaUploader
+                          type="cover"
+                          enableCrop
+                          onUpload={async (files) => {
+                            const form = new FormData();
+                            form.append("imagen", files[0]);
+                            form.append("tipo", "portada");
+                            const res = await api.post(`/restaurantes/${createdIdRef.current}/imagenes`, form);
+                            const updated = res.data?.restaurante;
+                            if (updated) queryClient.setQueryData(['mis-restaurantes'], (old: any) => Array.isArray(old) ? old.map((r: any) => r.id === updated.id ? updated : r) : [updated]);
+                            queryClient.invalidateQueries({ queryKey: ['mis-restaurantes'] });
+                            toast({ title: "Portada subida", description: "Imagen de portada actualizada." });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex flex-col gap-3 max-w-xs mx-auto">
                     <Button onClick={() => navigate("/dashboard/mesas")}>Configurar mesas</Button>
                     <Button variant="outline" onClick={() => navigate("/dashboard")}>Ir al dashboard</Button>

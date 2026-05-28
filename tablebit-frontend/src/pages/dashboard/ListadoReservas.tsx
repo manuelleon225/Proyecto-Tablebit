@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import DashboardLayout from "@/layouts/DashboardLayout";
-import { restauranteService, type Reserva } from "@/services/restauranteService";
-import Loader from "@/components/Loader";
+import { restauranteService } from "@/services/restauranteService";
+import type { Reserva } from "@/types/restaurante";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, Users, AlertCircle, Search, X } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
@@ -12,6 +11,7 @@ import { formatDate } from "@/lib/date";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { ReservationTableSkeleton } from "@/components/skeletons/ReservationTableSkeleton";
 
 const ListadoReservas = () => {
   const { selectedRestauranteId, restauranteActual } = useRestaurante();
@@ -23,14 +23,20 @@ const ListadoReservas = () => {
   const { data: reservas = [], isLoading: loading, error, refetch } = useQuery({
     queryKey: ['reservas-admin', selectedRestauranteId],
     queryFn: async () => {
-      const res = await restauranteService.getReservas({ restaurante_id: selectedRestauranteId! });
-      return res.data.data || res.data;
+      if (!selectedRestauranteId) return [];
+      const res = await restauranteService.getReservas({ restaurante_id: selectedRestauranteId });
+      const raw = res.data;
+      return (raw?.data && Array.isArray(raw.data)) ? raw.data : (Array.isArray(raw) ? raw : []);
     },
     enabled: !!selectedRestauranteId,
     staleTime: 2 * 60 * 1000,
+    refetchOnMount: true,
   });
 
-  const filtered = reservas.filter((r: Reserva) => {
+  useEffect(() => { if (selectedRestauranteId) refetch(); }, [selectedRestauranteId]);
+
+  const reservasList = Array.isArray(reservas) ? reservas : [];
+  const filtered = reservasList.filter((r: Reserva) => {
     if (estadoFilter !== "todas" && r.estado !== estadoFilter) return false;
     if (search) {
       const q = search.toLowerCase();
@@ -40,7 +46,6 @@ const ListadoReservas = () => {
   });
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
@@ -68,13 +73,17 @@ const ListadoReservas = () => {
         </div>
 
         {loading ? (
-          <Loader text="Cargando reservas..." />
+          <ReservationTableSkeleton />
         ) : error ? (
           <EmptyState icon={AlertCircle} title="Error al cargar reservas" action={{ label: "Reintentar", onClick: () => refetch() }} />
         ) : filtered.length === 0 ? (
-          <EmptyState icon={CalendarDays} title="No hay reservas" description={search ? "Intenta con otros filtros" : "Aún no hay reservas registradas"} />
+          search ? (
+            <EmptyState variant="reservation" title="Sin resultados" description="No encontramos reservas con esos criterios. Intenta con otros filtros." />
+          ) : (
+            <EmptyState variant="reservation" title="Aún no hay reservas" description="Aún no tienes reservas. Comparte tu restaurante para empezar a recibir clientes." />
+          )
         ) : (
-          <>
+          <div className="contents">
             {/* Desktop table */}
             <div className="hidden sm:block rounded-xl border border-border/50 bg-card overflow-hidden shadow-card">
               <div className="overflow-x-auto">
@@ -122,10 +131,9 @@ const ListadoReservas = () => {
                 </div>
               ))}
             </div>
-          </>
+          </div>
         )}
       </div>
-    </DashboardLayout>
   );
 };
 
