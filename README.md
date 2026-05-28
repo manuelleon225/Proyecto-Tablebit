@@ -46,7 +46,7 @@
 |-----------|-------------|
 | **Frontend** | React 18 · TypeScript 5 · Tailwind CSS 4 · shadcn/ui · React Query · Zustand · Framer Motion · Recharts |
 | **Backend** | Laravel 12 · PHP 8.3 · Sanctum Auth · Reverb WS · Queue Jobs · Mailtrap/SMTP · API REST · Form Requests |
-| **Infraestructura** | MySQL 8.0 · Redis 7 · Docker · Nginx · GitHub Actions · Laravel Pulse · PWA + SEO · OpenGraph |
+| **Infraestructura** | MySQL 8.0 · Redis 7 · Nginx · GitHub Actions · Laravel Pulse · PWA + SEO · OpenGraph |
 
 ## 🚀 Quick Start
 
@@ -113,20 +113,10 @@ tableBit/
 │   │   ├── api.php             # API routes
 │   │   └── channels.php        # WebSocket channels
 │   └── tests/
-├── docker-compose.yml
-├── .nginx/default.conf
 └── README.md
 ```
 
 ## 📦 Deploy
-
-<details>
-<summary><b>🐳 Docker (producción)</b></summary>
-
-```bash
-docker compose up -d
-```
-</details>
 
 <details>
 <summary><b>⚙️ Manual</b></summary>
