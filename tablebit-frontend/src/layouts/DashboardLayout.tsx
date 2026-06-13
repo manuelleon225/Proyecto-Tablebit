@@ -18,7 +18,8 @@ import { getRestaurantBranding, brandColorWithAlpha } from "@/lib/branding";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "Reservas", icon: CalendarDays, path: "/dashboard/calendario" },
+  { label: "Reservas", icon: List, path: "/dashboard/reservas" },
+  { label: "Calendario", icon: CalendarDays, path: "/dashboard/calendario" },
   { label: "Mesas", icon: UtensilsCrossed, path: "/dashboard/mesas" },
   { label: "Mi restaurante", icon: Store, path: "/dashboard/mi-restaurante" },
   { label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },

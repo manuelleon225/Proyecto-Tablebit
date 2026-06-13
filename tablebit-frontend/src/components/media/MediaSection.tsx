@@ -47,7 +47,7 @@ const MediaSection = ({
   const [showUploader, setShowUploader] = useState(false);
 
   const resolvedUrl = getImageUrl(imageUrl);
-  const resolvedAspect = aspectRatio ?? (type === "avatar" ? 1 : type === "banner" ? 21/9 : type === "cover" ? 16/9 : undefined);
+  const resolvedAspect = aspectRatio ?? (type === "avatar" || type === "logo" ? 1 : type === "banner" ? 21/9 : type === "cover" ? 16/9 : undefined);
   const resolvedShape = cropShape ?? (type === "avatar" || type === "logo" ? "round" : "rect");
   const fallbackImg = type === "avatar" ? PLACEHOLDER_AVATAR : type === "logo" ? PLACEHOLDER_LOGO : PLACEHOLDER_RESTAURANT;
   const containerClass = aspectClasses[type];

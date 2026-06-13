@@ -84,6 +84,26 @@ export function getImageVariantUrl(path: string | null | undefined, variant?: st
   return resolveImageUrl(path);
 }
 
+/**
+ * Returns a CORS-enabled URL for canvas operations (extracting colors, etc.)
+ * Uses the Laravel proxy route that serves images through the middleware stack,
+ * bypassing static file CORS limitations in development.
+ */
+export function getImageCanvasUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith("blob:")) return path;
+  // Full URLs pointing to /storage/ need to be proxied for CORS
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    const storageMatch = path.match(/\/storage\/(.+)/);
+    if (storageMatch) {
+      return `${API_URL.replace(/\/api\/?$/, "")}/api/serve-image/${storageMatch[1]}`;
+    }
+    return path;
+  }
+  const clean = path.startsWith("/") ? path.slice(1) : path;
+  return `${API_URL.replace(/\/api\/?$/, "")}/api/serve-image/${clean}`;
+}
+
 /** Predefined variant sizes matching ImageVariantService */
 export const HERO_DESKTOP = "1280";
 export const HERO_MOBILE = "640";

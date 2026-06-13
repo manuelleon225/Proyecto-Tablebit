@@ -68,7 +68,7 @@ const Dashboard = () => {
   const pendingSetupSteps = [
     { id: "mesas", label: "Agrega tu primera mesa", done: (analytics?.mesas_totales ?? 0) > 0, cta: { label: "Crear mesa", to: "/dashboard/mesas" } },
     { id: "horarios", label: "Configura horarios de apertura", done: !!(restauranteActual?.horario_apertura && restauranteActual?.horario_cierre), cta: { label: "Configurar", to: "/dashboard/horarios" } },
-    { id: "portada", label: "Sube una foto de portada", done: !!restauranteActual?.imagen, cta: { label: "Subir portada", to: "/dashboard/media" } },
+    { id: "portada", label: "Sube una foto de portada", done: !!(restauranteActual?.imagen || restauranteActual?.portada) || (restauranteActual?.imagenes?.length ?? 0) > 0, cta: { label: "Subir portada", to: "/dashboard/mi-restaurante" } },
     { id: "reserva", label: "Recibe tu primera reserva", done: (analytics?.reservas_hoy ?? 0) > 0 || (analytics?.total_reservas_periodo ?? 0) > 0, cta: { label: "Compartir restaurante", to: `/restaurantes/${restauranteActual?.id}` } },
   ].filter((s) => !s.done);
 

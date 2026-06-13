@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { RotateCcw, Palette, Check, ChevronRight } from "lucide-react";
-import { DEFAULT_BRANDING, brandColorWithAlpha } from "@/lib/branding";
+import { RotateCcw, Palette, Check, ChevronRight, ImageIcon, Loader2 } from "lucide-react";
+import { DEFAULT_BRANDING, brandColorWithAlpha, extractColorsFromImageUrl } from "@/lib/branding";
 import { useBranding } from "@/context/BrandingContext";
 import type { BrandingConfig } from "@/lib/branding";
 
 interface Props {
   branding?: Partial<BrandingConfig>;
   onChange: (branding: Partial<BrandingConfig>) => void;
+  logoUrl?: string | null;
 }
 
 interface Preset {
@@ -137,9 +138,10 @@ const PresetCard = ({ preset, active, onClick }: { preset: Preset; active: boole
   );
 };
 
-const BrandingEditor = ({ branding, onChange }: Props) => {
+const BrandingEditor = ({ branding, onChange, logoUrl }: Props) => {
   const merged = { ...DEFAULT_BRANDING, ...branding };
   const { setBranding } = useBranding();
+  const [extracting, setExtracting] = useState(false);
 
   const [hexValues, setHexValues] = useState({
     primary_color: hslToHex(merged.primary_color),
@@ -154,6 +156,23 @@ const BrandingEditor = ({ branding, onChange }: Props) => {
       accent_color: hslToHex(merged.accent_color),
     });
   }, [branding?.primary_color, branding?.secondary_color, branding?.accent_color]);
+
+  const handleExtract = async () => {
+    if (!logoUrl || extracting) return;
+    setExtracting(true);
+    try {
+      const extracted = await extractColorsFromImageUrl(logoUrl);
+      setHexValues({
+        primary_color: hslToHex(extracted.primary_color),
+        secondary_color: hslToHex(extracted.secondary_color),
+        accent_color: hslToHex(extracted.accent_color),
+      });
+      onChange(extracted);
+      setBranding(extracted);
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   const isPresetActive = (preset: Preset) =>
     merged.primary_color === preset.branding.primary_color &&
@@ -195,9 +214,17 @@ const BrandingEditor = ({ branding, onChange }: Props) => {
           <Palette className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">Colores de marca</span>
         </div>
-        <Button variant="ghost" size="sm" onClick={handleReset} className="h-7 text-xs gap-1">
-          <RotateCcw className="h-3 w-3" /> Restaurar defaults
-        </Button>
+        <div className="flex items-center gap-1.5">
+          {logoUrl && (
+            <Button variant="outline" size="sm" onClick={handleExtract} disabled={extracting} className="h-7 text-xs gap-1.5">
+              {extracting ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImageIcon className="h-3 w-3" />}
+              {extracting ? "Extrayendo..." : "Del logo"}
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={handleReset} className="h-7 text-xs gap-1">
+            <RotateCcw className="h-3 w-3" /> Restaurar defaults
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">

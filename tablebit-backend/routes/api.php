@@ -42,6 +42,20 @@ Route::get('/health', [HealthController::class, 'index']);
 Route::get('/health/db', [HealthController::class, 'db']);
 Route::get('/health/cache', [HealthController::class, 'cache']);
 
+// Serve images with CORS (bypasses static file serving limitation in dev)
+Route::get('/serve-image/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    $mime = mime_content_type($fullPath) ?: 'application/octet-stream';
+    return response(file_get_contents($fullPath), 200, [
+        'Content-Type' => $mime,
+        'Access-Control-Allow-Origin' => '*',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
+
 // Authenticated routes
 Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
 

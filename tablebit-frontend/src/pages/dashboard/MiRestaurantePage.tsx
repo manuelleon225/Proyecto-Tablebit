@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Save, Loader2, Check, Palette, ImageIcon, Clock, Store, Globe } from "lucide-react";
+import { Save, Loader2, Check, Palette, ImageIcon, Clock, Store, Globe, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handleApiError } from "@/services/api";
 import api from "@/services/api";
@@ -23,6 +23,7 @@ import { PhoneInputField } from "@/components/forms/PhoneInputField";
 import { DEFAULT_BRANDING } from "@/lib/branding";
 import type { BrandingConfig } from "@/lib/branding";
 import { normalizePhone, validateColombianMobile } from "@/lib/phone";
+import { getImageUrl } from "@/lib/image";
 import { TIPOS_COMIDA } from "@/constants/colombia";
 
 const generalSchema = z.object({
@@ -269,11 +270,24 @@ const MiRestaurantePage = () => {
               </div>
             </div>
 
+            {/* Portada */}
+            <div className="rounded-xl border border-border/40 bg-card p-5 space-y-4">
+              <MediaSection
+                key={`portada-${restauranteActual?.imagen || 'none'}`}
+                title="Foto de portada"
+                description="Imagen principal que identifica tu restaurante en la página pública. Se muestra en el banner de cabecera (16:9). Es diferente a las imágenes de galería."
+                imageUrl={restauranteActual?.imagen}
+                type="cover"
+                onUploaded={uploadMutation("portada")}
+                onDeleted={deleteMutation("portada", "imagen")}
+              />
+            </div>
+
             {/* Galería principal */}
             <div className="rounded-xl border border-border/40 bg-card p-5 space-y-4">
               <div>
                 <h3 className="font-display text-sm font-semibold">Galería principal</h3>
-                <p className="text-xs text-muted-foreground">Sube varias imágenes. La primera será la portada del restaurante. Usa las flechas para ordenar.</p>
+                <p className="text-xs text-muted-foreground">Imágenes adicionales para mostrar en la galería de tu página pública. Usa las flechas para ordenar.</p>
               </div>
               <GalleryManager restauranteId={selectedRestauranteId} showPrincipalBadge />
             </div>
@@ -290,7 +304,7 @@ const MiRestaurantePage = () => {
                   {saving ? "Guardando..." : "Guardar colores"}
                 </Button>
               </div>
-              <BrandingEditor branding={branding} onChange={setBrandingLocal} />
+              <BrandingEditor branding={branding} onChange={setBrandingLocal} logoUrl={getImageUrl(restauranteActual?.logo)} />
             </div>
           </div>
         </TabsContent>
@@ -330,19 +344,10 @@ interface HourRow {
 const HorariosStandalone = ({ restauranteId }: { restauranteId: number }) => {
   const qc = useQueryClient();
   const { toast } = useToast();
-
-  const { data: hoursData, isLoading } = useQueryH({
-    queryKey: ['restaurant-hours', restauranteId],
-    queryFn: async () => {
-      const res = await restauranteService.getHours(restauranteId);
-      return res.data || [];
-    },
-  });
-
   const [hours, setHours] = useState<HourRow[]>([]);
 
-  const { refetch } = useQueryH({
-    queryKey: ['restaurant-hours-init', restauranteId],
+  const { isLoading } = useQueryH({
+    queryKey: ['restaurant-hours', restauranteId],
     queryFn: async () => {
       const res = await restauranteService.getHours(restauranteId);
       const data = Array.isArray(res.data) ? res.data : [];

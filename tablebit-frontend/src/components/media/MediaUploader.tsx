@@ -62,7 +62,7 @@ export const MediaUploader = ({
   const prevObjectUrl = useRef<string | null>(null);
   const { toast } = useToast();
 
-  const resolvedAspect = cropAspect ?? (type === "avatar" ? 1 : type === "cover" ? 16 / 9 : undefined);
+  const resolvedAspect = cropAspect ?? (type === "avatar" ? 1 : type === "logo" ? 1 : type === "cover" ? 16 / 9 : undefined);
   const resolvedShape = cropShape ?? (type === "avatar" ? "round" : "rect");
 
   useEffect(() => {
@@ -101,9 +101,26 @@ export const MediaUploader = ({
     }
 
     if (enableCrop && !multiple) {
-      setSelectedFile(validFiles[0]);
-      setCropModalOpen(true);
-      return;
+      const needsCrop = await new Promise<boolean>((resolve) => {
+        if (!resolvedAspect || validFiles.length === 0) return resolve(false);
+        const img = new Image();
+        img.onload = () => {
+          const imgAspect = img.naturalWidth / img.naturalHeight;
+          const targetAspect = resolvedAspect;
+          const tolerance = 0.05;
+          const matches = Math.abs(imgAspect - targetAspect) / targetAspect < tolerance;
+          URL.revokeObjectURL(img.src);
+          resolve(!matches);
+        };
+        img.onerror = () => resolve(false);
+        img.src = URL.createObjectURL(validFiles[0]);
+      });
+
+      if (needsCrop) {
+        setSelectedFile(validFiles[0]);
+        setCropModalOpen(true);
+        return;
+      }
     }
 
     setUploading(true);
