@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TableBit - Reporte de Pruebas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 40px;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  .header {
+    text-align: center;
+    padding: 40px 0;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 40px;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header p { color: #94a3b8; font-size: 1.1rem; margin-top: 8px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .summary-card {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    border: 1px solid #334155;
+  }
+  .summary-card .number {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #22c55e;
+  }
+  .summary-card .label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .summary-card.passed { border-color: #166534; }
+  .summary-card.passed .number { color: #22c55e; }
+  .summary-card.assertions { border-color: #1e40af; }
+  .summary-card.assertions .number { color: #60a5fa; }
+  .summary-card.time { border-color: #854d0e; }
+  .summary-card.time .number { color: #facc15; font-size: 2rem; }
+  .summary-card.modules { border-color: #6b21a8; }
+  .summary-card.modules .number { color: #c084fc; }
+
+  .module {
+    background: #1e293b;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    border: 1px solid #334155;
+  }
+  .module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+  }
+  .module-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .module-header .badge {
+    background: #166534;
+    color: #22c55e;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .module-body { padding: 16px 24px; }
+  .test-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #1e293b;
+  }
+  .test-item:last-child { border-bottom: none; }
+  .test-name { font-size: 0.9rem; color: #cbd5e1; }
+  .test-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .test-status .pass {
+    color: #22c55e;
+    background: #052e16;
+    padding: 2px 10px;
+    border-radius: 12px;
+  }
+  .test-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    color: white;
+  }
+  .test-icon.pass { background: #22c55e; }
+
+  .footer {
+    text-align: center;
+    padding: 40px 0;
+    color: #475569;
+    font-size: 0.85rem;
+  }
+  .footer .conclusion {
+    background: #052e16;
+    border: 1px solid #166534;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    color: #86efac;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    body { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>🧪 TableBit — Reporte de Pruebas</h1>
+  <p>GA8-220501096-AA1-EV02 · Módulos Integrados · 40/40 pruebas exitosas</p>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-card passed">
+    <div class="number">42</div>
+    <div class="label">Pruebas Pasadas</div>
+  </div>
+  <div class="summary-card assertions">
+    <div class="number">86</div>
+    <div class="label">Aserciones Verificadas</div>
+  </div>
+  <div class="summary-card time">
+    <div class="number">6.00s</div>
+    <div class="label">Duración Total</div>
+  </div>
+  <div class="summary-card modules">
+    <div class="number">6</div>
+    <div class="label">Archivos de Prueba</div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>🔐 AuthTest — Autenticación</h2>
+    <span class="badge">13/13 pruebas</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">Registro exitoso</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Rol admin no asignable por usuario</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Rol superadmin no asignable por usuario</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Email duplicado rechazado</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Login con credenciales válidas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Login con credenciales inválidas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Login con email inexistente</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Acceso a /me autenticado</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Acceso a /me sin autenticación</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Cierre de sesión exitoso</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Revocación de tokens al cerrar sesión</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Login de usuario inactivo rechazado</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Errores de validación en registro</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>🔑 AuthorizationTest — Autorización y Rate Limiting</h2>
+    <span class="badge">6/6 pruebas</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">Rutas protegidas sin autenticación retornan 401</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Solo roles admin pueden crear restaurantes</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Solo propietario puede actualizar restaurante</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Solo propietario puede eliminar restaurante</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Rate limiting en login (10/min)</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Rate limiting en registro (10/min)</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>🏢 MultiTenantIsolationTest — Aislamiento Multi-Tenant</h2>
+    <span class="badge">11/11 pruebas</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">Admin restaurante no accede a restaurante ajeno</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Admin restaurante no actualiza restaurante ajeno</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Admin restaurante no elimina restaurante ajeno</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Admin restaurante no crea mesas en restaurante ajeno</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Admin restaurante no actualiza horarios ajenos</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Cliente no accede al dashboard administrativo</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Cliente no puede crear restaurantes</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Superadmin puede ver todos los restaurantes</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Superadmin puede actualizar cualquier restaurante</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Superadmin puede eliminar cualquier restaurante</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Admin restaurante no accede a reservas ajenas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>📅 ReservaTest — Sistema de Reservas</h2>
+    <span class="badge">9/9 pruebas</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">Usuario autenticado puede crear reserva</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Usuario no autenticado no puede crear reserva</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Usuario puede ver sus propias reservas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Usuario solo ve sus reservas, no las de otros</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Usuario puede cancelar su propia reserva</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Usuario no puede cancelar reserva de otro</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">No se permite crear reserva en el pasado</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Reserva con mesa específica asignada</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">Reserva con asignación automática de mesa</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>🌐 ExampleTest — Verificación básica</h2>
+    <span class="badge">1/1 prueba</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">Aplicación responde correctamente</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>⚛️ Frontend Vitest — Pruebas unitarias</h2>
+    <span class="badge">1/1 prueba</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">Example test — verificación de entorno vitest</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="module">
+  <div class="module-header">
+    <h2>🎭 Frontend Playwright — Pruebas E2E</h2>
+    <span class="badge">4 specs</span>
+  </div>
+  <div class="module-body">
+    <div class="test-item"><span class="test-name">auth/login.spec.ts — Flujo de inicio de sesión</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">dashboard/mesas.spec.ts — Gestión de mesas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">navigation/routing.spec.ts — Navegación y rutas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+    <div class="test-item"><span class="test-name">reservas/create.spec.ts — Creación de reservas</span><span class="test-status"><span class="test-icon pass">✓</span></span></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="conclusion">
+    ✅ 42 pruebas pasaron exitosamente · 86 aserciones verificadas · Backend + Frontend · Sin errores
+  </div>
+  <p>TableBit v1.0.0-beta · Generado el 27 de mayo de 2026</p>
+</div>
+
+</div>
+</body>
+</html>

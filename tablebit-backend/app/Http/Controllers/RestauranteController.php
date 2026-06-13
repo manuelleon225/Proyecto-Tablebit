@@ -228,7 +228,12 @@ class RestauranteController extends Controller
                 ->withCount('resenas')
                 ->get();
         } else {
-            $restaurantes = $user->restaurantes()
+            $restaurantes = Restaurante::where(function ($q) use ($user) {
+                        $q->where('user_id', $user->id)
+                          ->orWhereHas('users', function ($uq) use ($user) {
+                              $uq->where('user_id', $user->id);
+                          });
+                    })
                 ->with(['mesas', 'imagenes'])
                 ->withAvg('resenas', 'rating')
                 ->withCount('resenas')

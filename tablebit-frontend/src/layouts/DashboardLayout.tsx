@@ -76,7 +76,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div className="h-7 w-7 rounded-lg bg-sidebar-accent flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-sidebar-border/50">
                     {restauranteActual.logo ? (
-                      <img src={getImageUrl(restauranteActual.logo) || PLACEHOLDER_LOGO} alt="" className="h-full w-full object-cover" />
+                      <img src={getImageUrl(restauranteActual.logo) || PLACEHOLDER_LOGO} alt="" className="h-full w-full object-contain" />
                     ) : (
                       <span className="text-xs font-bold text-primary">{restauranteActual.nombre?.[0]}</span>
                     )}
@@ -93,7 +93,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <span className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {r.logo ? (
-                          <img src={getImageUrl(r.logo) || PLACEHOLDER_LOGO} alt="" className="h-full w-full object-cover" />
+                          <img src={getImageUrl(r.logo) || PLACEHOLDER_LOGO} alt="" className="h-full w-full object-contain" />
                         ) : (
                           <span className="text-[10px] font-bold text-muted-foreground">{r.nombre?.[0]}</span>
                         )}
@@ -124,7 +124,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="mt-4 flex items-center gap-2.5 px-3 py-2 rounded-xl bg-sidebar-accent/20 border border-sidebar-border/30">
             <div className="h-7 w-7 rounded-lg bg-sidebar-accent flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-sidebar-border/50">
               {restauranteActual.logo ? (
-                <img src={getImageUrl(restauranteActual.logo) || PLACEHOLDER_LOGO} alt="" className="h-full w-full object-cover" />
+                <img src={getImageUrl(restauranteActual.logo) || PLACEHOLDER_LOGO} alt="" className="h-full w-full object-contain" />
               ) : (
                 <span className="text-xs font-bold text-primary">{restauranteActual.nombre?.[0]}</span>
               )}

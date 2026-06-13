@@ -85,7 +85,7 @@ export function getImageVariantUrl(path: string | null | undefined, variant?: st
 }
 
 /** Predefined variant sizes matching ImageVariantService */
-export const HERO_DESKTOP = "1920";
+export const HERO_DESKTOP = "1280";
 export const HERO_MOBILE = "640";
 export const GALLERY_THUMB = "thumb";
 export const GALLERY_MEDIUM = "medium";

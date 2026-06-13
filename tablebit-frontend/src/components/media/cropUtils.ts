@@ -3,9 +3,9 @@ type CropType = "avatar" | "logo" | "cover" | "gallery";
 const MAX_DIMS: Record<CropType, { w: number; h: number }> = {
   avatar: { w: 512, h: 512 },
   logo: { w: 512, h: 512 },
-  cover: { w: 1600, h: 900 },
-  banner: { w: 1920, h: 820 },
-  gallery: { w: 1920, h: 1920 },
+  cover: { w: 3840, h: 2160 },
+  banner: { w: 3840, h: 1640 },
+  gallery: { w: 3840, h: 2160 },
 };
 
 export interface CompressionResult {
@@ -28,10 +28,8 @@ const supportsWebP = (): boolean => {
 };
 
 const getAdaptiveQuality = (type: CropType, originalSize: number): number => {
-  if (type === "avatar" || type === "logo") return 0.85;
-  if (originalSize > 4 * 1024 * 1024) return 0.7;
-  if (originalSize > 1 * 1024 * 1024) return 0.82;
-  return 0.9;
+  if (type === "avatar" || type === "logo") return 0.9;
+  return 0.95;
 };
 
 const fitDimensions = (w: number, h: number, maxW: number, maxH: number) => {

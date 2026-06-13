@@ -1,0 +1,63 @@
+{
+    "message": "Reserva confirmada autom\u00e1ticamente",
+    "reserva": {
+        "cliente_id": 89,
+        "restaurante_id": 8,
+        "mesa_id": 71,
+        "fecha": "2026-06-13",
+        "hora": "20:00",
+        "hora_fin": "21:30:00",
+        "duracion": 90,
+        "cantidad_personas": 4,
+        "tipo_evento": null,
+        "notas": null,
+        "estado": "confirmada",
+        "updated_at": "2026-06-05T02:49:53.000000Z",
+        "created_at": "2026-06-05T02:49:53.000000Z",
+        "id": 1760,
+        "cliente": {
+            "id": 89,
+            "name": "TempUser3181",
+            "email": "tempuser3181@test.com",
+            "avatar": null,
+            "role": "cliente",
+            "estado": "activo",
+            "remember_token": null,
+            "created_at": "2026-06-05T02:49:48.000000Z",
+            "updated_at": "2026-06-05T02:49:48.000000Z"
+        },
+        "mesa": {
+            "id": 71,
+            "restaurante_id": 8,
+            "numero": 4,
+            "capacidad": 4,
+            "estado": "disponible",
+            "created_at": "2026-05-15T02:18:34.000000Z",
+            "updated_at": "2026-05-15T02:18:34.000000Z"
+        },
+        "restaurante": {
+            "id": 8,
+            "user_id": 46,
+            "nombre": "Sushi Ikigai",
+            "slug": "sushi-ikigai",
+            "direccion": "Carrera 15 #88-32, Chapinero",
+            "ciudad": "Bogot\u00e1",
+            "tipo_comida": "Japonesa",
+            "horario_apertura": "12:00",
+            "horario_cierre": "23:00",
+            "capacidad_total": 48,
+            "branding": null,
+            "lat": null,
+            "lng": null,
+            "amenities": null,
+            "telefono": "3109876543",
+            "descripcion": "Aut\u00e9ntica cocina japonesa con los mejores cortes de pescado fresco importado directamente desde Tokio. Ambiente minimalista con barra de sushi tradicional donde puedes ver a nuestros itamae en acci\u00f3n. Selecci\u00f3n exclusiva de sake y whisky japon\u00e9s.",
+            "imagen": "restaurantes\/8\/portada\/1cccfeff-f35b-4b14-8776-6f2202345c00.jpeg",
+            "logo": "restaurantes\/8\/logo\/47cce084-5ea6-4c7d-9f6d-ec4701757a5a.png",
+            "banner": "restaurantes\/8\/banner\/df867563-9c2d-429d-a5f2-f91cc4740d37.jpg",
+            "estado": "activo",
+            "created_at": "2026-05-15T02:18:22.000000Z",
+            "updated_at": "2026-05-23T03:27:16.000000Z"
+        }
+    }
+}

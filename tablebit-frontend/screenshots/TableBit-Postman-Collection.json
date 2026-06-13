@@ -1,0 +1,314 @@
+{
+  "info": {
+    "name": "TableBit - Pruebas API",
+    "description": "Colección de pruebas funcionales para el proyecto TableBit. Incluye casos de prueba de autenticación, restaurantes, reservas y seguridad.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_cliente_b",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reserva_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Autenticación",
+      "item": [
+        {
+          "name": "C-01 Login Exitoso (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    pm.test('Login exitoso - token recibido', function() {",
+                  "        pm.expect(jsonData.token).to.not.be.empty;",
+                  "        pm.expect(jsonData.user).to.have.property('email', 'admin@test.com');",
+                  "        pm.expect(jsonData.user.role).to.eql('admin');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"admin123\"\n}"
+            },
+            "url": "http://localhost:8000/api/login",
+            "description": "Caso de prueba: Inicio de sesión con credenciales válidas. Resultado esperado: 200 OK, token Sanctum."
+          }
+        },
+        {
+          "name": "C-02 Registro Cliente (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Registro exitoso - status 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.role).to.eql('cliente');",
+                  "    pm.expect(jsonData.token).to.not.be.empty;",
+                  "    pm.expect(jsonData.requires_onboarding).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Cliente Prueba\",\n    \"email\": \"cliente.{{$randomInt}}@test.com\",\n    \"password\": \"Cliente1!\",\n    \"password_confirmation\": \"Cliente1!\"\n}"
+            },
+            "url": "http://localhost:8000/api/register",
+            "description": "Caso de prueba: Registro de nuevo usuario. Resultado esperado: 201 Created, user.role = cliente."
+          }
+        },
+        {
+          "name": "C-03 Login Fallido (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"wrongpassword123\"\n}"
+            },
+            "url": "http://localhost:8000/api/login",
+            "description": "Caso de prueba: Login con contraseña incorrecta. Resultado esperado: 401 Unauthorized."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🍽️ Restaurantes",
+      "item": [
+        {
+          "name": "Listar Restaurantes (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/restaurantes",
+            "description": "Lista todos los restaurantes activos. Endpoint público. Resultado esperado: 200 + array."
+          }
+        },
+        {
+          "name": "Buscar Restaurantes (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/buscar-restaurantes?ciudad=Bogot%C3%A1&tipo_comida=Italiana",
+              "host": ["http://localhost:8000"],
+              "path": ["api", "buscar-restaurantes"],
+              "query": [
+                { "key": "ciudad", "value": "Bogotá" },
+                { "key": "tipo_comida", "value": "Italiana" }
+              ]
+            },
+            "description": "Búsqueda con filtros. Resultado esperado: 200 + restaurantes filtrados."
+          }
+        },
+        {
+          "name": "Detalle Restaurante (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/restaurantes/8",
+            "description": "Detalle del restaurante Sushi Ikigai. Resultado esperado: 200 + datos completos."
+          }
+        },
+        {
+          "name": "Vista Pública Restaurante (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/restaurantes/8/public",
+            "description": "Vista pública del restaurante. Resultado esperado: 200 + datos públicos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Disponibilidad y Reservas",
+      "item": [
+        {
+          "name": "C-04 Consultar Disponibilidad (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Disponibilidad consultada exitosamente', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('disponible');",
+                  "    pm.expect(jsonData).to.have.property('total_disponibles');",
+                  "    pm.expect(jsonData.total_disponibles).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"restaurante_id\": 8,\n    \"fecha\": \"2026-06-15\",\n    \"hora\": \"20:00\",\n    \"personas\": 4\n}"
+            },
+            "url": "http://localhost:8000/api/disponibilidad",
+            "description": "Caso de prueba: Consultar mesas disponibles. Usar campo 'personas'. Resultado esperado: 200 + mesas disponibles."
+          }
+        },
+        {
+          "name": "C-05 Crear Reserva Automática (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('reserva_id', jsonData.reserva.id.toString());",
+                  "    pm.test('Reserva creada exitosamente', function() {",
+                  "        pm.expect(jsonData.reserva.estado).to.eql('confirmada');",
+                  "        pm.expect(jsonData.reserva).to.have.property('mesa_id');",
+                  "        pm.expect(jsonData.reserva.cantidad_personas).to.eql(4);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"restaurante_id\": 8,\n    \"fecha\": \"2026-06-15\",\n    \"hora\": \"20:00\",\n    \"cantidad_personas\": 4\n}"
+            },
+            "url": "http://localhost:8000/api/reserva-automatica",
+            "description": "Caso de prueba: Crear reserva con asignación automática de mesa. Requiere token. Usar campo 'cantidad_personas'. Resultado esperado: 201 + estado confirmada."
+          }
+        },
+        {
+          "name": "C-06 Cancelar Reserva de OTRO (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_cliente_b}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/reservas/{{reserva_id}}/cancelar",
+            "description": "ATENCIÓN: Antes de ejecutar, haz login con carlos@demo.com / password, copia el token y pégalo en la variable 'token_cliente_b'. Luego ejecuta. Resultado esperado: 403 Forbidden."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔒 Seguridad y Autorización",
+      "item": [
+        {
+          "name": "C-07 Cliente en ruta admin (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_cliente_b}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/mis-restaurantes",
+            "description": "Usar el token de carlos@demo.com (cliente). Resultado esperado: 403 Forbidden."
+          }
+        },
+        {
+          "name": "C-08 Admin modifica Rest de OTRO (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Intento de modificación no autorizada\",\n    \"descripcion\": \"Tratando de modificar un restaurante que no me pertenece\"\n}"
+            },
+            "url": "http://localhost:8000/api/restaurantes/9",
+            "description": "ATENCIÓN: Antes de ejecutar, haz login con admin.rest1@test.com / Admin123!, copia el token y pégalo en la variable 'token'. Luego ejecuta. Resultado esperado: 403."
+          }
+        },
+        {
+          "name": "C-09 Sin Token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/usuarios/me",
+            "description": "Solicitud sin token de autenticación. Resultado esperado: 401 Unauthorized."
+          }
+        },
+        {
+          "name": "Health Check (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "http://localhost:8000/api/health",
+            "description": "Verificar que el servidor está funcionando. Resultado esperado: 200 + JSON con status ok."
+          }
+        }
+      ]
+    }
+  ]
+}

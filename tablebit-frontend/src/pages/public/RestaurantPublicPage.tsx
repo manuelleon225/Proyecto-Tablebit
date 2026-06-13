@@ -11,7 +11,7 @@ import { handleApiError } from "@/services/api";
 import { useSEO } from "@/hooks/useSEO";
 import RestaurantCard from "@/components/RestaurantCard";
 import StructuredData from "@/components/StructuredData";
-import { getImageUrl, getImageVariantUrl, HERO_DESKTOP, HERO_MOBILE, PLACEHOLDER_LOGO } from "@/lib/image";
+import { getImageUrl, PLACEHOLDER_LOGO } from "@/lib/image";
 
 const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
@@ -246,8 +246,7 @@ const RestaurantPublicPage = () => {
           <div className="relative h-full w-full" style={{ aspectRatio: "16/9" }}>
             {slides.map((slide, i) => {
               const isActive = i === slideIndex;
-              // Desktop: use 1920 variant. Mobile: use 640 variant
-              const src = getImageVariantUrl(slide.src, isActive ? HERO_DESKTOP : HERO_MOBILE) || getImageUrl(slide.src);
+              const src = getImageUrl(slide.src);
               return (
                 <img
                   key={i}

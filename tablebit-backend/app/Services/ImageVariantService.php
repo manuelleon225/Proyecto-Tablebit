@@ -37,8 +37,8 @@ class ImageVariantService
         ],
         'galeria' => [
             ['suffix' => 'thumb', 'w' => 150, 'h' => 150, 'q' => 75],
-            ['suffix' => 'medium', 'w' => 640, 'h' => null, 'q' => 80],
-            ['suffix' => 'large', 'w' => 1280, 'h' => null, 'q' => 80],
+            ['suffix' => '640', 'w' => 640, 'h' => null, 'q' => 80],
+            ['suffix' => '1280', 'w' => 1280, 'h' => null, 'q' => 80],
         ],
     ];
 

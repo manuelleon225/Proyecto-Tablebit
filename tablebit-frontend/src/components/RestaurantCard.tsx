@@ -1,7 +1,7 @@
 import type { Restaurante } from "@/types/restaurante";
 import { MapPin, Star, Clock, CalendarDays, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getImageUrl, getImageVariantUrl, CARD_VARIANT, PLACEHOLDER_LOGO } from "@/lib/image";
+import { getImageUrl, PLACEHOLDER_LOGO } from "@/lib/image";
 
 interface RestaurantCardProps {
   restaurante: Restaurante;
@@ -14,15 +14,18 @@ const RestaurantCard = ({ restaurante }: RestaurantCardProps) => {
     <Link to={linkTo} className="group block rounded-2xl border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-0.5">
       {/* Image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-        {restaurante.imagen ? (
-          <img src={getImageVariantUrl(restaurante.imagen, CARD_VARIANT) || getImageUrl(restaurante.imagen) || ""}
-            alt={restaurante.nombre} loading="lazy"
-            className="h-full w-full object-cover transition-all duration-700 group-hover:scale-[1.04]" />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-muted/80 to-muted flex items-center justify-center">
-            <span className="font-display text-5xl text-muted-foreground/20">{restaurante.nombre?.[0]}</span>
-          </div>
-        )}
+        {(() => {
+          const cover = restaurante.imagen || (Array.isArray(restaurante.imagenes) ? restaurante.imagenes.find((img: any) => img.tipo !== "logo")?.ruta : null);
+          return cover ? (
+            <img src={getImageUrl(cover) || ""}
+              alt={restaurante.nombre} loading="lazy"
+              className="h-full w-full object-cover transition-all duration-700 group-hover:scale-[1.04]" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-muted/80 to-muted flex items-center justify-center">
+              <span className="font-display text-5xl text-muted-foreground/20">{restaurante.nombre?.[0]}</span>
+            </div>
+          );
+        })()}
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
 
         {restaurante.tipo_comida && (
