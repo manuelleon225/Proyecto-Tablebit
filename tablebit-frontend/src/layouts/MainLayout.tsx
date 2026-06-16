@@ -71,9 +71,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           </nav>
 
           {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1.5">
+            <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Cambiar tema">
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             {isAuthenticated ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Button variant="ghost" size="sm" onClick={() => navigate("/perfil")} className="text-muted-foreground">
                   <User className="h-4 w-4 mr-1.5" /> Perfil
                 </Button>
@@ -93,15 +96,15 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                 </Button>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>Iniciar sesión</Button>
                 <Button size="sm" onClick={() => navigate("/register")} className="shadow-lg shadow-primary/20">Registrarse</Button>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Theme + Mobile toggle */}
-          <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Cambiar tema">
+          {/* Mobile toggle */}
+          <button onClick={toggleTheme} className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Cambiar tema">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <button className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
