@@ -46,9 +46,16 @@ const Dashboard = () => {
 
   useSEO({ title: "TableBit - Dashboard", description: "Panel de administración de TableBit." });
 
+  const dashboardRange = (() => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 14);
+    return { fecha_inicio: start.toISOString().split("T")[0], fecha_fin: end.toISOString().split("T")[0] };
+  })();
+
   const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useQuery({
-    queryKey: ['dashboard-analytics', selectedRestauranteId],
-    queryFn: async () => { const res = await restauranteService.getDashboard(selectedRestauranteId!); return res.data; },
+    queryKey: ['dashboard-analytics', selectedRestauranteId, dashboardRange.fecha_inicio],
+    queryFn: async () => { const res = await restauranteService.getDashboard(selectedRestauranteId!, dashboardRange); return res.data; },
     enabled: !!selectedRestauranteId,
     staleTime: 2 * 60 * 1000,
     placeholderData: (previousData) => previousData,
