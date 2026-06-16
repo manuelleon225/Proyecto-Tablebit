@@ -5,9 +5,10 @@ import { useRestaurante } from "@/context/RestauranteContext";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { prefetchDashboardData, setupIdlePrefetch } from "@/lib/prefetch";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard, UtensilsCrossed, CalendarDays, List, LogOut, ChevronLeft,
-  Menu, X, ChevronDown, BarChart3, Table2, Store, Clock, Palette, ImageIcon, User, Settings,
+  Menu, X, ChevronDown, BarChart3, Table2, Store, Clock, Palette, ImageIcon, User, Settings, Sun, Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,6 +58,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleLogout = () => { logout(); navigate("/"); };
+  const { theme, setTheme } = useTheme();
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   const branding = getRestaurantBranding(restauranteActual);
   const isActive = (path: string) => location.pathname === path;
@@ -187,6 +190,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             else navigate("/");
           }}>
             <ChevronLeft className="h-3.5 w-3.5 mr-1" /> Sitio
+          </Button>
+          <Button variant="ghost" size="sm" className="text-sidebar-foreground/50 hover:text-sidebar-foreground h-8 text-xs active:scale-[0.98]" onClick={toggleTheme} aria-label="Cambiar tema">
+            {theme === "dark" ? <Sun className="h-3.5 w-3.5" aria-hidden="true" /> : <Moon className="h-3.5 w-3.5" aria-hidden="true" />}
           </Button>
           <Button variant="ghost" size="sm" className="text-sidebar-foreground/50 hover:text-destructive h-8 text-xs active:scale-[0.98]" onClick={handleLogout} aria-label="Cerrar sesión">
             <LogOut className="h-3.5 w-3.5" aria-hidden="true" />

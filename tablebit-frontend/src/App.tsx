@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import { RestauranteProvider } from "@/context/RestauranteContext";
 import { BrandingProvider } from "@/context/BrandingContext";
+import { ThemeProvider } from "next-themes";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Loader from "@/components/Loader";
@@ -130,6 +131,7 @@ const DashboardGuard = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <RestauranteProvider>
       <PwaHandler />
       <InstallPwaButton />
@@ -222,6 +224,7 @@ const App = () => (
         </BrandingProvider>
       </TooltipProvider>
       </RestauranteProvider>
+      </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LogOut, UtensilsCrossed, Menu, X, User, ChevronRight, Bell } from "lucide-react";
+import { LogOut, UtensilsCrossed, Menu, X, User, ChevronRight, Bell, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getImageUrl, handleImageError, PLACEHOLDER_AVATAR } from "@/lib/image";
 
@@ -18,6 +19,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const handleLogout = () => { logout(); navigate("/"); setMobileOpen(false); };
+  const { theme, setTheme } = useTheme();
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   const getUserInitials = () => {
     if (!user?.name) return "?";
@@ -97,7 +100,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             )}
           </div>
 
-          {/* Mobile toggle */}
+          {/* Theme + Mobile toggle */}
+          <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Cambiar tema">
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
           <button className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
