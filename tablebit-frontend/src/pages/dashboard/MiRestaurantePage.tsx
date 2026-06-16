@@ -346,7 +346,7 @@ const HorariosStandalone = ({ restauranteId }: { restauranteId: number }) => {
   const { toast } = useToast();
   const [hours, setHours] = useState<HourRow[]>([]);
 
-  const { isLoading } = useQueryH({
+  const { isLoading, isError, refetch } = useQueryH({
     queryKey: ['restaurant-hours', restauranteId],
     queryFn: async () => {
       const res = await restauranteService.getHours(restauranteId);
@@ -385,6 +385,12 @@ const HorariosStandalone = ({ restauranteId }: { restauranteId: number }) => {
   };
 
   if (isLoading) return <div className="p-6 text-sm text-muted-foreground">Cargando horarios...</div>;
+  if (isError) return (
+    <div className="p-6 text-center">
+      <p className="text-sm text-destructive mb-2">Error al cargar horarios</p>
+      <Button variant="outline" size="sm" onClick={() => refetch()}>Reintentar</Button>
+    </div>
+  );
 
   return (
     <div className="p-5 space-y-4">
