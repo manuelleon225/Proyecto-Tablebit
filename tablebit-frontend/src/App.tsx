@@ -17,6 +17,7 @@ import { Download } from "lucide-react";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Profile = lazy(() => import("./pages/Profile"));
 const RestauranteDetalle = lazy(() => import("./pages/RestauranteDetalle"));
 const MisReservas = lazy(() => import("./pages/MisReservas"));
@@ -146,6 +147,7 @@ const App = () => (
                 <Route path="/restaurantes" element={<RestaurantesPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/restaurantes/:id" element={<RestauranteDetalle />} />
                 <Route path="/restaurante/:slug" element={<RestaurantPublicPage />} />
                 <Route

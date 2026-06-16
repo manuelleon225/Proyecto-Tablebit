@@ -76,6 +76,11 @@ const Login = () => {
                 </div>
                 {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
               </div>
+              <div className="flex items-center justify-end -mt-2">
+                <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
           <Button type="submit" className="w-full h-11 shadow-lg shadow-primary/20" disabled={isSubmitting}>
             {isSubmitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Ingresando...</> : "Iniciar sesión"}
           </Button>
