@@ -27,8 +27,8 @@
 <body>
     <div class="container">
         <div class="card">
-            <div class="header">
-                <div class="logo">TableBit</div>
+            <div class="header" style="background:#22c55e;background:linear-gradient(135deg,#22c55e,#16a34a);padding:32px 24px;text-align:center;">
+                <div style="font-size:28px;font-weight:bold;color:#ffffff;letter-spacing:-0.5px;">TableBit</div>
             </div>
             <div class="body">
                 <h1>¡Reserva confirmada!</h1>

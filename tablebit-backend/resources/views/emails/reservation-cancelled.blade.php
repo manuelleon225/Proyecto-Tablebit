@@ -28,8 +28,8 @@
 <body>
     <div class="container">
         <div class="card">
-            <div class="header">
-                <div class="logo">TableBit</div>
+            <div class="header" style="background:#ef4444;background:linear-gradient(135deg,#ef4444,#dc2626);padding:32px 24px;text-align:center;">
+                <div style="font-size:28px;font-weight:bold;color:#ffffff;letter-spacing:-0.5px;">TableBit</div>
             </div>
             <div class="body">
                 <h1>Reserva cancelada</h1>
