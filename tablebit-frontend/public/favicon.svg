@@ -6,5 +6,16 @@
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="96" fill="url(#g)"/>
-  <text x="256" y="340" font-family="'Plus Jakarta Sans',Arial,Helvetica,sans-serif" font-size="320" font-weight="800" fill="white" text-anchor="middle">T</text>
+  <g fill="none" stroke="white" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" transform="translate(256,256) rotate(-30)">
+    <!-- Fork (left) -->
+    <path d="M-60-140v60c0 25-15 40-40 40h-15c-25 0-40-15-40-40v-60"/>
+    <path d="M-60-140h-15"/>
+    <path d="M-75-160v-30"/>
+    <path d="M-60-160v-30"/>
+    <path d="M-90-160v-30"/>
+    <!-- Knife (right) -->
+    <path d="M60-140v60c0 25 15 40 40 40h15c25 0 40-15 40-40v-100"/>
+    <path d="M60-140h15"/>
+    <path d="M75-160v-30"/>
+  </g>
 </svg>
