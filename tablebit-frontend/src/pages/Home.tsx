@@ -37,8 +37,8 @@ const features = [
 
 const pricing = [
   { name: "Starter", price: "$0", desc: "Para probar TableBit", features: ["1 restaurante", "50 reservas/mes", "Dashboard básico", "Gestión de mesas"] },
-  { name: "Pro", price: "$29", desc: "Para restaurantes profesionales", features: ["5 restaurantes", "Reservas ilimitadas", "Analytics avanzados", "Notificaciones email", "Exportación CSV", "Soporte prioritario"], popular: true },
-  { name: "Enterprise", price: "$79", desc: "Para cadenas y grandes operaciones", features: ["Restaurantes ilimitados", "API completa", "White-label", "Soporte dedicado", "SLAs", "Onboarding personalizado"] },
+  { name: "Pro", price: "$89.000", desc: "Para restaurantes profesionales", features: ["5 restaurantes", "Reservas ilimitadas", "Analytics avanzados", "Notificaciones email", "Exportación CSV", "Soporte prioritario"], popular: true },
+  { name: "Enterprise", price: "$249.000", desc: "Para cadenas y grandes operaciones", features: ["Restaurantes ilimitados", "API completa", "White-label", "Soporte dedicado", "SLAs", "Onboarding personalizado"] },
 ];
 
 const faq = [
@@ -271,7 +271,7 @@ const Home = () => {
       <StructuredData data={{
         "@context": "https://schema.org", "@type": "WebApplication", name: "TableBit",
         description: "SaaS de gestión de reservas para restaurantes", applicationCategory: "BusinessApplication",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        offers: { "@type": "Offer", price: "0", priceCurrency: "COP" },
       }} />
     </MainLayout>
   );
