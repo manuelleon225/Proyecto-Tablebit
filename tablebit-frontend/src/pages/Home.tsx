@@ -55,12 +55,19 @@ const Home = () => {
   const navigate = useNavigate();
   const isAdmin = ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "");
 
-  // Redirect admin users to dashboard
+  // Redirect admin users to dashboard immediately without rendering content
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
       navigate("/dashboard", { replace: true });
+    } else {
+      setCheckingAdmin(false);
     }
   }, [isAuthenticated, isAdmin, navigate]);
+
+  if (checkingAdmin) return <div className="min-h-screen bg-background" />;
+
+  const handleClearSearch = () => setSearch("");
 
   useSEO({ title: "TableBit - Reserva de Mesas en Restaurantes", description: "SaaS moderno de gestión de reservas para restaurantes. Dashboard, analytics, notificaciones y más.", canonical: window.location.origin });
 
@@ -157,7 +164,7 @@ const Home = () => {
         <SectionHeader title="Todo lo que necesitas" subtitle="TableBit combina reservas, analytics y gestión en una plataforma moderna." />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (
-            <div key={f.title} className="group flex flex-col rounded-xl border border-border/50 bg-card p-6 sm:p-7 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-0.5 h-full" style={{ animationDelay: `${i * 80}ms` }}>
+            <div key={f.title} className="group flex flex-col rounded-xl border border-border/50 bg-card p-6 sm:p-7 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-0.5 h-full animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform flex-shrink-0">
                 <f.icon className="h-5 w-5 text-primary" />
               </div>
@@ -190,8 +197,8 @@ const Home = () => {
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-16 sm:py-20 rounded-2xl border border-border bg-card mx-auto max-w-lg">
-            <AlertCircle className="h-10 w-10 mx-auto mb-4 text-destructive/40" />
+          <div className="text-center py-16 sm:py-20 rounded-2xl border-2 border-dashed border-destructive/20 bg-card/50 mx-auto max-w-lg">
+            <AlertCircle className="h-10 w-10 mx-auto mb-4 text-destructive/30" />
             <p className="text-sm text-muted-foreground font-medium mb-1">No pudimos cargar los restaurantes</p>
             <p className="text-xs text-muted-foreground/60 mb-5">Error de conexión. Verifica tu conexión a internet.</p>
             <Button variant="outline" size="sm" onClick={() => refetch()}>Reintentar</Button>

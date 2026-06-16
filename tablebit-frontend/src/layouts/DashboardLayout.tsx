@@ -140,7 +140,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         ) : null}
       </div>
-      <nav className="flex-1 px-3 space-y-0.5" aria-label="Navegación del dashboard">
+      <nav className="flex-1 overflow-y-auto px-3 space-y-0.5 min-h-0" aria-label="Navegación del dashboard">
         {navItems.map((item) => {
           const active = isActive(item.path);
           return (
@@ -180,22 +180,22 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
         <div className="flex gap-1.5 justify-between">
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-sidebar-foreground/50 hover:text-sidebar-foreground active:scale-[0.98]" onClick={() => navigate("/perfil")} aria-label="Perfil">
-            <User className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/50 hover:text-sidebar-foreground active:scale-[0.98]" onClick={() => navigate("/perfil")} aria-label="Perfil">
+            <User className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-sidebar-foreground/50 hover:text-sidebar-foreground active:scale-[0.98]" onClick={() => {
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/50 hover:text-sidebar-foreground active:scale-[0.98]" onClick={() => {
             const slug = restauranteActual?.slug;
             if (slug) navigate(`/restaurante/${slug}`);
             else if (restauranteActual?.id) navigate(`/restaurantes/${restauranteActual.id}`);
             else navigate("/");
           }} aria-label="Ver sitio público">
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-sidebar-foreground/50 hover:text-sidebar-foreground active:scale-[0.98]" onClick={toggleTheme} aria-label="Cambiar tema">
-            {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/50 hover:text-sidebar-foreground active:scale-[0.98]" onClick={toggleTheme} aria-label="Cambiar tema">
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-sidebar-foreground/50 hover:text-destructive active:scale-[0.98]" onClick={handleLogout} aria-label="Cerrar sesión">
-            <LogOut className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/50 hover:text-destructive active:scale-[0.98]" onClick={handleLogout} aria-label="Cerrar sesión">
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>

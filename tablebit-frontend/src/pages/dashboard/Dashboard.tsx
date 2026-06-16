@@ -20,14 +20,14 @@ const statCard = (icon: React.ElementType, label: string, value: string | number
   const Icon = icon;
   const bgColor = chartColors[chart] || "var(--chart-1)";
   return (
-    <div className="relative overflow-hidden rounded-xl bg-card border border-border/40 p-4 md:p-5 shadow-sm transition-all duration-200 hover:shadow-card-hover hover:border-border/60">
+    <div className="relative overflow-hidden rounded-xl bg-card border border-border/40 p-4 md:p-5 shadow-sm transition-all duration-200 hover:shadow-card-hover hover:border-border/60 min-h-[7rem]">
       <div className="flex items-start justify-between mb-3">
         <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{label}</span>
         <div className="h-8 w-8 rounded-lg flex items-center justify-center shadow-sm" style={{ backgroundColor: `hsl(${bgColor})` }}>
           <Icon className="h-4 w-4 text-white" />
         </div>
       </div>
-      <p className="font-display text-2xl font-bold tracking-tight text-foreground">{value}</p>
+      <p className="font-display text-xl lg:text-2xl font-bold tracking-tight text-foreground">{value}</p>
       <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
     </div>
   );
@@ -205,9 +205,7 @@ const Dashboard = () => {
       <div className="rounded-xl bg-card border border-border/40 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
           <h2 className="font-display text-base font-semibold flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 relative">
-              <span className="animate-ping absolute inset-0 rounded-full bg-emerald-500/50" />
-            </span>
+            <span className="h-2 w-2 rounded-full bg-success" />
             Próximas reservas
             <span className="text-xs font-normal text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">{proximasReservas.length} hoy</span>
           </h2>
@@ -277,9 +275,9 @@ const Dashboard = () => {
       </div>
 
       {/* Secondary section */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Horas pico */}
-        <div className="lg:col-span-2 rounded-xl bg-card border border-border/40 shadow-sm p-5">
+        <div className="rounded-xl bg-card border border-border/40 shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-sm font-semibold flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-muted-foreground" /> Horas pico
@@ -310,7 +308,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick actions */}
-        <div className="lg:col-span-3 rounded-xl bg-card border border-border/40 shadow-sm p-5">
+        <div className="rounded-xl bg-card border border-border/40 shadow-sm p-5">
           <h2 className="font-display text-sm font-semibold mb-4 flex items-center gap-2">
             <UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Acciones rápidas
           </h2>
