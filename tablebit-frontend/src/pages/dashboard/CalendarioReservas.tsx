@@ -306,7 +306,7 @@ const CalendarioReservas = () => {
                               </Button>
                             )}
                             {estado === 'confirmada' && (
-                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2 text-indigo-500 hover:text-indigo-500" disabled={loading} onClick={() => estadoMutation.mutate({ id: ev.id, estado: 'completada' })}>
+                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2 text-success hover:text-success" disabled={loading} onClick={() => estadoMutation.mutate({ id: ev.id, estado: 'completada' })}>
                                 {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Completar
                               </Button>
                             )}
@@ -379,7 +379,7 @@ const CalendarioReservas = () => {
                               </Button>
                             )}
                             {estado === 'confirmada' && (
-                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2 text-indigo-500 hover:text-indigo-500" disabled={loading} onClick={() => estadoMutation.mutate({ id: ev.id, estado: 'completada' })}>
+                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2 text-success hover:text-success" disabled={loading} onClick={() => estadoMutation.mutate({ id: ev.id, estado: 'completada' })}>
                                 {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Completar
                               </Button>
                             )}

@@ -13,10 +13,10 @@ interface EmptyStateProps {
 
 const variantStyles = {
   default: { gradient: "from-card/50 to-card/20", iconBg: "bg-primary/5", iconRing: "ring-primary/10", iconColor: "text-primary/30" },
-  reservation: { gradient: "from-blue-500/5 to-card/20", iconBg: "bg-blue-500/5", iconRing: "ring-blue-500/10", iconColor: "text-blue-500/30" },
-  table: { gradient: "from-amber-500/5 to-card/20", iconBg: "bg-amber-500/5", iconRing: "ring-amber-500/10", iconColor: "text-amber-500/30" },
-  analytics: { gradient: "from-emerald-500/5 to-card/20", iconBg: "bg-emerald-500/5", iconRing: "ring-emerald-500/10", iconColor: "text-emerald-500/30" },
-  dashboard: { gradient: "from-violet-500/5 to-card/20", iconBg: "bg-violet-500/5", iconRing: "ring-violet-500/10", iconColor: "text-violet-500/30" },
+  reservation: { gradient: "from-card/50 to-card/20", iconBg: "bg-primary/5", iconRing: "ring-primary/10", iconColor: "text-primary/30" },
+  table: { gradient: "from-card/50 to-card/20", iconBg: "bg-secondary/10", iconRing: "ring-secondary/10", iconColor: "text-secondary/40" },
+  analytics: { gradient: "from-card/50 to-card/20", iconBg: "bg-success/10", iconRing: "ring-success/10", iconColor: "text-success/30" },
+  dashboard: { gradient: "from-card/50 to-card/20", iconBg: "bg-accent", iconRing: "ring-accent-foreground/10", iconColor: "text-accent-foreground/30" },
 };
 
 const variantIcons: Record<string, LucideIcon> = {

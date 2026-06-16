@@ -255,7 +255,7 @@ const Home = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight">¿Listo para empezar?</h2>
           <p className="mt-4 text-lg text-white/60 max-w-lg mx-auto">Únete a más de 150 restaurantes que ya confían en TableBit.</p>
-          <Button size="lg" onClick={() => navigate("/register")} className="mt-8 sm:mt-10 h-12 px-10 text-base shadow-xl shadow-black/20 bg-white text-emerald-900 hover:bg-white/90">
+          <Button size="lg" onClick={() => navigate("/register")} className="mt-8 sm:mt-10 h-12 px-10 text-base shadow-xl shadow-black/20 bg-primary text-primary-foreground hover:bg-primary/90">
             Crear cuenta gratis <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>

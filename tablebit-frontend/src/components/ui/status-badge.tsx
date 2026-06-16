@@ -10,9 +10,9 @@ interface StatusBadgeProps {
 const config: Record<StatusKey, { label: string; dot: string; bg: string }> = {
   pendiente: { label: "Pendiente", dot: "bg-warning", bg: "bg-warning/10 text-warning border-warning/20" },
   confirmada: { label: "Confirmada", dot: "bg-success", bg: "bg-success/10 text-success border-success/20" },
-  completada: { label: "Completada", dot: "bg-primary", bg: "bg-primary/10 text-primary border-primary/20" },
+  completada: { label: "Completada", dot: "bg-accent-foreground/50", bg: "bg-accent/80 text-accent-foreground/70 border-accent-foreground/10" },
   cancelada: { label: "Cancelada", dot: "bg-destructive", bg: "bg-destructive/10 text-destructive border-destructive/20" },
-  no_show: { label: "No Show", dot: "bg-muted-foreground", bg: "bg-muted/50 text-muted-foreground border-border" },
+  no_show: { label: "No Show", dot: "bg-muted-foreground", bg: "bg-muted/50 text-muted-foreground border-border/50" },
 };
 
 export const StatusBadge = ({ estado, className }: StatusBadgeProps) => {

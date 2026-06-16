@@ -50,6 +50,11 @@
     --sidebar-border: 0 0% 91%;
     --sidebar-ring: 160 84% 39%;
 
+    --chart-1: 160 84% 39%;
+    --chart-2: 200 80% 45%;
+    --chart-3: 142 70% 40%;
+    --chart-4: 38 92% 50%;
+
     --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -97,6 +102,11 @@
     --sidebar-accent-foreground: 0 0% 88%;
     --sidebar-border: 0 0% 14%;
     --sidebar-ring: 160 70% 50%;
+
+    --chart-1: 160 70% 48%;
+    --chart-2: 200 75% 50%;
+    --chart-3: 142 65% 50%;
+    --chart-4: 38 85% 55%;
   }
 }
 
@@ -106,6 +116,13 @@
     border-width: 0;
     border-style: solid;
     border-color: hsl(var(--border));
+    transition-property: background-color, border-color, color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease;
+  }
+  input, textarea, select, button, a { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   html {
     scroll-behavior: smooth;
@@ -128,10 +145,7 @@
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.2s ease, color 0.15s ease;
-  }
-  body, .card, .sidebar, [class*="bg-"] {
-    transition: background-color 0.2s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.2s ease, color 0.15s ease, border-color 0.15s ease;
   }
   h1, h2, h3, h4, h5, h6 { margin: 0; font-family: var(--font-display); letter-spacing: -0.025em; }
 

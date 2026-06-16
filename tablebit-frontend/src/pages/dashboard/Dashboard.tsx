@@ -9,13 +9,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import { StatusBadge } from "@/components/ui/status-badge";
 
-const statCard = (icon: React.ElementType, label: string, value: string | number, sub: string, color: string) => {
+const chartColors: Record<string, string> = {
+  reservations: "var(--chart-1)",
+  people: "var(--chart-2)",
+  occupancy: "var(--chart-3)",
+  status: "var(--chart-4)",
+};
+
+const statCard = (icon: React.ElementType, label: string, value: string | number, sub: string, chart: string) => {
   const Icon = icon;
+  const bgColor = chartColors[chart] || "var(--chart-1)";
   return (
-    <div className="relative overflow-hidden rounded-xl bg-card border border-border/40 p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-border/60">
+    <div className="relative overflow-hidden rounded-xl bg-card border border-border/40 p-4 md:p-5 shadow-sm transition-all duration-200 hover:shadow-card-hover hover:border-border/60">
       <div className="flex items-start justify-between mb-3">
         <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{label}</span>
-        <div className={`h-8 w-8 rounded-lg ${color} flex items-center justify-center`}>
+        <div className="h-8 w-8 rounded-lg flex items-center justify-center shadow-sm" style={{ backgroundColor: `hsl(${bgColor})` }}>
           <Icon className="h-4 w-4 text-white" />
         </div>
       </div>
@@ -76,9 +84,9 @@ const Dashboard = () => {
 
   const reservasHoy = analytics?.reservas_hoy ?? 0;
   const personasHoy = Math.round((analytics?.personas_promedio ?? 0) * reservasHoy);
-  const estadoOp = reservasHoy >= 8 ? { label: "Ocupado", color: "bg-rose-500" }
-    : reservasHoy >= 3 ? { label: "Moderado", color: "bg-amber-500" }
-    : { label: "Tranquilo", color: "bg-emerald-500" };
+  const estadoOp = reservasHoy >= 8 ? { label: "Ocupado", color: "status" }
+    : reservasHoy >= 3 ? { label: "Moderado", color: "status" }
+    : { label: "Tranquilo", color: "status" };
 
   const quickActions = [
     { icon: CalendarDays, label: "Nueva reserva", desc: "Registrar cliente", onClick: () => navigate("/dashboard/reservas") },
@@ -186,10 +194,10 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {statCard(CalendarDays, "Reservas hoy", reservasHoy, `${analytics?.confirmadas ?? 0} confirmadas`, "bg-primary")}
-          {statCard(Users, "Personas hoy", personasHoy, `${analytics?.personas_promedio ?? 0} por mesa`, "bg-violet-500")}
-          {statCard(Table2, "Mesas ocupadas", `${analytics?.mesas_ocupadas_hoy ?? 0}/${analytics?.mesas_totales ?? 0}`, `${analytics?.mesas_libres_hoy ?? 0} libres`, "bg-emerald-500")}
-          {statCard(Clock, "Estado", estadoOp.label, `${reservasHoy} reserva${reservasHoy !== 1 ? "s" : ""} hoy`, estadoOp.color)}
+          {statCard(CalendarDays, "Reservas hoy", reservasHoy, `${analytics?.confirmadas ?? 0} confirmadas`, "reservations")}
+          {statCard(Users, "Personas hoy", personasHoy, `${analytics?.personas_promedio ?? 0} por mesa`, "people")}
+          {statCard(Table2, "Mesas ocupadas", `${analytics?.mesas_ocupadas_hoy ?? 0}/${analytics?.mesas_totales ?? 0}`, `${analytics?.mesas_libres_hoy ?? 0} libres`, "occupancy")}
+          {statCard(Clock, "Estado", estadoOp.label, `${reservasHoy} reserva${reservasHoy !== 1 ? "s" : ""} hoy`, "status")}
         </div>
       )}
 
@@ -289,7 +297,7 @@ const Dashboard = () => {
                   <div key={h.hora} className="flex items-center gap-3">
                     <span className="text-xs font-medium w-10 text-right text-muted-foreground/70">{String(h.hora).padStart(2, "0")}:00</span>
                     <div className="flex-1 h-2.5 bg-muted/40 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${width}%`, background: `linear-gradient(90deg, hsl(142 70% 45%), hsl(142 70% 35%))` }} />
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${width}%`, background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }} />
                     </div>
                     <span className="text-xs font-medium text-muted-foreground w-5 text-right">{h.total}</span>
                   </div>

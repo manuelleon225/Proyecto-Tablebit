@@ -158,7 +158,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
       <main className="flex-1" role="main">{children}</main>
 
-      <footer className="border-t border-border/50 bg-muted/30">
+      <footer className="border-t border-border/50 bg-card/50">
         <div className="container py-8 sm:py-10 px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
