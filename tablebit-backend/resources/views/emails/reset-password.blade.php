@@ -13,9 +13,9 @@
         p { font-size: 15px; color: #52525b; line-height: 1.7; margin: 0 0 16px; }
         .info-box { background: #f8fafc; border-left: 3px solid #22c55e; border-radius: 8px; padding: 14px 20px; margin: 24px 0; font-size: 13px; color: #71717a; }
         .btn { display: inline-block; padding: 14px 32px; background: #22c55e; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; margin: 8px 0 24px; }
-        .footer { text-align: center; padding: 32px 24px; color: #a1a1aa; font-size: 12px; line-height: 1.6; border-top: 1px solid #e8e8ec; }
-        .footer a { color: #71717a; text-decoration: underline; }
-        @media only screen and (max-width: 480px) { .container { padding: 12px 8px; } .body { padding: 32px 20px 24px; } }
+        .footer { text-align: center; padding: 32px 24px; color: #7a7a7a; font-size: 12px; line-height: 1.6; border-top: 1px solid #e8e8ec; }
+        .footer a { color: #5a5a5a; text-decoration: underline; }
+        @media only screen and (max-width: 480px) { .container { padding: 12px 8px; } .body { padding: 32px 20px 24px; } .info-box { padding: 12px 16px; } }
     </style>
 </head>
 <body>

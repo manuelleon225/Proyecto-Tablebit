@@ -18,8 +18,8 @@
         .detail-box td:first-child { color: #71717a; width: 35%; }
         .detail-box td:last-child { color: #18181b; font-weight: 500; }
         .btn { display: inline-block; padding: 14px 32px; background: #22c55e; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; margin: 8px 0 24px; }
-        .footer { text-align: center; padding: 32px 24px; color: #a1a1aa; font-size: 12px; line-height: 1.6; border-top: 1px solid #e8e8ec; }
-        .footer a { color: #71717a; text-decoration: underline; }
+        .footer { text-align: center; padding: 32px 24px; color: #7a7a7a; font-size: 12px; line-height: 1.6; border-top: 1px solid #e8e8ec; }
+        .footer a { color: #5a5a5a; text-decoration: underline; }
         @media only screen and (max-width: 480px) { .container { padding: 12px 8px; } .body { padding: 32px 20px 24px; } .detail-box { padding: 12px 16px; } }
     </style>
 </head>
