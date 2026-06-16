@@ -27,8 +27,8 @@
     <div class="container">
         <div class="card">
             <div style="background:#22c55e;background:linear-gradient(135deg,#22c55e,#16a34a);padding:24px;text-align:center;">
-                <div style="display:inline-block;background:#22c55e;width:28px;height:28px;border-radius:6px;vertical-align:middle;text-align:center;line-height:28px;font-size:16px;font-weight:bold;color:#ffffff;font-family:Arial,Helvetica,sans-serif;">T</div>
-                <span style="font-size:20px;font-weight:700;color:#ffffff;vertical-align:middle;margin-left:8px;font-family:Arial,Helvetica,sans-serif;">TableBit</span>
+                <img src="{{ env('MAIL_LOGO_URL', 'http://localhost:8000/storage/branding/logo-email.png') }}" alt="TableBit" width="28" height="28" style="display:inline-block;vertical-align:middle;border:0;outline:none;margin-right:8px;" />
+                <span style="font-size:20px;font-weight:700;color:#ffffff;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;">TableBit</span>
             </div>
             <div class="body">
                 <h1>¡Bienvenido, {{ $user->name }}!</h1>
