@@ -17,14 +17,24 @@ const Analytics = () => {
 
   useSEO({ title: "TableBit - Analytics", description: "Métricas y estadísticas de tu restaurante." });
 
+  const analyticsDateRange = (() => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    return {
+      fecha_inicio: start.toISOString().split("T")[0],
+      fecha_fin: end.toISOString().split("T")[0],
+    };
+  })();
+
   const { data: analytics, isLoading } = useQuery({
-    queryKey: ['dashboard-analytics', selectedRestauranteId],
+    queryKey: ['analytics-data', selectedRestauranteId],
     queryFn: async () => {
-      const res = await restauranteService.getDashboard(selectedRestauranteId!);
+      const res = await restauranteService.getDashboard(selectedRestauranteId!, analyticsDateRange);
       return res.data;
     },
     enabled: !!selectedRestauranteId,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
     placeholderData: (previousData) => previousData,
   });
 
