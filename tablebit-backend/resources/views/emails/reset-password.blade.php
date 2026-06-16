@@ -5,50 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restablecer contraseña - TableBit</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .container { max-width: 600px; margin: 0 auto; padding: 24px; }
-        .card { background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .header { background: #22c55e; background: linear-gradient(135deg, #22c55e, #16a34a); padding: 32px 24px; text-align: center; }
-        .body { padding: 32px 24px; }
-        h1 { font-size: 22px; color: #18181b; margin: 0 0 8px; }
-        p { font-size: 15px; color: #52525b; line-height: 1.6; margin: 0 0 16px; }
-        .btn { display: inline-block; padding: 12px 28px; background: #22c55e; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; margin: 8px 0 16px; }
-        .btn:hover { background: #16a34a; }
-        .footer { text-align: center; padding: 24px; color: #a1a1aa; font-size: 12px; }
-        .info { background: #f8fafc; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #71717a; }
-        @media only screen and (max-width: 480px) { .container { padding: 12px; } .body { padding: 24px 16px; } }
+        body { margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        .container { max-width: 560px; margin: 0 auto; padding: 24px 16px; }
+        .card { background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06); }
+        .body { padding: 40px 32px 32px; }
+        h1 { font-size: 22px; color: #18181b; margin: 0 0 12px; font-weight: 700; }
+        p { font-size: 15px; color: #52525b; line-height: 1.7; margin: 0 0 16px; }
+        .info-box { background: #f8fafc; border-left: 3px solid #22c55e; border-radius: 8px; padding: 14px 20px; margin: 24px 0; font-size: 13px; color: #71717a; }
+        .btn { display: inline-block; padding: 14px 32px; background: #22c55e; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; margin: 8px 0 24px; }
+        .footer { text-align: center; padding: 32px 24px; color: #a1a1aa; font-size: 12px; line-height: 1.6; border-top: 1px solid #e8e8ec; }
+        .footer a { color: #71717a; text-decoration: underline; }
+        @media only screen and (max-width: 480px) { .container { padding: 12px 8px; } .body { padding: 32px 20px 24px; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <div class="header" style="background:#22c55e;background:linear-gradient(135deg,#22c55e,#16a34a);padding:32px 24px;text-align:center;">
+            <div style="background:#22c55e;background:linear-gradient(135deg,#22c55e,#16a34a);padding:24px;text-align:center;">
                 <div style="display:inline-block;background:#22c55e;width:28px;height:28px;border-radius:6px;vertical-align:middle;text-align:center;line-height:28px;font-size:16px;font-weight:bold;color:#ffffff;font-family:Arial,Helvetica,sans-serif;">T</div>
+                <span style="font-size:20px;font-weight:700;color:#ffffff;vertical-align:middle;margin-left:8px;font-family:Arial,Helvetica,sans-serif;">TableBit</span>
             </div>
             <div class="body">
                 <h1>Restablece tu contraseña</h1>
                 <p>Hola, <strong>{{ $user->name ?? 'usuario' }}</strong>. Recibimos una solicitud para restablecer la contraseña de tu cuenta en TableBit.</p>
 
-                <p style="text-align: center;">
+                <p style="text-align:center;">
                     <a href="{{ $resetUrl }}" class="btn">Restablecer contraseña</a>
                 </p>
 
-                <p>
-                    Si no solicitaste este cambio, puedes ignorar este correo. Tu contraseña actual seguirá siendo válida.
-                </p>
+                <p>Si no solicitaste este cambio, puedes ignorar este correo. Tu contraseña actual seguirá siendo válida.</p>
 
-                <p class="info">
+                <div class="info-box">
                     Este enlace expirará en {{ $expiration ?? 60 }} minutos.
-                </p>
+                </div>
 
-                <p style="margin-bottom: 0;">
+                <p style="margin-bottom:0;">
                     Saludos,<br>
                     El equipo de TableBit
                 </p>
             </div>
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} TableBit. Todos los derechos reservados.
+            TableBit &bull; Todos los derechos reservados &copy; {{ date('Y') }}<br>
+            <a href="{{ env('FRONTEND_URL', config('app.url')) }}">{{ str_replace(['http://','https://'], '', env('FRONTEND_URL', config('app.url'))) }}</a>
         </div>
     </div>
 </body>
