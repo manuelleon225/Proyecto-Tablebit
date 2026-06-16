@@ -51,25 +51,23 @@ const faq = [
 // ─── Component ───────────────────────────────────────────────
 const Home = () => {
   const [search, setSearch] = useState("");
+  const [redirecting, setRedirecting] = useState(true);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const isAdmin = ["admin", "admin_restaurante", "superadmin"].includes(user?.role || "");
 
-  // Redirect admin users to dashboard immediately without rendering content
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const handleClearSearch = () => setSearch("");
+
+  useSEO({ title: "TableBit - Reserva de Mesas en Restaurantes", description: "SaaS moderno de gestión de reservas para restaurantes. Dashboard, analytics, notificaciones y más.", canonical: window.location.origin });
+
+  // Redirect admin users to dashboard
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
       navigate("/dashboard", { replace: true });
     } else {
-      setCheckingAdmin(false);
+      setRedirecting(false);
     }
   }, [isAuthenticated, isAdmin, navigate]);
-
-  if (checkingAdmin) return <div className="min-h-screen bg-background" />;
-
-  const handleClearSearch = () => setSearch("");
-
-  useSEO({ title: "TableBit - Reserva de Mesas en Restaurantes", description: "SaaS moderno de gestión de reservas para restaurantes. Dashboard, analytics, notificaciones y más.", canonical: window.location.origin });
 
   const { data: restaurantes = [], isLoading: loading, error, refetch } = useQuery({
     queryKey: ['restaurantes'],
@@ -82,6 +80,8 @@ const Home = () => {
   });
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); const q = search.trim(); if (q) navigate(`/restaurantes?q=${encodeURIComponent(q)}`); };
+
+  if (redirecting) return <div className="min-h-screen bg-background" />;
 
   return (
     <MainLayout>
