@@ -29,7 +29,8 @@
     <div class="container">
         <div class="card">
             <div class="header" style="background:#ef4444;background:linear-gradient(135deg,#ef4444,#dc2626);padding:32px 24px;text-align:center;">
-                <div style="font-size:28px;font-weight:bold;color:#ffffff;letter-spacing:-0.5px;">TableBit</div>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ij4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyMmM1NWUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTZhMzRhIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0LjUiIGZpbGw9InVybCgjZykiLz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICAgPHBhdGggZD0ibTE2IDItMi4zIDIuM2EzIDMgMCAwIDAgMCA0LjJsMS44IDEuOGEzIDMgMCAwIDAgNC4yIDBMMjIgOCIvPgogICAgPHBhdGggZD0iTTE1IDE1IDMuMyAzLjNhNC4yIDQuMiAwIDAgMCAwIDZsNy4zIDcuM2MuNy43IDIgLjcgMi44IDBMMTUgMTVabTAgMCA3IDciLz4KICAgIDxwYXRoIGQ9Im0yLjEgMjEuOCA2LjQtNi4zIi8+CiAgICA8cGF0aCBkPSJtMTkgNS03IDciLz4KICA8L2c+Cjwvc3ZnPgo=" alt="TableBit" width="36" height="36" style="vertical-align:middle;margin-right:8px;" />
+                <span style="font-size:26px;font-weight:bold;color:#ffffff;letter-spacing:-0.5px;vertical-align:middle;">TableBit</span>
             </div>
             <div class="body">
                 <h1>Reserva cancelada</h1>
