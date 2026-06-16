@@ -255,7 +255,7 @@ const MiRestaurantePage = () => {
             {/* Logo */}
             <div className="rounded-xl border border-border/40 bg-card p-5 space-y-4">
               <div>
-                <h3 className="font-display text-sm font-semibold">Logo del restaurante</h3>
+                <h3 className="font-medium text-sm">Logo del restaurante</h3>
                 <p className="text-xs text-muted-foreground">Cuadrado, recomendado 512x512px. Se muestra en el sidebar y selector.</p>
               </div>
               <div className="max-w-[200px]">
@@ -286,7 +286,7 @@ const MiRestaurantePage = () => {
             {/* Galería principal */}
             <div className="rounded-xl border border-border/40 bg-card p-5 space-y-4">
               <div>
-                <h3 className="font-display text-sm font-semibold">Galería principal</h3>
+                <h3 className="font-medium text-sm">Galería principal</h3>
                 <p className="text-xs text-muted-foreground">Imágenes adicionales para mostrar en la galería de tu página pública. Usa las flechas para ordenar.</p>
               </div>
               <GalleryManager restauranteId={selectedRestauranteId} showPrincipalBadge />
@@ -296,7 +296,7 @@ const MiRestaurantePage = () => {
             <div className="rounded-xl border border-border/40 bg-card p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-display text-sm font-semibold">Colores de marca</h3>
+                  <h3 className="font-medium text-sm">Colores de marca</h3>
                   <p className="text-xs text-muted-foreground">Personaliza los colores del dashboard</p>
                 </div>
                 <Button size="sm" onClick={onSaveBranding} disabled={saving} className="gap-1.5">
@@ -403,7 +403,7 @@ const HorariosStandalone = ({ restauranteId }: { restauranteId: number }) => {
   return (
     <div className="p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-sm font-semibold flex items-center gap-2">
+        <h3 className="font-medium text-sm flex items-center gap-2">
           <ClockIcon className="h-4 w-4 text-muted-foreground" /> Horarios de atención
         </h3>
         <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="gap-1.5">

@@ -66,7 +66,7 @@ const MediaSection = ({
     <div className={cn("rounded-xl border border-border/50 bg-card p-5 space-y-3", className)}>
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <h3 className="font-display text-sm font-semibold">{title}</h3>
+          <h3 className="font-medium text-sm">{title}</h3>
           {description && <p className="text-xs text-muted-foreground">{description}</p>}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">

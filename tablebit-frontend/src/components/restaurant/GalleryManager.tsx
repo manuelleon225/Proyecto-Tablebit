@@ -101,7 +101,7 @@ export const GalleryManager = ({ restauranteId, showPrincipalBadge, type = "gale
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-display text-sm font-semibold">
+          <h3 className="font-medium text-sm">
             {type === "principal" ? "Galería principal" : "Galería de imágenes"}
           </h3>
           {type === "principal" && (
