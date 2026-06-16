@@ -3,14 +3,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RotateCcw, Palette, Check, ChevronRight, ImageIcon, Loader2 } from "lucide-react";
-import { DEFAULT_BRANDING, brandColorWithAlpha, extractColorsFromImageUrl } from "@/lib/branding";
+import { DEFAULT_BRANDING, brandColorWithAlpha } from "@/lib/branding";
 import { useBranding } from "@/context/BrandingContext";
+import { handleApiError } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
+import api from "@/services/api";
 import type { BrandingConfig } from "@/lib/branding";
 
 interface Props {
   branding?: Partial<BrandingConfig>;
   onChange: (branding: Partial<BrandingConfig>) => void;
   logoUrl?: string | null;
+  restauranteId?: number | null;
 }
 
 interface Preset {
@@ -138,10 +142,11 @@ const PresetCard = ({ preset, active, onClick }: { preset: Preset; active: boole
   );
 };
 
-const BrandingEditor = ({ branding, onChange, logoUrl }: Props) => {
+const BrandingEditor = ({ branding, onChange, logoUrl, restauranteId }: Props) => {
   const merged = { ...DEFAULT_BRANDING, ...branding };
   const { setBranding } = useBranding();
   const [extracting, setExtracting] = useState(false);
+  const { toast } = useToast();
 
   const [hexValues, setHexValues] = useState({
     primary_color: hslToHex(merged.primary_color),
@@ -158,17 +163,32 @@ const BrandingEditor = ({ branding, onChange, logoUrl }: Props) => {
   }, [branding?.primary_color, branding?.secondary_color, branding?.accent_color]);
 
   const handleExtract = async () => {
-    if (!logoUrl || extracting) return;
+    if (extracting) return;
+    // Try to get restaurant ID from logoUrl or prop
+    let id = restauranteId;
+    if (!id && logoUrl) {
+      const match = logoUrl.match(/restaurantes\/(\d+)\/logo\//);
+      if (match) id = Number(match[1]);
+    }
+    if (!id) return;
     setExtracting(true);
     try {
-      const extracted = await extractColorsFromImageUrl(logoUrl);
-      setHexValues({
-        primary_color: hslToHex(extracted.primary_color),
-        secondary_color: hslToHex(extracted.secondary_color),
-        accent_color: hslToHex(extracted.accent_color),
-      });
-      onChange(extracted);
-      setBranding(extracted);
+      const res = await api.post(`/restaurantes/${id}/extract-colors`);
+      const extracted = res.data?.data || res.data;
+      if (extracted?.primary_color) {
+        setHexValues({
+          primary_color: hslToHex(extracted.primary_color),
+          secondary_color: hslToHex(extracted.secondary_color),
+          accent_color: hslToHex(extracted.accent_color),
+        });
+        onChange(extracted);
+        setBranding(extracted);
+        toast({ title: "Colores extraídos del logo" });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: "No se pudieron extraer colores del logo" });
+      }
+    } catch (err) {
+      toast({ variant: "destructive", title: "Error", description: handleApiError(err).message });
     } finally {
       setExtracting(false);
     }

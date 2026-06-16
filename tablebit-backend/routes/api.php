@@ -56,6 +56,17 @@ Route::get('/serve-image/{path}', function ($path) {
     ]);
 })->where('path', '.*');
 
+// Extract colors from a restaurant's logo
+Route::post('/restaurantes/{id}/extract-colors', function ($id, \App\Services\ImageMetadataService $metadataService) {
+    $restaurante = \App\Models\Restaurante::findOrFail($id);
+    $logoPath = $restaurante->logo;
+    if (!$logoPath) {
+        return response()->json(['message' => 'El restaurante no tiene logo'], 400);
+    }
+    $palette = $metadataService->extractPalette($logoPath);
+    return response()->json(['data' => $palette]);
+})->middleware(['auth:sanctum', 'role:admin,admin_restaurante,superadmin']);
+
 // Authenticated routes
 Route::middleware(['auth:sanctum', 'throttle:global'])->group(function () {
 

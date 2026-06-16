@@ -304,7 +304,7 @@ const MiRestaurantePage = () => {
                   {saving ? "Guardando..." : "Guardar colores"}
                 </Button>
               </div>
-              <BrandingEditor branding={branding} onChange={setBrandingLocal} logoUrl={getImageUrl(restauranteActual?.logo)} />
+              <BrandingEditor branding={branding} onChange={setBrandingLocal} logoUrl={getImageUrl(restauranteActual?.logo)} restauranteId={selectedRestauranteId} />
             </div>
           </div>
         </TabsContent>
