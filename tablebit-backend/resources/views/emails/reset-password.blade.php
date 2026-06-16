@@ -8,7 +8,7 @@
         body { margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .container { max-width: 600px; margin: 0 auto; padding: 24px; }
         .card { background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .header { background: linear-gradient(135deg, #22c55e, #16a34a); padding: 32px 24px; text-align: center; }
+        .header { background: #22c55e; background: linear-gradient(135deg, #22c55e, #16a34a); padding: 32px 24px; text-align: center; }
         .logo { font-size: 28px; font-weight: bold; color: #ffffff; margin: 0; letter-spacing: -0.5px; }
         .body { padding: 32px 24px; }
         h1 { font-size: 22px; color: #18181b; margin: 0 0 8px; }
