@@ -35,14 +35,14 @@ class ImagenController extends Controller
 
         $validated = $request->validate([
             'imagen' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'tipo' => 'nullable|in:logo,banner,galeria,portada',
+            'tipo' => 'nullable|in:logo,galeria,portada',
         ]);
 
         try {
             $file = $request->file('imagen');
             $tipo = $request->input('tipo', 'galeria');
 
-            $fieldMap = ['logo' => 'logo', 'banner' => 'banner', 'portada' => 'imagen'];
+            $fieldMap = ['logo' => 'logo', 'portada' => 'imagen'];
             $fieldToUpdate = $fieldMap[$tipo] ?? null;
 
             $result = $this->mediaService->uploadRestaurantImage($restaurante, $file, $tipo, $fieldToUpdate);

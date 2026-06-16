@@ -25,11 +25,6 @@ class ImageVariantService
             ['suffix' => '128', 'w' => 128, 'h' => 128, 'q' => 90],
             ['suffix' => '256', 'w' => 256, 'h' => 256, 'q' => 90],
         ],
-        'banner' => [
-            ['suffix' => '640', 'w' => 640, 'h' => null, 'q' => 82],
-            ['suffix' => '1280', 'w' => 1280, 'h' => null, 'q' => 82],
-            ['suffix' => '1920', 'w' => 1920, 'h' => null, 'q' => 82],
-        ],
         'portada' => [
             ['suffix' => '320', 'w' => 320, 'h' => null, 'q' => 80],
             ['suffix' => '640', 'w' => 640, 'h' => null, 'q' => 80],

@@ -79,17 +79,6 @@ const RestaurantMediaSettings = () => {
         <p className="text-sm text-muted-foreground mt-1">{restauranteActual?.nombre || "Administra las imágenes de tu restaurante"}</p>
       </div>
 
-      {/* Banner */}
-      <MediaSection
-        key={`banner-${restauranteActual?.banner || 'none'}-${refreshKey}`}
-        title="Banner"
-        description="Imagen panorámica de cabecera (21:9)"
-        imageUrl={restauranteActual?.banner}
-        type="banner"
-        onUploaded={uploadMutation("banner")}
-        onDeleted={deleteMutation("banner", "banner")}
-      />
-
       {/* Logo + Cover side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MediaSection
