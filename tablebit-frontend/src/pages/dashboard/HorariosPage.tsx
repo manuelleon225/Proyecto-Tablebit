@@ -36,22 +36,24 @@ const HorariosPage = () => {
 
   useSEO({ title: "TableBit - Horarios", description: "Configura los horarios de tu restaurante." });
 
-  const { isLoading } = useQuery({
+  const { data: rawData, isLoading, isError } = useQuery({
     queryKey: ['restaurant-hours', selectedRestauranteId],
     queryFn: async () => {
       const res = await restauranteService.getHours(selectedRestauranteId!);
-      const data = res.data;
-      if (data.length > 0) {
-        const merged = defaultHours.map((d, i) => {
-          const existing = data.find((h: any) => h.day_of_week === i);
-          return existing ? { day_of_week: i, is_closed: existing.is_closed, open_time: existing.open_time?.substring(0, 5) || "09:00", close_time: existing.close_time?.substring(0, 5) || "23:00" } : d;
-        });
-        setHours(merged);
-      }
-      return data;
+      return Array.isArray(res.data) ? res.data : [];
     },
     enabled: !!selectedRestauranteId,
   });
+
+  useEffect(() => {
+    if (!rawData) return;
+    if (rawData.length > 0) {
+      setHours(defaultHours.map((d, i) => {
+        const existing = rawData.find((h: any) => h.day_of_week === i);
+        return existing ? { day_of_week: i, is_closed: existing.is_closed, open_time: existing.open_time?.substring(0, 5) || "09:00", close_time: existing.close_time?.substring(0, 5) || "23:00" } : d;
+      }));
+    }
+  }, [rawData]);
 
   const mutation = useMutation({
     mutationFn: async () => {

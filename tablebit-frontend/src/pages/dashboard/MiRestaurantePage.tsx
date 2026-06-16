@@ -346,23 +346,31 @@ const HorariosStandalone = ({ restauranteId }: { restauranteId: number }) => {
   const { toast } = useToast();
   const [hours, setHours] = useState<HourRow[]>([]);
 
-  const { isLoading, isError, refetch } = useQueryH({
+  const { data: rawData, isLoading, isError, refetch } = useQueryH({
     queryKey: ['restaurant-hours', restauranteId],
     queryFn: async () => {
       const res = await restauranteService.getHours(restauranteId);
       const data = Array.isArray(res.data) ? res.data : [];
-      if (data.length === 0) {
-        const defaultHours = Array.from({ length: 7 }, (_, i) => ({
-          day_of_week: i, is_closed: i === 0, open_time: "09:00", close_time: "18:00",
-        }));
-        setHours(defaultHours);
-      } else {
-        setHours(data.map((h: any) => ({ day_of_week: h.day_of_week, is_closed: h.is_closed, open_time: (h.open_time || "09:00").substring(0, 5), close_time: (h.close_time || "18:00").substring(0, 5) })));
-      }
       return data;
     },
     enabled: !!restauranteId,
   });
+
+  // Sync query data to local state
+  useEffect(() => {
+    if (!rawData) return;
+    if (rawData.length === 0) {
+      setHours(Array.from({ length: 7 }, (_, i) => ({
+        day_of_week: i, is_closed: i === 0, open_time: "09:00", close_time: "18:00",
+      })));
+    } else {
+      setHours(rawData.map((h: any) => ({
+        day_of_week: h.day_of_week, is_closed: h.is_closed,
+        open_time: (h.open_time || "09:00").substring(0, 5),
+        close_time: (h.close_time || "18:00").substring(0, 5),
+      })));
+    }
+  }, [rawData]);
 
   const saveMutation = useMutationH({
     mutationFn: async () => {
