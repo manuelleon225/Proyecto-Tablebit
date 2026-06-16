@@ -18,6 +18,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Profile = lazy(() => import("./pages/Profile"));
 const RestauranteDetalle = lazy(() => import("./pages/RestauranteDetalle"));
 const MisReservas = lazy(() => import("./pages/MisReservas"));
@@ -148,6 +149,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/restaurantes/:id" element={<RestauranteDetalle />} />
                 <Route path="/restaurante/:slug" element={<RestaurantPublicPage />} />
                 <Route

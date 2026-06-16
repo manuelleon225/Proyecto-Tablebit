@@ -8,6 +8,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/password/reset/{token}', function ($token) {
+    $email = request('email');
+    return redirect(env('FRONTEND_URL', 'http://localhost:8080') . '/reset-password?token=' . urlencode($token) . '&email=' . urlencode($email));
+})->name('password.reset');
+
 Route::get('/sitemap.xml', function () {
     $restaurantes = Restaurante::where('estado', 'activo')->whereNotNull('slug')->get(['slug', 'updated_at']);
 
